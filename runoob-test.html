@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星際甜點工廠：百分比大冒險</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        .kawaii-shadow {
+            box-shadow: 0 10px 0px 0px rgba(0,0,0,0.1);
+        }
+        .active-press:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0px 0px rgba(0,0,0,0.1);
+        }
+        .rainbow-bar {
+            background: linear-gradient(90deg, #ff9a9e, #fad0c4, #a1c4fd, #c2e9fb, #96e6a1);
+            background-size: 200% 100%;
+            animation: rainbow-flow 2s linear infinite;
+        }
+        @keyframes rainbow-flow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        .jelly {
+            animation: jelly 0.5s ease;
+        }
+        @keyframes jelly {
+            0%, 100% { transform: scale(1, 1); }
+            25% { transform: scale(0.9, 1.1); }
+            50% { transform: scale(1.1, 0.9); }
+            75% { transform: scale(0.95, 1.05); }
+        }
+        .shake {
+            animation: shake 0.4s ease;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            animation: pop 0.6s ease-out forwards;
+        }
+        @keyframes pop {
+            to { transform: translate(var(--tw-x), var(--tw-y)) scale(0); opacity: 0; }
+        }
+    </style>
+</head>
+
+<body class="h-screen flex items-center justify-center p-4">
+
+    <!-- Start Screen -->
+    <div id="start-screen" class="bg-white/90 backdrop-blur-md p-10 rounded-[3rem] shadow-2xl text-center max-w-md w-full border-8 border-purple-200 z-50">
+        <div class="text-6xl mb-4">🐱‍🚀</div>
+        <h1 class="text-4xl font-black text-purple-600 mb-2">星際甜點工廠</h1>
+        <p class="text-gray-500 mb-8 font-bold">幫助 Mochi 貓主廚調配百分比祕方！</p>
+        <button onclick="startGame()" class="bg-yellow-400 hover:bg-yellow-300 text-purple-900 font-black text-2xl py-4 px-10 rounded-full kawaii-shadow active-press transition-all w-full">
+            開始製作 🍬
+        </button>
+    </div>
+
+    <!-- Main Game UI -->
+    <div id="game-ui" class="hidden w-full max-w-2xl relative">
+        <!-- Header Info -->
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center space-x-2">
+                <div id="lives" class="text-3xl">❤️❤️❤️</div>
+            </div>
+            <div class="text-center">
+                <div class="text-sm font-bold text-purple-400 uppercase tracking-widest">Score</div>
+                <div id="score" class="text-4xl font-black text-purple-600">0</div>
+            </div>
+            <div id="combo-tag" class="opacity-0 transform scale-150 transition-all duration-300">
+                <div class="bg-pink-500 text-white px-4 py-1 rounded-full font-black text-xl">Combo x<span id="combo-val">0</span></div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full h-6 bg-gray-200 rounded-full mb-8 overflow-hidden p-1 shadow-inner">
+            <div id="timer-bar" class="h-full rainbow-bar rounded-full w-full transition-all duration-100 ease-linear"></div>
+        </div>
+
+        <!-- Question Box -->
+        <div id="question-card" class="bg-white p-12 rounded-[3rem] shadow-2xl text-center border-b-8 border-purple-100 mb-8 relative">
+            <div id="emoji-deco" class="absolute -top-10 -left-10 text-6xl animate-bounce">🍭</div>
+            <div id="emoji-deco2" class="absolute -bottom-10 -right-10 text-6xl animate-pulse">✨</div>
+            <h2 id="question-text" class="text-5xl font-black text-gray-800 leading-tight">加載中...</h2>
+        </div>
+
+        <!-- Options Grid -->
+        <div id="options-grid" class="grid grid-cols-2 gap-4">
+            <!-- Options will be injected here -->
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="over-screen" class="hidden bg-white p-12 rounded-[3rem] shadow-2xl text-center max-w-md w-full border-8 border-red-200 z-50">
+        <h2 class="text-5xl font-black text-red-500 mb-4">工廠休息中</h2>
+        <p class="text-2xl font-bold text-gray-600 mb-6">最終得分：<span id="final-score" class="text-purple-600">0</span></p>
+        <button onclick="location.reload()" class="bg-purple-500 hover:bg-purple-400 text-white font-black text-2xl py-4 px-10 rounded-full kawaii-shadow active-press transition-all w-full">
+            重新挑戰 🚀
+        </button>
+    </div>
+
+    <script>
+        // --- Web Audio SFX Engine ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.2);
+            } else if (type === 'wrong') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+        
+        // --- Game Logic ---
+        let state = {
+            score: 0,
+            lives: 3,
+            combo: 0,
+            level: 1,
+            timeLeft: 100,
+            currentQuestion: null,
+            usedQuestions: new Set(),
+            timer: null
+        };
+        
+        const emojis = ['🍬', '🍩', '🧁', '🍰', '🍪', '🍮', '🍭', '🍓'];
+        
+        function generateQuestion() {
+            let qType = Math.floor(Math.random() * 4); // 0: Dec to %, 1: Frac to %, 2: % of Value, 3: Meaning
+            let qText, answer, options = [];
+            let qKey;
+        
+            do {
+                if (qType === 0) { // 小數轉百分比
+                    let val = (Math.floor(Math.random() * 99) + 1) / 100;
+                    qText = `小數 ${val} 是多少百分比？`;
+                    answer = `${Math.round(val * 100)}%`;
+                    qKey = `d2p_${val}`;
+                } else if (qType === 1) { // 分數轉百分比
+                    let denominators = [2, 4, 5, 10, 20, 25, 50];
+                    let den = denominators[Math.floor(Math.random() * denominators.length)];
+                    let num = Math.floor(Math.random() * (den - 1)) + 1;
+                    qText = `分數 ${num}/${den} 等於多少百分比？`;
+                    answer = `${Math.round((num / den) * 100)}%`;
+                    qKey = `f2p_${num}_${den}`;
+                } else if (qType === 2) { // 數值的百分比
+                    let total = [50, 100, 200, 500, 1000][Math.floor(Math.random() * 5)];
+                    let percents = [10, 20, 25, 50, 75, 80];
+                    let p = percents[Math.floor(Math.random() * percents.length)];
+                    qText = `${total} 的 ${p}% 是多少？`;
+                    answer = (total * p) / 100;
+                    qKey = `pov_${total}_${p}`;
+                } else { // 簡單應用
+                    let val = Math.floor(Math.random() * 40) + 10;
+                    qText = `工廠有 100 顆糖果，${val}% 是草莓口味，草莓糖有幾顆？`;
+                    answer = val;
+                    qKey = `app_${val}`;
+                }
+            } while (state.usedQuestions.has(qKey) && state.usedQuestions.size < 100);
+        
+            state.usedQuestions.add(qKey);
+        
+            // Generate distractors
+            options.push(answer);
+            while (options.length < 4) {
+                let distractor;
+                if (typeof answer === 'string' && answer.includes('%')) {
+                    distractor = `${Math.floor(Math.random() * 100)}%`;
+                } else {
+                    distractor = Math.max(1, Math.floor(answer * (0.5 + Math.random())));
+                }
+                if (!options.includes(distractor)) options.push(distractor);
+            }
+        
+            return {
+                text: qText,
+                answer: answer,
+                options: options.sort(() => Math.random() - 0.5)
+            };
+        }
+        
+        function createParticles(x, y) {
+            for (let i = 0; i < 8; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle text-2xl';
+                p.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+                p.style.left = x + 'px';
+                p.style.top = y + 'px';
+                p.style.setProperty('--tw-x', (Math.random() - 0.5) * 200 + 'px');
+                p.style.setProperty('--tw-y', (Math.random() - 0.5) * 200 + 'px');
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 600);
+            }
+        }
+        
+        function renderQuestion() {
+            const q = generateQuestion();
+            state.currentQuestion = q;
+            document.getElementById('question-text').innerText = q.text;
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+            
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "bg-white hover:bg-purple-50 text-gray-700 font-black text-3xl py-6 rounded-3xl border-b-8 border-gray-200 kawaii-shadow active-press transition-all jelly";
+                btn.innerText = opt;
+                btn.onclick = (e) => checkAnswer(opt, e);
+                grid.appendChild(btn);
+            });
+            
+            // Adjust difficulty: time gets shorter as score increases
+            state.timeLeft = 100;
+            updateTimerBar();
+        }
+        
+        function checkAnswer(selected, event) {
+            const isCorrect = selected == state.currentQuestion.answer;
+            const card = document.getElementById('question-card');
+            
+            if (isCorrect) {
+                playSound('correct');
+                createParticles(event.clientX, event.clientY);
+                state.score += 10 + (state.combo * 2);
+                state.combo++;
+                state.level = Math.floor(state.score / 100) + 1;
+                card.classList.add('jelly');
+                setTimeout(() => card.classList.remove('jelly'), 500);
+                showCombo();
+            } else {
+                playSound('wrong');
+                state.lives--;
+                state.combo = 0;
+                state.timeLeft -= 20; // Penalty
+                card.classList.add('shake');
+                setTimeout(() => card.classList.remove('shake'), 500);
+                hideCombo();
+            }
+        
+            updateUI();
+            if (state.lives <= 0) {
+                endGame();
+            } else {
+                renderQuestion();
+            }
+        }
+        
+        function updateUI() {
+            document.getElementById('score').innerText = state.score;
+            document.getElementById('lives').innerText = '❤️'.repeat(state.lives);
+            document.getElementById('emoji-deco').innerText = emojis[Math.floor(Math.random()*emojis.length)];
+        }
+        
+        function showCombo() {
+            if (state.combo > 1) {
+                const tag = document.getElementById('combo-tag');
+                tag.style.opacity = '1';
+                tag.style.transform = 'scale(1) rotate(-5deg)';
+                document.getElementById('combo-val').innerText = state.combo;
+            }
+        }
+        
+        function hideCombo() {
+            document.getElementById('combo-tag').style.opacity = '0';
+        }
+        
+        function updateTimerBar() {
+            document.getElementById('timer-bar').style.width = state.timeLeft + '%';
+        }
+        
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-ui').classList.remove('hidden');
+            state.timer = setInterval(() => {
+                state.timeLeft -= (0.5 + (state.level * 0.15)); // Faster as level grows
+                updateTimerBar();
+                if (state.timeLeft <= 0) {
+                    state.timeLeft = 100;
+                    state.lives--;
+                    updateUI();
+                    if (state.lives <= 0) endGame();
+                    renderQuestion();
+                }
+            }, 100);
+            renderQuestion();
+        }
+        
+        function endGame() {
+            clearInterval(state.timer);
+            document.getElementById('game-ui').classList.add('hidden');
+            document.getElementById('over-screen').classList.remove('hidden');
+            document.getElementById('final-score').innerText = state.score;
+        }
+    </script>
+</body>
+
+</html>
