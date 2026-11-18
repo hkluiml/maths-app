@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#14283f">
+  <title>GitHub 連接測試｜互動計數器</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;color-scheme:dark}
+    *{box-sizing:border-box}
+    body{min-height:100dvh;margin:0;display:grid;place-items:center;padding:22px;background:radial-gradient(circle at 15% 15%,#244b77 0,transparent 38%),linear-gradient(145deg,#112438,#182a47 60%,#102432);color:#f8fbff}
+    main{width:min(100%,650px);padding:clamp(24px,5vw,46px);border:1px solid #ffffff24;border-radius:30px;background:#ffffff0d;box-shadow:0 24px 70px #0005;text-align:center;backdrop-filter:blur(8px)}
+    .eyebrow{font-size:14px;font-weight:750;letter-spacing:.12em;color:#89e9df}
+    h1{margin:10px 0 8px;font-size:clamp(28px,5vw,43px);line-height:1.25}
+    p{margin:0;color:#cbd8e4;line-height:1.65}
+    output{display:block;margin:24px 0 14px;font-size:clamp(75px,17vw,124px);font-weight:850;line-height:1;font-variant-numeric:tabular-nums;color:#ffffff}
+    .dots{display:grid;grid-template-columns:repeat(10,1fr);gap:8px;margin:24px 0 28px}
+    .dot{aspect-ratio:1;border-radius:10px;background:#ffffff25;transition:background .16s,transform .16s}
+    .dot.on{background:#70e7ca;transform:scale(1.05)}
+    .actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+    button{border:0;border-radius:15px;min-width:108px;padding:15px 24px;font-size:18px;font-weight:750;cursor:pointer;transition:transform .12s,filter .12s}
+    button:active{transform:scale(.96)}
+    button:focus-visible{outline:3px solid #e3f28d;outline-offset:4px}
+    .primary{background:#77ebcc;color:#113341}
+    .secondary{background:#ffffff1c;color:white;border:1px solid #ffffff24}
+    .message{margin-top:25px;min-height:29px;font-size:17px;color:#f7de94;font-weight:650}
+    footer{margin-top:18px;font-size:13px;color:#a5bacd}
+    @media(max-width:440px){.dots{gap:5px}.dot{border-radius:6px}button{flex:1;min-width:75px;padding:14px 12px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important}}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">HTML · GITHUB 測試頁</div>
+    <h1>互動計數器 ✨</h1>
+    <p>如果你看到這個頁面，就代表 HTML 已經開啟。<br>試試按「＋1」，看看數字與方格的變化。</p>
+    <output id="count" aria-live="polite">0</output>
+    <div class="dots" id="dots" aria-label="十格進度"></div>
+    <div class="actions">
+      <button class="secondary" id="minus" type="button">−1</button>
+      <button class="primary" id="plus" type="button">＋1</button>
+      <button class="secondary" id="reset" type="button">重設</button>
+    </div>
+    <div class="message" id="message" role="status">按「＋1」開始</div>
+    <footer>示範頁面 · 純 HTML / CSS / JavaScript · 無需登入</footer>
+  </main>
+  <script>
+    (() => {
+      let n = 0;
+      const count = document.getElementById('count');
+      const dots = document.getElementById('dots');
+      const message = document.getElementById('message');
+      const cells = Array.from({ length: 10 }, () => {
+        const dot = document.createElement('span');
+        dot.className = 'dot';
+        dots.appendChild(dot);
+        return dot;
+      });
+      function render() {
+        count.textContent = String(n);
+        cells.forEach((dot, i) => dot.classList.toggle('on', i < n % 10 || (n > 0 && n % 10 === 0)));
+        message.textContent = n === 0 ? '按「＋1」開始' : n % 10 === 0 ? '🎉 已經數到 ' + n + '！' : '你已經按了 ' + n + ' 次（可用 −1 修正）';
+      }
+      document.getElementById('plus').addEventListener('click', () => { n += 1; render(); });
+      document.getElementById('minus').addEventListener('click', () => { n = Math.max(0, n - 1); render(); });
+      document.getElementById('reset').addEventListener('click', () => { n = 0; render(); });
+      render();
+    })();
+  </script>
+</body>
+</html>
