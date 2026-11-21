@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>方向轉轉樂：認識東南西北</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+            background-color: #fdf4ff;
+            background-image: radial-gradient(#fbcfe8 2px, transparent 2px);
+            background-size: 30px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 10px;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 660px;
+            background-color: white;
+            border-radius: 2rem;
+            border: 4px solid #701a75;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1), 0 15px 0px #e879f9;
+            padding: 2.5rem 1.5rem 3rem 1.5rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .title-badge {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #fde047;
+            border: 4px solid #854d0e;
+            border-radius: 1.5rem;
+            padding: 0.5rem 1.5rem;
+            font-size: 1.8rem;
+            color: #854d0e;
+            box-shadow: 0 4px 0 #854d0e;
+            text-align: center;
+            width: fit-content;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        /* 網格排版：確保羅盤絕對置中，加大上方留白 */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px 1fr; 
+            align-items: center;
+            width: 100%;
+            margin-top: 3.5rem; 
+            margin-bottom: 2rem;
+        }
+
+        /* 左側直立拉桿區 (縮小並精簡) */
+        .slider-container {
+            grid-column: 1;
+            justify-self: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 160px; 
+        }
+
+        .slider-track-wrapper {
+            position: relative;
+            width: 40px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 旋轉 90 度讓水平拉桿變直立 */
+        .vertical-slider {
+            width: 160px; 
+            height: 18px; 
+            transform: rotate(-90deg);
+            position: absolute;
+            background: #e2e8f0;
+            border-radius: 12px;
+            outline: none;
+            -webkit-appearance: none;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+            border: 3px solid #cbd5e1;
+        }
+
+        /* 縮小拉桿的按鈕 (Thumb) */
+        .vertical-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f43f5e;
+            border: 3px solid #9f1239;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: transform 0.1s;
+        }
+        .vertical-slider::-webkit-slider-thumb:active {
+            transform: scale(1.15);
+        }
+
+        /* 羅盤區域 */
+        .compass-container {
+            grid-column: 2;
+            position: relative;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 可旋轉的方位圈圈 */
+        #compass-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px dashed #86efac;
+            background: #f0fdf4;
+            transform: rotate(0deg);
+            transition: transform 0.2s ease-out; 
+        }
+
+        .direction-label {
+            position: absolute;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #166534;
+            background: white;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            border: 4px solid #166534;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+            transition: transform 0.2s ease-out;
+        }
+        
+        .dir-n { top: -25px; left: calc(50% - 25px); color: #e11d48; border-color: #e11d48; } 
+        .dir-s { bottom: -25px; left: calc(50% - 25px); }
+        .dir-e { right: -25px; top: calc(50% - 25px); }
+        .dir-w { left: -25px; top: calc(50% - 25px); }
+
+        /* 角色容器 (不會被拉桿旋轉) */
+        .character-wrapper {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+        }
+
+        .character-emoji {
+            font-size: 5.5rem;
+            line-height: 1;
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));
+            z-index: 10;
+        }
+
+        /* 三個方向的尖嘴指標 */
+        .sight-arrow {
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            margin-left: -15px;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 25px solid #ef4444; 
+            animation: pulse-up 1s infinite alternate;
+        }
+        
+        .left-arrow {
+            position: absolute;
+            top: 50%;
+            left: -10px;
+            margin-top: -8px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 16px solid #38bdf8;
+            animation: pulse-left 1s infinite alternate;
+            transition: all 0.3s;
+        }
+        
+        .right-arrow {
+            position: absolute;
+            top: 50%;
+            right: -10px;
+            margin-top: -8px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 16px solid #38bdf8;
+            animation: pulse-right 1s infinite alternate;
+            transition: all 0.3s;
+        }
+
+        /* 明顯的黃色 Highlight 樣式 */
+        .highlight-left {
+            border-right-color: #ffff00 !important; 
+            filter: drop-shadow(0 0 10px #fbbf24) drop-shadow(0 0 20px #f59e0b) !important;
+        }
+
+        .highlight-right {
+            border-left-color: #ffff00 !important; 
+            filter: drop-shadow(0 0 10px #fbbf24) drop-shadow(0 0 20px #f59e0b) !important;
+        }
+
+        @keyframes pulse-up { 0% { transform: translateY(0); opacity: 0.8; } 100% { transform: translateY(-8px); opacity: 1; } }
+        @keyframes pulse-left { 0% { transform: translateX(0); opacity: 0.8; } 100% { transform: translateX(-6px); opacity: 1; } }
+        @keyframes pulse-right { 0% { transform: translateX(0); opacity: 0.8; } 100% { transform: translateX(6px); opacity: 1; } }
+
+        /* 控制按鈕區 */
+        .control-btns {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            width: 100%;
+        }
+
+        .btn-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        /* 旋轉按鈕基礎樣式：加上平滑的過渡效果，支援 JS 添加的 .pressed 類別 */
+        .turn-btn {
+            background-color: #ffb443; 
+            color: white;
+            font-size: 2.2rem;
+            font-weight: 900;
+            padding: 1rem 1.5rem;
+            border-radius: 1.2rem;
+            border: 4px solid #d97706;
+            box-shadow: 0 6px 0 #d97706;
+            /* 讓按下和彈起更Ｑ彈 */
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 160px;
+            cursor: pointer;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* 當按鈕處於 pressed 狀態時：往下壓並稍微縮小 */
+        .turn-btn:active, .turn-btn.pressed {
+            transform: translateY(6px) scale(0.95);
+            box-shadow: 0 0 0 #d97706;
+        }
+        
+        /* 右邊按鈕專屬顏色 */
+        .turn-btn.right-btn {
+            background-color: #c084fc; 
+            border-color: #7e22ce;
+            box-shadow: 0 6px 0 #7e22ce;
+        }
+        .turn-btn.right-btn:active, .turn-btn.right-btn.pressed {
+            box-shadow: 0 0 0 #7e22ce;
+        }
+
+        .btn-subtext {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #475569;
+        }
+
+        /* 提示燈 Toggle 按鈕 */
+        .hl-btn {
+            background-color: #f1f5f9;
+            font-size: 1.2rem;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0;
+            margin-top: 0.2rem;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .hl-btn:active {
+            transform: scale(0.9);
+        }
+        .hl-btn.active {
+            background-color: #fef08a;
+            border-color: #ca8a04;
+            box-shadow: 0 0 10px rgba(234, 179, 8, 0.6);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="title-badge">🧭 方向轉轉樂</div>
+
+        <!-- 網格排版主顯示區 -->
+        <div class="main-layout">
+            <!-- 左側拉桿：控制方位圈圈 (加入 step="90" 達成卡扣定位) -->
+            <div class="slider-container">
+                <div class="slider-track-wrapper">
+                    <input type="range" id="compass-slider" class="vertical-slider" min="0" max="360" step="90" value="0">
+                </div>
+            </div>
+
+            <!-- 視覺羅盤與角色 (絕對置中) -->
+            <div class="compass-container">
+                <div id="compass-ring">
+                    <div class="direction-label dir-n">北</div>
+                    <div class="direction-label dir-e">東</div>
+                    <div class="direction-label dir-s">南</div>
+                    <div class="direction-label dir-w">西</div>
+                </div>
+                
+                <div id="character" class="character-wrapper" style="transform: rotate(0deg);">
+                    <div class="sight-arrow"></div>
+                    <div id="left-arrow" class="left-arrow"></div>
+                    <div id="right-arrow" class="right-arrow"></div>
+                    <div class="character-emoji">🐱</div>
+                </div>
+            </div>
+            
+            <!-- 右側留白，用於維持網格平衡 -->
+            <div></div>
+        </div>
+
+        <!-- 自由操作區 (絕對置中於整個板塊底部) -->
+        <div class="control-btns">
+            <!-- 左邊操作群組 -->
+            <div class="btn-wrapper">
+                <!-- 傳入 this 讓 JavaScript 可以直接操控這個按鈕加上動畫 -->
+                <button onclick="freeTurn(-1, this)" class="turn-btn">⬅️ 左</button>
+                <div class="btn-subtext">（一個直角）</div>
+                <button onclick="toggleHighlight('left')" id="btn-hl-left" class="hl-btn">💡</button>
+            </div>
+            
+            <!-- 右邊操作群組 -->
+            <div class="btn-wrapper">
+                <button onclick="freeTurn(1, this)" class="turn-btn right-btn">右 ➡️</button>
+                <div class="btn-subtext">（一個直角）</div>
+                <button onclick="toggleHighlight('right')" id="btn-hl-right" class="hl-btn">💡</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 貓咪旋轉邏輯 ---
+        let currentRotation = 0; // 絕對角度，累加
+        const character = document.getElementById('character');
+        
+        function freeTurn(direction, btnElement) {
+            // 觸發按鈕的Ｑ彈動畫
+            btnElement.classList.add('pressed');
+            setTimeout(() => {
+                btnElement.classList.remove('pressed');
+            }, 150); // 150毫秒後恢復原狀
+
+            // 執行旋轉
+            currentRotation += direction * 90;
+            character.style.transform = `rotate(${currentRotation}deg)`;
+        }
+
+        // --- 羅盤圈圈旋轉邏輯 ---
+        const compassSlider = document.getElementById('compass-slider');
+        const compassRing = document.getElementById('compass-ring');
+        const dirLabels = document.querySelectorAll('.direction-label');
+
+        compassSlider.addEventListener('input', (e) => {
+            const deg = e.target.value;
+            // 轉動圈圈
+            compassRing.style.transform = `rotate(${deg}deg)`;
+            
+            // 將文字「反向轉動」以保持文字正向好閱讀
+            dirLabels.forEach(label => {
+                label.style.transform = `rotate(${-deg}deg)`;
+            });
+        });
+
+        // --- 提示燈 Highlight 邏輯 ---
+        let isLeftHighlighted = false;
+        let isRightHighlighted = false;
+
+        function toggleHighlight(side) {
+            if (side === 'left') {
+                isLeftHighlighted = !isLeftHighlighted;
+                const arrow = document.getElementById('left-arrow');
+                const btn = document.getElementById('btn-hl-left');
+                
+                if (isLeftHighlighted) {
+                    arrow.classList.add('highlight-left');
+                    btn.classList.add('active');
+                } else {
+                    arrow.classList.remove('highlight-left');
+                    btn.classList.remove('active');
+                }
+            } else if (side === 'right') {
+                isRightHighlighted = !isRightHighlighted;
+                const arrow = document.getElementById('right-arrow');
+                const btn = document.getElementById('btn-hl-right');
+                
+                if (isRightHighlighted) {
+                    arrow.classList.add('highlight-right');
+                    btn.classList.add('active');
+                } else {
+                    arrow.classList.remove('highlight-right');
+                    btn.classList.remove('active');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

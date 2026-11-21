@@ -1,0 +1,2781 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-immersive-translate-page-theme="light"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIwODUwNzIxNzkxMzgyMzQwMzE1MCIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjX2I4ZDg0MGQ0ZmEyZjVmZTNfNGI0Yjc5M2RfNHhfY2FzdGxlX2J1aWxkZXIuaHRtbC04MzMifSwiZXhwIjoxNzk1MjYxOTk2LCJpYXQiOjE3OTUyNTgzOTYsImFsZyI6IlJTMjU2In0.kRKiSsw6GsBcTzBSes1p1CPqCObwiqBoDGhqH8kTeWqncEl7lcmMjudBWCTZmWDQ5SHsnqDOsWnu30ykimvjOg3N-q8cK2mRkimS2txtcZJStCCuonVSNFxFZdHRMqaVX2AgKL05q2qLg-het1XDYMTOivJh_jr9fiUbTh5YODtId4u8DJEEe1Q_ZgCsq8_0Cy_LqE7J2NC2nt39dzonxPz236ok53F4MaqgTYDqIuMrm0e2uCLOfrMRKxrktfWYNjBYzhnLFo9oP4dExsPtBOmVCIT-tWXGO7qWxpPXkq35aJV8drrIQGuQZ01YBvDCEI2M-pOWmZJ4KT_hWHzgEg","c_b8d840d4fa2f5fe3_4b4b793d_4x_castle_builder.html-833")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.i=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.extensions="";var l=0,t=null,r=null,q=[],F=new TextEncoder,
+G=new TextDecoder;c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*
+16|0;return(f==="x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;
+(g=t)==null||g.postMessage(a)}};Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  const OVERLAY_SELECTOR =
+    'dialog[open], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [role="combobox"]';
+
+  function isVisibleOverlay(element) {
+    if (element.closest('[hidden], [aria-hidden="true"], [inert]')) {
+      return false;
+    }
+    if (window.getComputedStyle(element).visibility === 'hidden') {
+      return false;
+    }
+    for (let cur = element; cur; cur = cur.parentElement) {
+      if (window.getComputedStyle(cur).display === 'none') {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function hasOpenOverlay() {
+    const candidates = document.querySelectorAll(OVERLAY_SELECTOR);
+    for (let i = 0; i < candidates.length; i++) {
+      if (isVisibleOverlay(candidates[i])) {
+        return true;
+      }
+    }
+    try {
+      if (document.querySelector('[popover]:popover-open')) {
+        return true;
+      }
+    } catch (e) {
+      // Ignore engines that do not support :popover-open.
+    }
+    return false;
+  }
+
+  function isNonEmptySearchInput(target) {
+    return (
+      Boolean(target) &&
+      target.tagName === 'INPUT' &&
+      typeof target.type === 'string' &&
+      target.type.toLowerCase() === 'search' &&
+      typeof target.value === 'string' &&
+      target.value.length > 0
+    );
+  }
+
+  function shouldIgnoreEscape(event) {
+    return (
+      event.key !== 'Escape' ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.isComposing ||
+      event.repeat ||
+      event.keyCode === 229 ||
+      isNonEmptySearchInput(event.target)
+    );
+  }
+
+  let shouldIgnoreCaptureState = false;
+
+  window.addEventListener(
+    'keydown',
+    function(event) {
+      if (event.key === 'Escape') {
+        shouldIgnoreCaptureState =
+          hasOpenOverlay() || isNonEmptySearchInput(event.target);
+      }
+    },
+    {capture: true},
+  );
+
+  window.addEventListener('keydown', function(event) {
+    if (
+      shouldIgnoreEscape(event) ||
+      event.defaultPrevented ||
+      shouldIgnoreCaptureState
+    ) {
+      return;
+    }
+    const wasBlockedOnCapture = shouldIgnoreCaptureState;
+    queueMicrotask(function() {
+      if (event.defaultPrevented || wasBlockedOnCapture) {
+        return;
+      }
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({'type': 'escapeKey'}, '*');
+      }
+    });
+  });
+})();</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>4× 🏰</title>
+  <style>
+    :root {
+      --sky-top: #7dd3fc;
+      --sky-mid: #bae6fd;
+      --sky-bot: #fef9c3;
+      --panel-bg: #fffdf7;
+      --key-bg: #ffffff;
+      --key-hover: #f0f9ff;
+      --key-active: #e0f2fe;
+      --key-border: #cbd5e1;
+      --accent-blue: #0284c7;
+      --accent-sky: #38bdf8;
+      --accent-gold: #f59e0b;
+      --accent-pink: #ec4899;
+      --accent-green: #16a34a;
+      --accent-red: #ef4444;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: #e0f2fe;
+      color: var(--text-dark);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100dvh;
+      max-width: 960px;
+      margin: 0 auto;
+      background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 58%, var(--sky-bot) 100%);
+      position: relative;
+      box-shadow: 0 0 40px rgba(2, 132, 199, 0.16);
+    }
+
+    /* TOP HUD */
+    .hud {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px 6px;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .badge-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.4px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 2px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+      white-space: nowrap;
+    }
+
+    .pill-lv {
+      color: #b45309;
+      background: #fef3c7;
+      border-color: #fde68a;
+    }
+
+    .pill-combo {
+      color: #ea580c;
+      background: #ffedd5;
+      border-color: #fed7aa;
+      transition: transform 0.15s ease;
+    }
+
+    .pill-combo.pop {
+      transform: scale(1.22);
+    }
+
+    .pill-mode {
+      color: #0369a1;
+      background: #e0f2fe;
+      border-color: #bae6fd;
+    }
+
+    .pill-mode.rand {
+      color: #a21caf;
+      background: #fae8ff;
+      border-color: #f5d0fe;
+    }
+
+    /* CASTLE PROGRESS BAR */
+    .prog-wrap {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .prog-bar-outer {
+      position: relative;
+      width: 100%;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.78);
+      border-radius: 999px;
+      border: 2.5px solid #ffffff;
+      overflow: hidden;
+      box-shadow: inset 0 2px 5px rgba(15, 23, 42, 0.12), 0 3px 10px rgba(2, 132, 199, 0.18);
+    }
+
+    .prog-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 0%;
+      background: linear-gradient(90deg, #34d399 0%, #22c55e 45%, #fbbf24 100%);
+      transition: width 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      border-radius: 999px;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.45);
+    }
+
+    .prog-segments {
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent calc(10% - 1px),
+        rgba(255, 255, 255, 0.4) calc(10% - 1px),
+        rgba(255, 255, 255, 0.4) 10%
+      );
+      pointer-events: none;
+    }
+
+    .prog-phase-mark {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: #f59e0b;
+      box-shadow: 0 0 6px rgba(245, 158, 11, 0.8);
+      pointer-events: none;
+    }
+
+    .prog-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: 0.5px;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
+      pointer-events: none;
+    }
+
+    /* ICON BUTTONS */
+    .icon-btns {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      border: 2px solid #ffffff;
+      background: rgba(255, 255, 255, 0.85);
+      color: #334155;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+      transition: background 0.15s, transform 0.1s;
+      padding: 0;
+    }
+
+    .icon-btn:hover {
+      background: #ffffff;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.92);
+    }
+
+    .icon-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* SCENE ARENA */
+    .arena-wrap {
+      position: relative;
+      flex: 1;
+      min-height: 190px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    #arena {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 10 VFX DOCK */
+    .vfx-dock {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 2px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+      backdrop-filter: blur(6px);
+      z-index: 6;
+      pointer-events: none;
+    }
+
+    .vfx-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.65);
+      opacity: 0.55;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .vfx-dot.active {
+      opacity: 1;
+      transform: scale(1.34);
+      background: #ffffff;
+      box-shadow: 0 0 12px var(--dot-color, #f59e0b);
+    }
+
+    /* MAGIC ENERGY BAR */
+    .sp-bar-wrap {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 7px;
+      background: rgba(255, 255, 255, 0.45);
+      z-index: 7;
+    }
+
+    .sp-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #f472b6, #fbbf24, #34d399, #38bdf8);
+      transition: width 0.25s ease-out;
+    }
+
+    .sp-bar-fill.full {
+      animation: spPulse 0.55s infinite alternate;
+    }
+
+    @keyframes spPulse {
+      from { filter: brightness(1); }
+      to { filter: brightness(1.35); }
+    }
+
+    /* VICTORY SUMMARY OVERLAY (TRANSPARENT CENTER TO SHOW FINISHED CASTLE) */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 251, 235, 0.42) 0%, rgba(255, 251, 235, 0) 28%, rgba(255, 251, 235, 0) 70%, rgba(255, 251, 235, 0.72) 100%);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 12px 18px;
+      z-index: 20;
+      pointer-events: none;
+      animation: fadeIn 0.35s ease;
+    }
+
+    .overlay.show {
+      display: flex;
+    }
+
+    .overlay button {
+      pointer-events: auto;
+    }
+
+    .deck.hidden-victory {
+      display: none;
+    }
+
+    .vfx-dock.hidden-victory {
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .victory-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 2.5px solid #fde68a;
+      box-shadow: 0 6px 18px rgba(245, 158, 11, 0.22);
+    }
+
+    .victory-crown {
+      font-size: 36px;
+      line-height: 1;
+      filter: drop-shadow(0 3px 6px rgba(245, 158, 11, 0.4));
+      animation: bounceCrown 0.9s infinite alternate ease-in-out;
+    }
+
+    .victory-score {
+      font-size: 26px;
+      font-weight: 900;
+      color: #b45309;
+      letter-spacing: 0.5px;
+    }
+
+    .victory-bottom {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    @keyframes bounceCrown {
+      from { transform: translateY(0) scale(1); }
+      to { transform: translateY(-10px) scale(1.08); }
+    }
+
+    .victory-stats {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .stat-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 16px;
+      background: #ffffff;
+      border: 2px solid #fde68a;
+      color: var(--text-dark);
+      font-size: 18px;
+      font-weight: 900;
+      box-shadow: 0 3px 10px rgba(245, 158, 11, 0.16);
+    }
+
+    .next-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 36px;
+      border-radius: 999px;
+      border: 3px solid #ffffff;
+      background: linear-gradient(135deg, #fbbf24, #f97316);
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(249, 115, 22, 0.38);
+      transition: transform 0.12s, filter 0.15s;
+    }
+
+    .next-btn:hover {
+      filter: brightness(1.08);
+    }
+
+    .next-btn:active {
+      transform: scale(0.94);
+    }
+
+    /* BOTTOM CONTROL DECK */
+    .deck {
+      background: var(--panel-bg);
+      border-top: 2px solid #e2e8f0;
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .equation-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .eq-prompt {
+      font-size: clamp(28px, 6vw, 40px);
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--text-dark);
+    }
+
+    .eq-prompt .mul {
+      color: var(--accent-blue);
+    }
+
+    .eq-prompt .eq-sign {
+      color: var(--text-muted);
+    }
+
+    .answer-box {
+      min-width: 96px;
+      height: clamp(46px, 8vw, 56px);
+      padding: 0 16px;
+      border-radius: 16px;
+      background: #f0f9ff;
+      border: 3px solid var(--accent-sky);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(28px, 6vw, 38px);
+      font-weight: 900;
+      color: #0f172a;
+      box-shadow: inset 0 2px 4px rgba(2, 132, 199, 0.1);
+      transition: border-color 0.15s, background 0.15s, transform 0.12s;
+    }
+
+    .answer-box.empty::after {
+      content: "";
+      width: 3px;
+      height: 26px;
+      background: var(--accent-blue);
+      border-radius: 2px;
+      animation: blink 0.9s infinite;
+    }
+
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+
+    .answer-box.wrong {
+      border-color: var(--accent-red);
+      background: #fef2f2;
+      animation: shakeX 0.32s ease;
+    }
+
+    .answer-box.correct {
+      border-color: var(--accent-green);
+      background: #dcfce7;
+      transform: scale(1.08);
+    }
+
+    @keyframes shakeX {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+
+    /* NUMPAD */
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      max-width: 640px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .key {
+      height: clamp(46px, 7.5dvh, 58px);
+      border-radius: 15px;
+      border: 2px solid #e2e8f0;
+      border-bottom: 4px solid #cbd5e1;
+      background: var(--key-bg);
+      color: var(--text-dark);
+      font-size: clamp(20px, 4.2vw, 26px);
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.1s, transform 0.08s;
+      touch-action: manipulation;
+    }
+
+    .key:hover {
+      background: var(--key-hover);
+    }
+
+    .key:active {
+      background: var(--key-active);
+      transform: translateY(2px);
+      border-bottom-width: 2px;
+    }
+
+    .key-del {
+      background: #fff1f2;
+      border-color: #fecdd3;
+      border-bottom-color: #fda4af;
+      color: #e11d48;
+    }
+
+    .key-del:hover {
+      background: #ffe4e6;
+    }
+
+    .key-build {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      border-color: #fcd34d;
+      border-bottom-color: #d97706;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+    }
+
+    .key-build:hover {
+      filter: brightness(1.06);
+    }
+
+    @media (max-width: 480px) {
+      .numpad {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      .vfx-dock {
+        gap: 3px;
+        padding: 4px 6px;
+      }
+      .vfx-dot {
+        width: 20px;
+        height: 20px;
+        font-size: 11px;
+      }
+      .hud {
+        gap: 6px;
+        padding: 8px 8px 4px;
+      }
+      .pill {
+        padding: 3px 7px;
+        font-size: 12px;
+      }
+    }
+  </style>
+<style data-id="immersive-translate-input-injected-css"></style></head>
+<body>
+  <div id="app">
+    <!-- TOP HUD -->
+    <div class="hud">
+      <div class="badge-group">
+        <div class="pill pill-lv" id="lvBadge">🏰</div>
+        <div class="pill pill-combo" id="comboBadge">⭐ 0</div>
+        <div class="pill pill-mode" id="modeBadge">1→10</div>
+      </div>
+
+      <div class="prog-wrap">
+        <div class="prog-bar-outer">
+          <div class="prog-fill" id="progFill" style="width: 0%;"></div>
+          <div class="prog-segments"></div>
+          <div class="prog-phase-mark" id="progPhaseMark" style="left:50%;"></div>
+          <div class="prog-text" id="progText">0 / 20000</div>
+        </div>
+      </div>
+
+      <div class="icon-btns">
+        <button class="icon-btn" id="btnSound" aria-label="Sound" title="Sound">
+          <svg id="soundIconOn" viewBox="0 0 24 24">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <svg id="soundIconOff" viewBox="0 0 24 24" style="display:none;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+        <button class="icon-btn" id="btnReset" aria-label="Reset" title="Reset">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+        </button>
+        <button class="icon-btn" id="btnDownload" aria-label="Download HTML" title="HTML">
+          <svg viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- CASTLE BUILD SCENE -->
+    <div class="arena-wrap" id="arenaWrap">
+      <canvas id="arena" width="708" height="566"></canvas>
+
+      <!-- 10 VFX INDICATOR DOCK -->
+      <div class="vfx-dock" id="vfxDock"><div class="vfx-dot" style="--dot-color: #f97316;">🧱</div><div class="vfx-dot" style="--dot-color: #f59e0b;">✨</div><div class="vfx-dot" style="--dot-color: #ec4899;">🌈</div><div class="vfx-dot" style="--dot-color: #eab308;">🔨</div><div class="vfx-dot" style="--dot-color: #ef4444;">🎈</div><div class="vfx-dot" style="--dot-color: #f472b6;">🌸</div><div class="vfx-dot" style="--dot-color: #38bdf8;">🫧</div><div class="vfx-dot" style="--dot-color: #facc15;">☀️</div><div class="vfx-dot" style="--dot-color: #a855f7;">🦋</div><div class="vfx-dot" style="--dot-color: #22c55e;">🎆</div></div>
+
+      <!-- MAGIC ENERGY GAUGE -->
+      <div class="sp-bar-wrap">
+        <div class="sp-bar-fill" id="spFill" style="width: 0%;"></div>
+      </div>
+
+      <!-- VICTORY SUMMARY OVERLAY -->
+      <div class="overlay" id="victoryOverlay">
+        <div class="victory-top">
+          <div class="victory-crown">👑</div>
+          <div class="victory-score" id="statScore">20000</div>
+        </div>
+        <div class="victory-bottom">
+          <div class="victory-stats">
+            <div class="stat-chip">🔨 <span id="statHits">0</span></div>
+            <div class="stat-chip">🌟 <span id="statCrits">0</span></div>
+            <div class="stat-chip">🌈 <span id="statSkills">0</span></div>
+            <div class="stat-chip">⏱️ <span id="statTime">00:00</span></div>
+          </div>
+          <button class="next-btn" id="btnReplay">↻</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM CONTROL DECK -->
+    <div class="deck" id="controlDeck">
+      <div class="equation-row">
+        <div class="eq-prompt">
+          <span>4</span>
+          <span class="mul">×</span>
+          <span id="factorB">1</span>
+          <span class="eq-sign">=</span>
+        </div>
+        <div class="answer-box empty" id="answerBox"></div>
+      </div>
+
+      <div class="numpad" id="numpad">
+        <button class="key" data-num="1">1</button>
+        <button class="key" data-num="2">2</button>
+        <button class="key" data-num="3">3</button>
+        <button class="key" data-num="4">4</button>
+        <button class="key" data-num="5">5</button>
+        <button class="key key-del" data-action="del">⌫</button>
+        <button class="key" data-num="6">6</button>
+        <button class="key" data-num="7">7</button>
+        <button class="key" data-num="8">8</button>
+        <button class="key" data-num="9">9</button>
+        <button class="key" data-num="0">0</button>
+        <button class="key key-build" data-action="submit">🔨</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ================= 10 KID-FRIENDLY BUILDING VFX ================= */
+      const VFX_LIST = [
+        { id: 0, icon: '🧱', color: '#f97316' }, // 1. Flying Bricks
+        { id: 1, icon: '✨', color: '#f59e0b' }, // 2. Star Wand Sparkles
+        { id: 2, icon: '🌈', color: '#ec4899' }, // 3. Rainbow Bridge
+        { id: 3, icon: '🔨', color: '#eab308' }, // 4. Golden Hammer Bonk
+        { id: 4, icon: '🎈', color: '#ef4444' }, // 5. Pastel Balloons
+        { id: 5, icon: '🌸', color: '#f472b6' }, // 6. Blossom Petals
+        { id: 6, icon: '🫧', color: '#38bdf8' }, // 7. Magic Bubbles
+        { id: 7, icon: '☀️', color: '#facc15' }, // 8. Warm Sunbeams
+        { id: 8, icon: '🦋', color: '#a855f7' }, // 9. Flutter Butterflies
+        { id: 9, icon: '🎆', color: '#22c55e' }  // 10. Celebration Fireworks
+      ];
+
+      /* ================= FAIRYTALE CASTLE THEMES PER LEVEL ================= */
+      const CASTLE_THEMES = [
+        { wall: '#fff7ed', wallShade: '#fed7aa', roof: '#3b82f6', roofLight: '#60a5fa', flag: '#f43f5e', door: '#b45309', goal: 20000 },
+        { wall: '#fdf2f8', wallShade: '#fbcfe8', roof: '#ec4899', roofLight: '#f472b6', flag: '#fbbf24', door: '#9d174d', goal: 25000 },
+        { wall: '#f0fdf4', wallShade: '#bbf7d0', roof: '#10b981', roofLight: '#34d399', flag: '#f97316', door: '#166534', goal: 30000 },
+        { wall: '#faf5ff', wallShade: '#e9d5ff', roof: '#8b5cf6', roofLight: '#a78bfa', flag: '#facc15', door: '#5b21b6', goal: 35000 },
+        { wall: '#fffbeb', wallShade: '#fde68a', roof: '#f59e0b', roofLight: '#fbbf24', flag: '#0ea5e9', door: '#92400e', goal: 40000 }
+      ];
+
+      /* ================= CHEERFUL WEB AUDIO SYNTH ================= */
+      let audioCtx = null;
+      let soundEnabled = true;
+
+      function ensureAudio() {
+        if (!soundEnabled) return null;
+        if (!audioCtx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (AC) audioCtx = new AC();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      }
+
+      function playTone(freq, type, duration, gainVal, freqEnd, delay = 0) {
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const now = ctx.currentTime + delay;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        if (freqEnd) {
+          osc.frequency.exponentialRampToValueAtTime(Math.max(40, freqEnd), now + duration);
+        }
+        gain.gain.setValueAtTime(gainVal, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+      }
+
+      function playBuildSound(vfxId, isCrit, isSkill) {
+        if (!soundEnabled) return;
+        const scales = [
+          [523, 659], // 0 Bricks
+          [880, 1318], // 1 Star wand
+          [523, 659, 784, 1046], // 2 Rainbow
+          [392, 587], // 3 Hammer
+          [659, 987], // 4 Balloons
+          [784, 1174], // 5 Blossoms
+          [587, 880, 1174], // 6 Bubbles
+          [523, 784, 1046], // 7 Sunbeams
+          [987, 1318], // 8 Butterflies
+          [659, 880, 1318] // 9 Fireworks
+        ];
+        const notes = scales[vfxId] || [523, 659];
+        notes.forEach((n, i) => {
+          playTone(n, 'triangle', 0.18, 0.14, n * 1.06, i * 0.045);
+        });
+        if (isCrit) {
+          playTone(1046.5, 'sine', 0.22, 0.16, 1568, 0.05);
+          playTone(1318.5, 'triangle', 0.22, 0.14, 2093, 0.1);
+        }
+        if (isSkill) {
+          [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((n, i) => {
+            playTone(n, 'triangle', 0.2, 0.14, n * 1.03, i * 0.055);
+          });
+        }
+      }
+
+      function playKeySound() {
+        playTone(620, 'sine', 0.05, 0.08, 720);
+      }
+
+      function playWrongSound() {
+        playTone(260, 'sine', 0.16, 0.12, 180);
+      }
+
+      function playVictorySound() {
+        const fanfare = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
+        const delays = [0, 0.09, 0.18, 0.27, 0.4, 0.5];
+        fanfare.forEach((n, i) => playTone(n, 'triangle', 0.28, 0.18, n * 1.01, delays[i]));
+      }
+
+      /* ================= DOM ELEMENTS ================= */
+      const canvas = document.getElementById('arena');
+      const ctx = canvas.getContext('2d');
+      const arenaWrap = document.getElementById('arenaWrap');
+      const lvBadge = document.getElementById('lvBadge');
+      const comboBadge = document.getElementById('comboBadge');
+      const modeBadge = document.getElementById('modeBadge');
+      const progFill = document.getElementById('progFill');
+      const progPhaseMark = document.getElementById('progPhaseMark');
+      const progText = document.getElementById('progText');
+      const spFill = document.getElementById('spFill');
+      const factorBEl = document.getElementById('factorB');
+      const answerBox = document.getElementById('answerBox');
+      const numpad = document.getElementById('numpad');
+      const vfxDock = document.getElementById('vfxDock');
+      const victoryOverlay = document.getElementById('victoryOverlay');
+      const controlDeck = document.getElementById('controlDeck');
+      const statScore = document.getElementById('statScore');
+      const statHits = document.getElementById('statHits');
+      const statCrits = document.getElementById('statCrits');
+      const statSkills = document.getElementById('statSkills');
+      const statTime = document.getElementById('statTime');
+      const btnReplay = document.getElementById('btnReplay');
+      const btnSound = document.getElementById('btnSound');
+      const soundIconOn = document.getElementById('soundIconOn');
+      const soundIconOff = document.getElementById('soundIconOff');
+      const btnReset = document.getElementById('btnReset');
+      const btnDownload = document.getElementById('btnDownload');
+
+      /* Build 10 VFX icons dock */
+      vfxDock.innerHTML = '';
+      const vfxDotEls = [];
+      VFX_LIST.forEach((v) => {
+        const el = document.createElement('div');
+        el.className = 'vfx-dot';
+        el.textContent = v.icon;
+        el.style.setProperty('--dot-color', v.color);
+        vfxDock.appendChild(el);
+        vfxDotEls.push(el);
+      });
+
+      /* ================= GAME STATE ================= */
+      const state = {
+        level: 1,
+        goal: 20000,
+        built: 0,
+        displayBuilt: 0,
+        seqIndex: 1,
+        seqLimit: 10000,
+        sp: 0,
+        combo: 0,
+        hits: 0,
+        crits: 0,
+        skills: 0,
+        factorB: 1,
+        questionBag: [],
+        vfxBag: [],
+        input: '',
+        victory: false,
+        victoryLerp: 0,
+        startTime: 0,
+        fireworkTimer: 0,
+        castleBounce: 0,
+        castleGlow: 0,
+        builderJump: 0,
+        skillRays: 0,
+        time: 0
+      };
+
+      const activeEffects = [];
+      const particles = [];
+      const floatTexts = [];
+      const clouds = [];
+      let rafId = null;
+      let lastTs = 0;
+      let width = 600;
+      let height = 340;
+      let dpr = 1;
+
+      function initClouds() {
+        clouds.length = 0;
+        for (let i = 0; i < 6; i++) {
+          clouds.push({
+            x: Math.random(),
+            y: 0.08 + Math.random() * 0.34,
+            scale: 0.65 + Math.random() * 0.6,
+            speed: 0.008 + Math.random() * 0.012
+          });
+        }
+      }
+
+      function refillQuestionBag() {
+        const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        if (arr[arr.length - 1] === state.factorB) {
+          [arr[0], arr[arr.length - 1]] = [arr[arr.length - 1], arr[0]];
+        }
+        state.questionBag = arr;
+      }
+
+      function updateModeBadge() {
+        const isRandom = state.built >= state.seqLimit;
+        modeBadge.textContent = isRandom ? '🔀' : '1→10';
+        modeBadge.classList.toggle('rand', isRandom);
+      }
+
+      function nextQuestion() {
+        if (state.built < state.seqLimit) {
+          state.factorB = state.seqIndex;
+          state.seqIndex = state.seqIndex >= 10 ? 1 : state.seqIndex + 1;
+        } else {
+          if (state.questionBag.length === 0) refillQuestionBag();
+          state.factorB = state.questionBag.pop();
+        }
+        updateModeBadge();
+        factorBEl.textContent = state.factorB;
+        state.input = '';
+        renderAnswerBox();
+      }
+
+      function nextVfxId() {
+        if (state.vfxBag.length === 0) {
+          const arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+          for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+          }
+          state.vfxBag = arr;
+        }
+        return state.vfxBag.pop();
+      }
+
+      function highlightVfxDot(id) {
+        vfxDotEls.forEach((el, idx) => {
+          el.classList.toggle('active', idx === id);
+        });
+      }
+
+      function getCastleTheme() {
+        return CASTLE_THEMES[(state.level - 1) % CASTLE_THEMES.length];
+      }
+
+      function getCastlePos() {
+        const v = state.victoryLerp;
+        const baseScale = Math.min(width * 0.0024, height * 0.0034, 1.35);
+        const victoryScale = Math.min(width * 0.0028, height * 0.0032, 1.48);
+        return {
+          x: width * (0.62 - 0.12 * v),
+          y: height * (0.78 - 0.07 * v),
+          scale: baseScale + (victoryScale - baseScale) * v
+        };
+      }
+
+      function getBuilderPos() {
+        return {
+          x: width * 0.2,
+          y: height * 0.75,
+          size: Math.min(width * 0.075, height * 0.115, 44)
+        };
+      }
+
+      function startLevel(lvl) {
+        state.level = lvl;
+        const theme = getCastleTheme();
+        const extra = lvl > CASTLE_THEMES.length ? (lvl - CASTLE_THEMES.length) * 5000 : 0;
+        state.goal = theme.goal + extra;
+        state.built = 0;
+        state.displayBuilt = 0;
+        state.seqIndex = 1;
+        state.questionBag = [];
+        state.sp = 0;
+        state.combo = 0;
+        state.hits = 0;
+        state.crits = 0;
+        state.skills = 0;
+        state.victory = false;
+        state.victoryLerp = 0;
+        state.startTime = performance.now();
+        state.fireworkTimer = 0;
+        state.input = '';
+        activeEffects.length = 0;
+        particles.length = 0;
+        floatTexts.length = 0;
+        victoryOverlay.classList.remove('show');
+        controlDeck.classList.remove('hidden-victory');
+        vfxDock.classList.remove('hidden-victory');
+        lvBadge.textContent = '🏰';
+        resizeCanvas();
+        const markPct = Math.max(0, Math.min(100, (state.seqLimit / state.goal) * 100));
+        progPhaseMark.style.left = markPct.toFixed(2) + '%';
+        updateHud();
+        nextQuestion();
+      }
+
+      function updateHud() {
+        const pct = Math.max(0, Math.min(100, (state.built / state.goal) * 100));
+        progFill.style.width = pct + '%';
+        progText.textContent = Math.min(state.goal, Math.floor(state.built)) + ' / ' + state.goal;
+        comboBadge.textContent = '⭐ ' + state.combo;
+        spFill.style.width = Math.min(100, state.sp) + '%';
+        spFill.classList.toggle('full', state.sp >= 100);
+        updateModeBadge();
+      }
+
+      function renderAnswerBox() {
+        answerBox.textContent = state.input;
+        answerBox.classList.toggle('empty', state.input.length === 0);
+      }
+
+      /* ================= INPUT HANDLING ================= */
+      function appendDigit(d) {
+        if (state.victory) return;
+        if (state.input.length >= 2) return;
+        ensureAudio();
+        playKeySound();
+        state.input += d;
+        renderAnswerBox();
+      }
+
+      function deleteDigit() {
+        if (state.victory || !state.input.length) return;
+        ensureAudio();
+        playKeySound();
+        state.input = state.input.slice(0, -1);
+        renderAnswerBox();
+      }
+
+      function submitAnswer() {
+        if (state.victory || !state.input.length) return;
+        ensureAudio();
+        const ans = parseInt(state.input, 10);
+        const expected = 4 * state.factorB;
+
+        if (ans === expected) {
+          answerBox.classList.remove('wrong');
+          answerBox.classList.add('correct');
+          setTimeout(() => answerBox.classList.remove('correct'), 200);
+          triggerBuildAction();
+          nextQuestion();
+        } else {
+          state.combo = 0;
+          updateHud();
+          playWrongSound();
+          answerBox.classList.remove('wrong');
+          void answerBox.offsetWidth;
+          answerBox.classList.add('wrong');
+          state.input = '';
+          renderAnswerBox();
+          setTimeout(() => answerBox.classList.remove('wrong'), 340);
+        }
+      }
+
+      /* ================= BUILD ACTION, CRITS & SKILLS ================= */
+      function triggerBuildAction() {
+        state.hits += 1;
+        state.combo += 1;
+        comboBadge.classList.remove('pop');
+        void comboBadge.offsetWidth;
+        comboBadge.classList.add('pop');
+        setTimeout(() => comboBadge.classList.remove('pop'), 180);
+
+        const skillFromGauge = state.sp >= 100;
+        const skillFromProc = !skillFromGauge && Math.random() < 0.16;
+        const isSkill = skillFromGauge || skillFromProc;
+
+        if (isSkill) {
+          state.sp = 0;
+          state.skills += 1;
+          state.skillRays = 0.72;
+          const v1 = nextVfxId();
+          const v2 = nextVfxId();
+          const v3 = nextVfxId();
+          fireSingleBuild(v1, false, true, 0);
+          setTimeout(() => { if (!state.victory) fireSingleBuild(v2, Math.random() < 0.45, true, 1); }, 135);
+          setTimeout(() => { if (!state.victory) fireSingleBuild(v3, true, true, 2); }, 270);
+        } else {
+          state.sp = Math.min(100, state.sp + 20);
+          const critChance = state.combo >= 5 ? 0.34 : 0.24;
+          const isCrit = Math.random() < critChance;
+          const vfxId = nextVfxId();
+          fireSingleBuild(vfxId, isCrit, false, 0);
+        }
+        updateHud();
+      }
+
+      function fireSingleBuild(vfxId, isCrit, isSkill, hitIndex) {
+        const baseGain = 95 + Math.floor(Math.random() * 26) + Math.min(state.combo * 3, 45);
+        const mult = isCrit ? 2.25 : 1;
+        const skillBonus = isSkill ? 1.15 : 1;
+        const gain = Math.round(baseGain * mult * skillBonus);
+
+        if (isCrit && hitIndex === 0) state.crits += 1;
+        else if (isCrit && isSkill && hitIndex === 2) state.crits += 1;
+
+        state.built = Math.min(state.goal, state.built + gain);
+        state.castleBounce = isCrit ? 1.0 : 0.65;
+        state.castleGlow = isCrit ? 0.45 : 0.22;
+        state.builderJump = 1.0;
+
+        highlightVfxDot(vfxId);
+        playBuildSound(vfxId, isCrit, isSkill && hitIndex === 0);
+
+        const castle = getCastlePos();
+        const builder = getBuilderPos();
+        const targetY = castle.y - Math.max(45, (state.built / state.goal) * 160 * castle.scale);
+
+        spawnVfx(vfxId, builder.x, builder.y - 20, castle.x, targetY, isCrit ? 1.28 : 1.0);
+        spawnSparkles(castle.x, targetY, VFX_LIST[vfxId].color, isCrit ? 24 : 14);
+
+        const offsetX = (Math.random() - 0.5) * 70;
+        const offsetY = -36 - hitIndex * 24;
+        floatTexts.push({
+          x: castle.x + offsetX,
+          y: targetY + offsetY,
+          vy: isCrit ? -85 : -62,
+          text: '+' + gain,
+          tag: isCrit ? '🌟 大加速!' : (isSkill && hitIndex === 0 ? '🌈 魔法!' : ''),
+          color: isCrit ? '#f59e0b' : (isSkill ? '#ec4899' : '#16a34a'),
+          scale: isCrit ? 1.38 : (isSkill ? 1.18 : 1.0),
+          life: 0.95,
+          maxLife: 0.95
+        });
+
+        updateHud();
+
+        if (state.built >= state.goal && !state.victory) {
+          handleVictory();
+        }
+      }
+
+      function handleVictory() {
+        state.victory = true;
+        const castle = getCastlePos();
+        spawnSparkles(castle.x, castle.y - 120, '#fbbf24', 40);
+        spawnSparkles(castle.x - 60, castle.y - 100, '#f472b6', 30);
+        spawnSparkles(castle.x + 60, castle.y - 100, '#38bdf8', 30);
+        playVictorySound();
+
+        setTimeout(() => {
+          const secs = Math.max(1, Math.round((performance.now() - state.startTime) / 1000));
+          const mm = String(Math.floor(secs / 60)).padStart(2, '0');
+          const ss = String(secs % 60).padStart(2, '0');
+          statScore.textContent = state.goal;
+          statHits.textContent = state.hits;
+          statCrits.textContent = state.crits;
+          statSkills.textContent = state.skills;
+          statTime.textContent = mm + ':' + ss;
+          controlDeck.classList.add('hidden-victory');
+          vfxDock.classList.add('hidden-victory');
+          victoryOverlay.classList.add('show');
+          resizeCanvas();
+        }, 550);
+      }
+
+      /* ================= 10 KID-FRIENDLY CANVAS VFX ================= */
+      function spawnVfx(id, sx, sy, tx, ty, scale) {
+        activeEffects.push({
+          id,
+          sx, sy,
+          tx, ty,
+          scale,
+          t: 0,
+          dur: 0.58,
+          seed: Math.random() * 100
+        });
+      }
+
+      function spawnSparkles(x, y, color, count) {
+        const palette = [color, '#fde047', '#ffffff', '#f472b6', '#38bdf8'];
+        for (let i = 0; i < count; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 60 + Math.random() * 200;
+          particles.push({
+            x, y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd - 70,
+            r: 3 + Math.random() * 4.5,
+            color: palette[i % palette.length],
+            life: 0.45 + Math.random() * 0.4,
+            maxLife: 0.85,
+            gravity: 260
+          });
+        }
+      }
+
+      function drawStar(cx, cy, spikes, outerR, innerR) {
+        ctx.beginPath();
+        for (let i = 0; i < spikes * 2; i++) {
+          const r = i % 2 === 0 ? outerR : innerR;
+          const a = (i * Math.PI) / spikes - Math.PI / 2;
+          if (i === 0) ctx.moveTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+          else ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+        }
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      function drawVfx(e) {
+        const p = Math.min(1, e.t / e.dur);
+        const inv = 1 - p;
+        const sc = e.scale;
+        ctx.save();
+
+        switch (e.id) {
+          case 0: { // 1. Flying Bricks
+            for (let i = 0; i < 4; i++) {
+              const tp = Math.min(1, Math.max(0, (p - i * 0.08) / 0.65));
+              if (tp <= 0 || tp >= 1) continue;
+              const bx = e.sx + (e.tx - e.sx) * tp + (i - 1.5) * 14;
+              const by = e.sy + (e.ty - e.sy) * tp - Math.sin(tp * Math.PI) * 95;
+              ctx.save();
+              ctx.translate(bx, by);
+              ctx.rotate(tp * Math.PI * 2 + i);
+              ctx.fillStyle = i % 2 === 0 ? '#fb923c' : '#f97316';
+              ctx.strokeStyle = '#ffffff';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.roundRect(-13 * sc, -8 * sc, 26 * sc, 16 * sc, 4);
+              ctx.fill();
+              ctx.stroke();
+              ctx.restore();
+            }
+            break;
+          }
+
+          case 1: { // 2. Star Wand Sparkles
+            const cx = e.sx + (e.tx - e.sx) * Math.min(1, p * 1.4);
+            const cy = e.sy + (e.ty - e.sy) * Math.min(1, p * 1.4) - Math.sin(p * Math.PI) * 55;
+            ctx.fillStyle = `rgba(250, 204, 21, ${inv})`;
+            drawStar(cx, cy, 5, 24 * sc, 10 * sc);
+            for (let i = 0; i < 6; i++) {
+              const ang = (i / 6) * Math.PI * 2 + p * 4;
+              const rad = (20 + p * 75) * sc;
+              ctx.fillStyle = i % 2 === 0 ? `rgba(251, 191, 36, ${inv})` : `rgba(255, 255, 255, ${inv})`;
+              drawStar(e.tx + Math.cos(ang) * rad, e.ty + Math.sin(ang) * rad, 5, 11 * sc * inv, 5 * sc * inv);
+            }
+            break;
+          }
+
+          case 2: { // 3. Rainbow Arc
+            const cols = ['#ef4444', '#f97316', '#facc15', '#22c55e', '#38bdf8', '#a855f7'];
+            const midX = (e.sx + e.tx) * 0.5;
+            const midY = Math.max(e.sy, e.ty) + 10;
+            const baseR = Math.hypot(e.tx - e.sx, e.ty - e.sy) * 0.52;
+            cols.forEach((c, idx) => {
+              ctx.strokeStyle = c;
+              ctx.globalAlpha = inv * 0.85;
+              ctx.lineWidth = 7 * sc;
+              ctx.beginPath();
+              ctx.arc(midX, midY, baseR + idx * 7 * sc, Math.PI, Math.PI + Math.PI * Math.min(1, p * 1.5));
+              ctx.stroke();
+            });
+            break;
+          }
+
+          case 3: { // 4. Golden Hammer Bonk
+            ctx.translate(e.tx, e.ty - 20);
+            const swing = p < 0.45 ? -1.1 + (p / 0.45) * 1.45 : 0.35 - ((p - 0.45) / 0.55) * 0.5;
+            ctx.rotate(swing);
+            ctx.globalAlpha = inv * 1.2;
+            // Handle
+            ctx.fillStyle = '#d97706';
+            ctx.beginPath();
+            ctx.roundRect(-6 * sc, -10 * sc, 12 * sc, 54 * sc, 5);
+            ctx.fill();
+            // Gold Head
+            ctx.fillStyle = '#fbbf24';
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.roundRect(-26 * sc, -30 * sc, 52 * sc, 26 * sc, 8);
+            ctx.fill();
+            ctx.stroke();
+            break;
+          }
+
+          case 4: { // 5. Pastel Balloons
+            const bCols = ['#f43f5e', '#fbbf24', '#38bdf8', '#a855f7', '#34d399'];
+            for (let i = 0; i < 5; i++) {
+              const bx = e.tx + (i - 2) * 34 * sc + Math.sin(p * 6 + i) * 10;
+              const by = e.ty + 40 - p * 165 * sc - (i % 2) * 20;
+              ctx.globalAlpha = inv * 1.1;
+              ctx.strokeStyle = 'rgba(100,116,139,0.6)';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.moveTo(bx, by + 16 * sc);
+              ctx.lineTo(bx, by + 40 * sc);
+              ctx.stroke();
+              ctx.fillStyle = bCols[i];
+              ctx.beginPath();
+              ctx.ellipse(bx, by, 14 * sc, 18 * sc, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = 'rgba(255,255,255,0.5)';
+              ctx.beginPath();
+              ctx.ellipse(bx - 5 * sc, by - 6 * sc, 3.5 * sc, 5.5 * sc, -0.3, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            break;
+          }
+
+          case 5: { // 6. Cherry Blossom Petals
+            for (let i = 0; i < 12; i++) {
+              const ang = (i / 12) * Math.PI * 2 + p * 3.5;
+              const rad = (20 + p * 95) * sc;
+              const px = e.tx + Math.cos(ang) * rad;
+              const py = e.ty + Math.sin(ang) * rad * 0.65 - p * 25;
+              ctx.save();
+              ctx.translate(px, py);
+              ctx.rotate(ang + p * 5);
+              ctx.fillStyle = i % 2 === 0 ? `rgba(244, 114, 182, ${inv})` : `rgba(251, 207, 232, ${inv})`;
+              ctx.beginPath();
+              ctx.ellipse(0, 0, 10 * sc, 5.5 * sc, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.restore();
+            }
+            break;
+          }
+
+          case 6: { // 7. Magic Soap Bubbles
+            for (let i = 0; i < 9; i++) {
+              const ang = e.seed + i * 0.9;
+              const bx = e.tx + Math.cos(ang) * (20 + p * 85) * sc;
+              const by = e.ty + 20 - p * 120 * sc + Math.sin(ang) * 35;
+              const r = (9 + (i % 3) * 6) * sc;
+              ctx.strokeStyle = `rgba(56, 189, 248, ${inv})`;
+              ctx.fillStyle = `rgba(224, 242, 254, ${inv * 0.45})`;
+              ctx.lineWidth = 2.5;
+              ctx.beginPath();
+              ctx.arc(bx, by, r, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.stroke();
+              ctx.fillStyle = `rgba(255,255,255,${inv * 0.85})`;
+              ctx.beginPath();
+              ctx.arc(bx - r * 0.3, by - r * 0.3, r * 0.25, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            break;
+          }
+
+          case 7: { // 8. Warm Sunbeams
+            ctx.translate(e.tx, e.ty - 10);
+            for (let i = 0; i < 8; i++) {
+              ctx.save();
+              ctx.rotate((i / 8) * Math.PI * 2 + p * 1.2);
+              ctx.fillStyle = `rgba(250, 204, 21, ${inv * 0.48})`;
+              ctx.beginPath();
+              ctx.moveTo(0, 0);
+              ctx.lineTo(-14 * sc, -130 * sc * (0.4 + p * 0.6));
+              ctx.lineTo(14 * sc, -130 * sc * (0.4 + p * 0.6));
+              ctx.closePath();
+              ctx.fill();
+              ctx.restore();
+            }
+            break;
+          }
+
+          case 8: { // 9. Flutter Butterflies
+            const cols = ['#c084fc', '#f472b6', '#38bdf8', '#fbbf24'];
+            for (let i = 0; i < 6; i++) {
+              const ang = (i / 6) * Math.PI * 2 + p * 4.2;
+              const rad = (25 + p * 85) * sc;
+              const bx = e.tx + Math.cos(ang) * rad;
+              const by = e.ty + Math.sin(ang) * rad * 0.55 - p * 45;
+              const flap = 0.45 + 0.55 * Math.abs(Math.sin(p * 26 + i));
+              ctx.save();
+              ctx.translate(bx, by);
+              ctx.fillStyle = cols[i % cols.length];
+              ctx.globalAlpha = inv;
+              ctx.beginPath();
+              ctx.ellipse(-6 * sc * flap, 0, 8 * sc * flap, 10 * sc, -0.3, 0, Math.PI * 2);
+              ctx.ellipse(6 * sc * flap, 0, 8 * sc * flap, 10 * sc, 0.3, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.restore();
+            }
+            break;
+          }
+
+          case 9: { // 10. Celebration Fireworks
+            const fCols = ['#f43f5e', '#fbbf24', '#22c55e', '#38bdf8', '#a855f7'];
+            ctx.translate(e.tx, e.ty - 35);
+            for (let i = 0; i < 12; i++) {
+              const ang = (i / 12) * Math.PI * 2;
+              const r1 = (15 + p * 40) * sc;
+              const r2 = (28 + p * 95) * sc;
+              ctx.strokeStyle = fCols[i % fCols.length];
+              ctx.globalAlpha = inv;
+              ctx.lineWidth = 5 * inv * sc;
+              ctx.lineCap = 'round';
+              ctx.beginPath();
+              ctx.moveTo(Math.cos(ang) * r1, Math.sin(ang) * r1);
+              ctx.lineTo(Math.cos(ang) * r2, Math.sin(ang) * r2);
+              ctx.stroke();
+            }
+            break;
+          }
+        }
+        ctx.restore();
+      }
+
+      /* ================= DRAW SUNNY SCENE, BUILDER & CASTLE ================= */
+      function drawCloud(x, y, s) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.86)';
+        ctx.beginPath();
+        ctx.arc(x, y, 22 * s, 0, Math.PI * 2);
+        ctx.arc(x + 20 * s, y - 8 * s, 26 * s, 0, Math.PI * 2);
+        ctx.arc(x + 44 * s, y, 20 * s, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function drawBuilder() {
+        const b = getBuilderPos();
+        const jump = Math.sin(state.builderJump * Math.PI) * 20;
+        const bob = Math.sin(state.time * 4) * 3;
+        const bx = b.x;
+        const by = b.y - jump + bob;
+        const s = b.size;
+
+        ctx.save();
+        // Ground shadow
+        ctx.fillStyle = 'rgba(22, 101, 52, 0.22)';
+        ctx.beginPath();
+        ctx.ellipse(b.x, b.y + s * 0.82, s * 0.72, s * 0.18, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.translate(bx, by);
+
+        // Cheerful Overalls Body
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.roundRect(-s * 0.36, -s * 0.05, s * 0.72, s * 0.78, 12);
+        ctx.fill();
+
+        //Cute Round Head
+        ctx.fillStyle = '#fde68a';
+        ctx.beginPath();
+        ctx.arc(0, -s * 0.35, s * 0.42, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rosy cheeks & happy eyes
+        ctx.fillStyle = '#fda4af';
+        ctx.beginPath();
+        ctx.arc(-s * 0.18, -s * 0.26, s * 0.08, 0, Math.PI * 2);
+        ctx.arc(s * 0.22, -s * 0.26, s * 0.08, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.arc(-s * 0.1, -s * 0.38, s * 0.06, 0, Math.PI * 2);
+        ctx.arc(s * 0.16, -s * 0.38, s * 0.06, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Happy Smile
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 2.4;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.arc(s * 0.03, -s * 0.3, s * 0.12, 0.15 * Math.PI, 0.85 * Math.PI);
+        ctx.stroke();
+
+        // Yellow Safety Builder Hat
+        ctx.fillStyle = '#fbbf24';
+        ctx.beginPath();
+        ctx.arc(0, -s * 0.56, s * 0.42, Math.PI, 0);
+        ctx.fill();
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.roundRect(-s * 0.5, -s * 0.6, s * 1.0, s * 0.14, 6);
+        ctx.fill();
+
+        // Magic Wand / Hammer in hand
+        ctx.save();
+        ctx.translate(s * 0.44, s * 0.15);
+        ctx.rotate(-0.4 - state.builderJump * 0.7);
+        ctx.fillStyle = '#d97706';
+        ctx.fillRect(-3, -s * 0.55, 6, s * 0.65);
+        ctx.fillStyle = '#facc15';
+        drawStar(0, -s * 0.62, 5, s * 0.24, s * 0.11);
+        ctx.restore();
+
+        ctx.restore();
+      }
+
+      function stageScale(prog, start, end) {
+        return Math.max(0, Math.min(1, (prog - start) / (end - start)));
+      }
+
+      function drawCastle() {
+        const c = getCastlePos();
+        const theme = getCastleTheme();
+        const prog = Math.min(1, state.displayBuilt / state.goal);
+        const s = c.scale;
+        const bounceY = Math.sin(state.castleBounce * Math.PI) * 0.08;
+        const sx = 1 - bounceY * 0.5;
+        const sy = 1 + bounceY;
+
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.scale(s * sx, s * sy);
+
+        // Soft Castle Glow on build
+        if (state.castleGlow > 0) {
+          const g = ctx.createRadialGradient(0, -90, 20, 0, -90, 175);
+          g.addColorStop(0, `rgba(254, 240, 138, ${state.castleGlow})`);
+          g.addColorStop(1, 'rgba(254, 240, 138, 0)');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(0, -90, 175, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Background Rainbow when > 88% built
+        const rb = stageScale(prog, 0.88, 1.0);
+        if (rb > 0) {
+          const cols = ['#ef4444', '#f97316', '#facc15', '#22c55e', '#38bdf8', '#a855f7'];
+          cols.forEach((col, i) => {
+            ctx.strokeStyle = col;
+            ctx.globalAlpha = rb * 0.55;
+            ctx.lineWidth = 7;
+            ctx.beginPath();
+            ctx.arc(0, -20, 165 - i * 7, Math.PI, 0);
+            ctx.stroke();
+          });
+          ctx.globalAlpha = 1;
+        }
+
+        // Blueprint outline guide (subtle dashed silhouette so kids see the castle taking shape!)
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 6]);
+        ctx.strokeRect(-100, -105, 200, 105);
+        ctx.strokeRect(-42, -175, 84, 70);
+        ctx.setLineDash([]);
+
+        // STAGE 1 (0% - 14%): Stone Foundation Base
+        const st1 = stageScale(prog, 0.0, 0.14);
+        if (st1 > 0) {
+          const h = 24 * st1;
+          ctx.fillStyle = '#cbd5e1';
+          ctx.beginPath();
+          ctx.roundRect(-124, -h, 248, h, [8, 8, 2, 2]);
+          ctx.fill();
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillRect(-124, -6 * st1, 248, 6 * st1);
+        }
+
+        // STAGE 2 (12% - 32%): Main Courtyard Wall & Arched Gate
+        const st2 = stageScale(prog, 0.12, 0.32);
+        if (st2 > 0) {
+          const h = 82 * st2;
+          ctx.fillStyle = theme.wall;
+          ctx.fillRect(-78, -22 - h, 156, h);
+          ctx.fillStyle = theme.wallShade;
+          ctx.fillRect(56, -22 - h, 22, h);
+
+          // Battlements on top of main wall
+          if (st2 > 0.75) {
+            ctx.fillStyle = theme.wall;
+            for (let i = -3; i <= 3; i++) {
+              ctx.fillRect(i * 22 - 7, -22 - h - 10, 14, 12);
+            }
+          }
+
+          // Arched Wooden Door
+          if (st2 > 0.35) {
+            const dh = Math.min(48, h * 0.7);
+            ctx.fillStyle = theme.door;
+            ctx.beginPath();
+            ctx.moveTo(-22, -22);
+            ctx.lineTo(-22, -22 - dh + 18);
+            ctx.arc(0, -22 - dh + 18, 22, Math.PI, 0);
+            ctx.lineTo(22, -22);
+            ctx.closePath();
+            ctx.fill();
+            // Gold doorknob
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath();
+            ctx.arc(10, -40, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        // STAGE 3 (30% - 52%): Left & Right Flanking Towers
+        const st3 = stageScale(prog, 0.30, 0.52);
+        if (st3 > 0) {
+          const h = 115 * st3;
+          for (let side of [-1, 1]) {
+            const tx = side * 94;
+            ctx.fillStyle = theme.wall;
+            ctx.fillRect(tx - 24, -22 - h, 48, h);
+            ctx.fillStyle = theme.wallShade;
+            ctx.fillRect(tx + 12, -22 - h, 12, h);
+            // Cute arched windows
+            if (st3 > 0.55) {
+              ctx.fillStyle = '#38bdf8';
+              ctx.beginPath();
+              ctx.arc(tx, -22 - h * 0.65, 9, Math.PI, 0);
+              ctx.lineTo(tx + 9, -22 - h * 0.65 + 14);
+              ctx.lineTo(tx - 9, -22 - h * 0.65 + 14);
+              ctx.closePath();
+              ctx.fill();
+            }
+          }
+        }
+
+        // STAGE 4 (50% - 68%): Side Tower Roofs & Flags
+        const st4 = stageScale(prog, 0.50, 0.68);
+        if (st4 > 0) {
+          for (let side of [-1, 1]) {
+            const tx = side * 94;
+            const base = -137;
+            const rh = 52 * st4;
+            ctx.fillStyle = theme.roof;
+            ctx.beginPath();
+            ctx.moveTo(tx - 31, base);
+            ctx.lineTo(tx, base - rh);
+            ctx.lineTo(tx + 31, base);
+            ctx.closePath();
+            ctx.fill();
+
+            // Roof highlight
+            ctx.fillStyle = theme.roofLight;
+            ctx.beginPath();
+            ctx.moveTo(tx - 16, base);
+            ctx.lineTo(tx, base - rh);
+            ctx.lineTo(tx + 4, base);
+            ctx.closePath();
+            ctx.fill();
+
+            // Tiny fluttering flag
+            if (st4 > 0.7) {
+              const wave = Math.sin(state.time * 6 + side) * 3;
+              ctx.strokeStyle = '#64748b';
+              ctx.lineWidth = 2.5;
+              ctx.beginPath();
+              ctx.moveTo(tx, base - rh);
+              ctx.lineTo(tx, base - rh - 22);
+              ctx.stroke();
+              ctx.fillStyle = theme.flag;
+              ctx.beginPath();
+              ctx.moveTo(tx, base - rh - 22);
+              ctx.lineTo(tx + 20, base - rh - 16 + wave);
+              ctx.lineTo(tx, base - rh - 10);
+              ctx.closePath();
+              ctx.fill();
+            }
+          }
+        }
+
+        // STAGE 5 (66% - 84%): Tall Central Keep Tower
+        const st5 = stageScale(prog, 0.66, 0.84);
+        if (st5 > 0) {
+          const h = 84 * st5;
+          ctx.fillStyle = theme.wall;
+          ctx.fillRect(-38, -104 - h, 76, h);
+          ctx.fillStyle = theme.wallShade;
+          ctx.fillRect(22, -104 - h, 16, h);
+
+          // Royal Rose Window
+          if (st5 > 0.5) {
+            ctx.fillStyle = '#fef08a';
+            ctx.strokeStyle = theme.roof;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(0, -104 - h * 0.55, 14, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+          }
+        }
+
+        // STAGE 6 (82% - 100%): Grand Central Spire, Golden Flag & Garden Flowers
+        const st6 = stageScale(prog, 0.82, 1.0);
+        if (st6 > 0) {
+          const base = -188;
+          const rh = 64 * st6;
+          ctx.fillStyle = theme.roof;
+          ctx.beginPath();
+          ctx.moveTo(-46, base);
+          ctx.lineTo(0, base - rh);
+          ctx.lineTo(46, base);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = theme.roofLight;
+          ctx.beginPath();
+          ctx.moveTo(-22, base);
+          ctx.lineTo(0, base - rh);
+          ctx.lineTo(6, base);
+          ctx.closePath();
+          ctx.fill();
+
+          // Grand Golden Flag
+          if (st6 > 0.6) {
+            const wave = Math.sin(state.time * 7) * 4;
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, base - rh);
+            ctx.lineTo(0, base - rh - 28);
+            ctx.stroke();
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath();
+            ctx.moveTo(0, base - rh - 28);
+            ctx.lineTo(28, base - rh - 20 + wave);
+            ctx.lineTo(0, base - rh - 12);
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          // Blooming Flowers around base
+          const flowerCols = ['#f43f5e', '#fbbf24', '#ec4899', '#a855f7'];
+          for (let i = 0; i < 6; i++) {
+            const fx = -110 + i * 44;
+            ctx.fillStyle = flowerCols[i % flowerCols.length];
+            ctx.beginPath();
+            ctx.arc(fx, -4, 5 * st6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#fef08a';
+            ctx.beginPath();
+            ctx.arc(fx, -4, 2 * st6, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        ctx.restore();
+      }
+
+      /* ================= MAIN RENDER LOOP ================= */
+      function resizeCanvas() {
+        const rect = arenaWrap.getBoundingClientRect();
+        width = Math.max(200, rect.width);
+        height = Math.max(160, rect.height);
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function tick(ts) {
+        const dt = Math.min(0.05, lastTs ? (ts - lastTs) / 1000 : 0.016);
+        lastTs = ts;
+        state.time += dt;
+
+        // Smooth visual progress & springs
+        state.displayBuilt += (state.built - state.displayBuilt) * Math.min(1, dt * 8);
+        if (state.victory) {
+          state.victoryLerp += (1 - state.victoryLerp) * Math.min(1, dt * 4.5);
+          state.fireworkTimer -= dt;
+          if (state.fireworkTimer <= 0) {
+            state.fireworkTimer = 0.85 + Math.random() * 0.65;
+            const fx = width * (0.2 + Math.random() * 0.6);
+            const fy = height * (0.16 + Math.random() * 0.28);
+            const cols = ['#f43f5e', '#fbbf24', '#38bdf8', '#a855f7', '#22c55e'];
+            spawnSparkles(fx, fy, cols[Math.floor(Math.random() * cols.length)], 18);
+          }
+        }
+        if (state.castleBounce > 0) state.castleBounce = Math.max(0, state.castleBounce - dt * 3.8);
+        if (state.castleGlow > 0) state.castleGlow = Math.max(0, state.castleGlow - dt * 1.4);
+        if (state.builderJump > 0) state.builderJump = Math.max(0, state.builderJump - dt * 3.2);
+        if (state.skillRays > 0) state.skillRays = Math.max(0, state.skillRays - dt * 1.3);
+
+        ctx.clearRect(0, 0, width, height);
+
+        // Smiling Sun in top-left sky
+        const sunX = width * 0.13;
+        const sunY = height * 0.18;
+        const sunR = Math.min(width, height) * 0.075;
+        ctx.save();
+        const sunGlow = ctx.createRadialGradient(sunX, sunY, sunR * 0.4, sunX, sunY, sunR * 2.2);
+        sunGlow.addColorStop(0, 'rgba(253, 224, 71, 0.75)');
+        sunGlow.addColorStop(1, 'rgba(253, 224, 71, 0)');
+        ctx.fillStyle = sunGlow;
+        ctx.beginPath();
+        ctx.arc(sunX, sunY, sunR * 2.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fde047';
+        ctx.beginPath();
+        ctx.arc(sunX, sunY, sunR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Drifting Clouds
+        clouds.forEach((cl) => {
+          const cx = ((cl.x + state.time * cl.speed) % 1.2 - 0.1) * width;
+          const cy = cl.y * height;
+          drawCloud(cx, cy, cl.scale);
+        });
+
+        // Joyful Golden Rays during Skill
+        if (state.skillRays > 0) {
+          const c = getCastlePos();
+          ctx.save();
+          ctx.translate(c.x, c.y - 80);
+          ctx.strokeStyle = `rgba(250, 204, 21, ${state.skillRays * 0.55})`;
+          ctx.lineWidth = 4;
+          for (let i = 0; i < 16; i++) {
+            const ang = (i / 16) * Math.PI * 2 + state.time * 1.6;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(ang) * 40, Math.sin(ang) * 40);
+            ctx.lineTo(Math.cos(ang) * width, Math.sin(ang) * width);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        // Rolling Green Hills
+        const groundY = height * 0.76;
+        ctx.fillStyle = '#86efac';
+        ctx.beginPath();
+        ctx.ellipse(width * 0.25, groundY + 45, width * 0.48, 85, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#4ade80';
+        ctx.beginPath();
+        ctx.ellipse(width * 0.72, groundY + 42, width * 0.55, 88, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#22c55e';
+        ctx.fillRect(0, groundY + 18, width, height - groundY);
+
+        // Entities
+        drawCastle();
+        drawBuilder();
+
+        // Active 10 Building VFX
+        for (let i = activeEffects.length - 1; i >= 0; i--) {
+          const ef = activeEffects[i];
+          ef.t += dt;
+          if (ef.t >= ef.dur) {
+            activeEffects.splice(i, 1);
+          } else {
+            drawVfx(ef);
+          }
+        }
+
+        // Sparkle Particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const pt = particles[i];
+          pt.life -= dt;
+          if (pt.life <= 0) {
+            particles.splice(i, 1);
+            continue;
+          }
+          pt.vy += pt.gravity * dt;
+          pt.x += pt.vx * dt;
+          pt.y += pt.vy * dt;
+          const alpha = Math.max(0, pt.life / pt.maxLife);
+          ctx.fillStyle = pt.color;
+          ctx.globalAlpha = alpha;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, pt.r * alpha + 1, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+
+        // Floating Progress Numbers
+        for (let i = floatTexts.length - 1; i >= 0; i--) {
+          const ft = floatTexts[i];
+          ft.life -= dt;
+          if (ft.life <= 0) {
+            floatTexts.splice(i, 1);
+            continue;
+          }
+          ft.y += ft.vy * dt;
+          ft.vy *= Math.pow(0.2, dt);
+          const alpha = Math.min(1, (ft.life / ft.maxLife) * 1.6);
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          ctx.textAlign = 'center';
+          ctx.font = `900 ${Math.round(28 * ft.scale)}px -apple-system, BlinkMacSystemFont, sans-serif`;
+          ctx.lineWidth = 6;
+          ctx.strokeStyle = '#ffffff';
+          ctx.strokeText(ft.text, ft.x, ft.y);
+          ctx.fillStyle = ft.color;
+          ctx.fillText(ft.text, ft.x, ft.y);
+
+          if (ft.tag) {
+            ctx.font = `900 ${Math.round(16 * ft.scale)}px -apple-system, BlinkMacSystemFont, sans-serif`;
+            ctx.strokeText(ft.tag, ft.x, ft.y - 28 * ft.scale);
+            ctx.fillStyle = ft.color;
+            ctx.fillText(ft.tag, ft.x, ft.y - 28 * ft.scale);
+          }
+          ctx.restore();
+        }
+
+        rafId = requestAnimationFrame(tick);
+      }
+
+      /* ================= EVENT LISTENERS ================= */
+      numpad.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('.key');
+        if (!btn) return;
+        const num = btn.getAttribute('data-num');
+        const action = btn.getAttribute('data-action');
+        if (num !== null) appendDigit(num);
+        else if (action === 'del') deleteDigit();
+        else if (action === 'submit') submitAnswer();
+      });
+
+      window.addEventListener('keydown', (ev) => {
+        if (ev.key >= '0' && ev.key <= '9') {
+          ev.preventDefault();
+          appendDigit(ev.key);
+        } else if (ev.key === 'Backspace' || ev.key === 'Delete') {
+          ev.preventDefault();
+          deleteDigit();
+        } else if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          if (state.victory) startLevel(1);
+          else submitAnswer();
+        }
+      });
+
+      btnSound.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        soundIconOn.style.display = soundEnabled ? '' : 'none';
+        soundIconOff.style.display = soundEnabled ? 'none' : '';
+        if (soundEnabled) {
+          ensureAudio();
+          playKeySound();
+        }
+      });
+
+      btnReset.addEventListener('click', () => {
+        ensureAudio();
+        playKeySound();
+        startLevel(1);
+      });
+
+      btnReplay.addEventListener('click', () => {
+        ensureAudio();
+        playKeySound();
+        startLevel(1);
+      });
+
+      btnDownload.addEventListener('click', () => {
+        const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '4x_castle_builder.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+
+      window.addEventListener('resize', resizeCanvas);
+      window.addEventListener('load', () => {
+        initClouds();
+        resizeCanvas();
+        startLevel(1);
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(tick);
+      });
+    })();
+  </script>
+
+</body></html>
