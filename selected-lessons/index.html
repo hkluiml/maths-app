@@ -315,7 +315,7 @@ button.card:active { transform: translateY(3px) scale(.985); box-shadow: 0 2px 0
 .card-copy.copied .tick-icon { display: block; color: #18734e; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 </style></head><body><div class="ios-blur-fix" aria-hidden="true"></div><div class="shell" id="shell"><header class="bar" id="toolbar"><span class="math-icon" aria-hidden="true">🧮</span><span class="brand" id="brand">小二數學</span><div class="math-tiles" aria-hidden="true"><span>＋</span><span>×</span><span>△</span></div><button class="nav" id="full" hidden>⛶ 全螢幕</button><button class="nav" id="home" hidden>⌂ 首頁</button></header><main class="content" id="menu" aria-label="小二數學教具選集"><div class="grid" id="grid"></div><div id="copy-status" class="visually-hidden" role="status"></div></main><section class="viewer" id="viewer" hidden aria-label="教學 App"></section></div><script>
-const lessons=[{"num": 7, "title": "認識及比較角", "name": "認識及比較角", "icon": "📐", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/compare-angles/", "path": "apps/compare-angles/index.html"}, {"num": 8, "title": "直角、銳角和鈍角", "name": "直角、銳角和鈍角", "icon": "🔺", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/types-of-angles/", "path": "apps/types-of-angles/index.html"}, {"num": 9, "title": "垂直線", "name": "垂直線", "icon": "📏", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/perpendicular-lines/", "path": "apps/perpendicular-lines/index.html"}, {"num": 10, "title": "四個主要方向", "name": "方向轉轉樂", "icon": "🧭", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/four-directions/", "path": "apps/four-directions/index.html"}, {"num": 10, "title": "方向尋寶大賽", "name": "方向尋寶大賽", "icon": "💎", "url": "https://hkluiml.github.io/maths-app/direction-treasure/", "path": "../direction-treasure/index.html"}, {"num": 10, "title": "地圖方向探險隊", "name": "地圖方向探險隊", "icon": "🗺️", "url": "https://hkluiml.github.io/maths-app/direction-explorers/", "path": "../direction-explorers/index.html"}, {"num": 12, "title": "乘法的計算（一）", "name": "乘法分組操作台", "icon": "🔢", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-groups/", "path": "apps/multiplication-groups/index.html"}, {"num": 12, "title": "4 的乘法遊戲", "name": "4 的乘法遊戲", "icon": "🏰", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-4/", "path": "apps/multiplication-4/index.html"}, {"num": 12, "title": "10、5、2、3、4 的乘法遊戲", "name": "10、5、2、3、4 的乘法遊戲", "icon": "🎮", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-mix/", "path": "apps/multiplication-mix/index.html"}, {"num": 13, "title": "乘法的計算（二）", "name": "6 的乘法遊戲", "icon": "🧩", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-6/", "path": "apps/multiplication-6/index.html"}];
+const lessons=[{"num": 7, "title": "認識及比較角", "name": "認識及比較角", "icon": "📐", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/compare-angles/", "path": "apps/compare-angles/index.html"}, {"num": 8, "title": "直角、銳角和鈍角", "name": "直角、銳角和鈍角", "icon": "🔺", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/types-of-angles/", "path": "apps/types-of-angles/index.html"}, {"num": 9, "title": "垂直線", "name": "垂直線", "icon": "📏", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/perpendicular-lines/", "path": "apps/perpendicular-lines/index.html"}, {"num": 10, "title": "四個主要方向", "name": "四個主要方向", "icon": "🧭", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/directions-combined/", "path": "apps/directions-combined/index.html", "bundle": true}, {"num": 12, "title": "乘法的計算（一）", "name": "乘法分組操作台", "icon": "🔢", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-groups/", "path": "apps/multiplication-groups/index.html"}, {"num": 12, "title": "4 的乘法遊戲", "name": "4 的乘法遊戲", "icon": "🏰", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-4/", "path": "apps/multiplication-4/index.html"}, {"num": 12, "title": "10、5、2、3、4 的乘法遊戲", "name": "10、5、2、3、4 的乘法遊戲", "icon": "🎮", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-mix/", "path": "apps/multiplication-mix/index.html"}, {"num": 13, "title": "乘法的計算（二）", "name": "6 的乘法遊戲", "icon": "🧩", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-6/", "path": "apps/multiplication-6/index.html"}];
 
 const $ = id => document.getElementById(id);
 
@@ -353,6 +353,23 @@ const cardPalettes = {
   13: ['#d9f4ef', '#a2ccc5', '#d4f0b7'],
 };
 
+async function bundleActivity(path) {
+  const response = await fetch(path);
+  if (!response.ok) throw new Error('Unable to open activity');
+  const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+  const embedded = page.getElementById('embedded-apps');
+  const sources = [...page.querySelectorAll('[data-source]')];
+  if (!embedded || !sources.length) throw new Error('Activity sources are missing');
+  const documents = await Promise.all(sources.map(async source => {
+    const result = await fetch(new URL(source.dataset.source, response.url));
+    if (!result.ok) throw new Error('Unable to load activity source');
+    return result.text();
+  }));
+  embedded.textContent = JSON.stringify(documents).replace(/</g, '\\u003c');
+  const html = '<!doctype html>\n' + page.documentElement.outerHTML;
+  return URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
+}
+
 function createActions(lesson) {
   const download = document.createElement('button');
   download.type = 'button';
@@ -360,13 +377,26 @@ function createActions(lesson) {
   download.title = '下載 HTML';
   download.setAttribute('aria-label', '下載「' + lesson.name + '」HTML');
   download.innerHTML = '<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8m-3-3 3 3 3-3M3 12v2h10v-2"/></svg>';
-  download.onclick = () => {
+  download.onclick = async () => {
+    let href = lesson.path;
+    if (lesson.bundle) {
+      download.disabled = true;
+      try {
+        href = await bundleActivity(lesson.path);
+      } catch {
+        $('copy-status').textContent = '下載失敗，請再試一次。';
+        return;
+      } finally {
+        download.disabled = false;
+      }
+    }
     const link = document.createElement('a');
-    link.href = lesson.path;
+    link.href = href;
     link.download = lesson.name + '.html';
     document.body.append(link);
     link.click();
     link.remove();
+    if (lesson.bundle) setTimeout(() => URL.revokeObjectURL(href), 30000);
   };
 
   const copy = document.createElement('button');
