@@ -44,6 +44,7 @@
     button:active { transform: scale(.96); transition: transform .4s; }
     .activity-actions { display: flex; gap: 4px; }
     .activity-actions button { padding-inline: 8px; }
+    .activity-actions #share-activity svg { display: block; width: 16px; height: 16px; }
     main { flex: 1; min-height: 0; }
     iframe { display: block; width: 100%; height: 100%; border: 0; }
     @media (max-width: 480px) {
@@ -61,7 +62,7 @@
     <div class="activity-actions">
       <button type="button" id="download-activity" title="下載目前教具" aria-label="下載目前教具">⤓</button>
       <button type="button" id="copy-activity" title="複製目前教具連結" aria-label="複製目前教具連結">🔗</button>
-      <button type="button" id="share-activity" title="分享目前教具" aria-label="分享目前教具"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10V2m-3 3 3-3 3 3M3 8v5h10V8"/></svg></button>
+      <button type="button" id="share-activity" title="分享目前教具" aria-label="分享目前教具"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10V2m-3 3 3-3 3 3M3 8v5h10V8"/></svg></button>
     </div>
   </nav>
   <main id="activities"></main>
@@ -154,3 +155,4 @@
   </script>
 </body>
 </html>
+
