@@ -231,48 +231,6 @@ button.card:active { transform: translateY(3px) scale(.985); box-shadow: 0 2px 0
 :is(.card-download, .card-copy):is(:hover, :active)::after { background: #fff; }
 :is(.card-download, .card-copy) svg { z-index: 1; width: 12px; height: 12px; pointer-events: none; }
 
-.card-group {
-  padding-bottom: 14px;
-}
-.card-group .number { margin-bottom: 18px; }
-.card-group .title { margin: 0 0 12px; }
-.lesson-apps { display: grid; gap: 6px; width: 100%; }
-.lesson-app {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  border-radius: 12px;
-  background: #ffffffaa;
-}
-.lesson-open {
-  flex: 1;
-  min-width: 0;
-  min-height: 40px;
-  padding: 6px 0 6px 10px;
-  border: 0;
-  border-radius: 12px 0 0 12px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-weight: 750;
-  line-height: 1.25;
-  text-align: left;
-  overflow-wrap: anywhere;
-}
-.lesson-open:hover { background: #fff8; }
-.lesson-open:active { background: #fff; }
-.lesson-app .card-actions {
-  position: static;
-  flex: 0 0 auto;
-  margin-right: 3px;
-}
-.lesson-app :is(.card-download, .card-copy) {
-  width: 34px;
-  height: 38px;
-}
-.lesson-app :is(.card-download, .card-copy)::after { inset: 7px 4px; }
-.lesson-app :is(.card-download, .card-copy) svg { width: 15px; height: 15px; }
-
 @media (max-width: 890px) {
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .title { font-size: clamp(19px, 3.2vw, 26px); }
@@ -302,8 +260,6 @@ button.card:active { transform: translateY(3px) scale(.985); box-shadow: 0 2px 0
   .title { font-size: clamp(16px, 4.6vw, 22px); }
   .card-actions { right: 5px; bottom: 4px; }
   button.card { min-height: 118px; }
-  .card-group { padding: 13px 10px 12px; }
-  .card-group .number { margin-bottom: 14px; }
   .viewing .brand { font-size: 14px; }
 }
 @media (min-width: 891px) and (max-height: 660px) {
@@ -323,7 +279,7 @@ button.card:active { transform: translateY(3px) scale(.985); box-shadow: 0 2px 0
 .card-copy.copied .tick-icon { display: block; color: #18734e; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 </style></head><body><div class="ios-blur-fix" aria-hidden="true"></div><div class="shell" id="shell"><header class="bar" id="toolbar"><span class="math-icon" aria-hidden="true">🧮</span><span class="brand" id="brand">小二數學</span><div class="math-tiles" aria-hidden="true"><span>＋</span><span>×</span><span>△</span></div><div class="portal-actions" id="portal-actions"></div><button class="nav" id="full" hidden>⛶ 全螢幕</button><button class="nav" id="home" hidden>⌂ 首頁</button></header><main class="content" id="menu" aria-label="小二數學教具選集"><div class="grid" id="grid"></div><div id="copy-status" class="visually-hidden" role="status"></div></main><section class="viewer" id="viewer" hidden aria-label="教學 App"></section></div><script id="portal-script">
-const lessons=[{"num": 7, "title": "認識及比較角", "name": "認識及比較角", "icon": "📐", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/compare-angles/", "path": "apps/compare-angles/index.html"}, {"num": 8, "title": "直角、銳角和鈍角", "name": "直角、銳角和鈍角", "icon": "🔺", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/types-of-angles/", "path": "apps/types-of-angles/index.html"}, {"num": 9, "title": "垂直線", "name": "垂直線", "icon": "📏", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/perpendicular-lines/", "path": "apps/perpendicular-lines/index.html"}, {"num": 10, "title": "四個主要方向", "name": "四個主要方向", "icon": "🧭", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/directions-combined/", "path": "apps/directions-combined/index.html", "bundle": true}, {"num": 12, "title": "乘法的計算（一）", "name": "乘法分組操作台", "icon": "🔢", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-groups/", "path": "apps/multiplication-groups/index.html"}, {"num": 12, "title": "4 的乘法遊戲", "name": "4 的乘法遊戲", "icon": "🏰", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-4/", "path": "apps/multiplication-4/index.html"}, {"num": 12, "title": "10、5、2、3、4 的乘法遊戲", "name": "10、5、2、3、4 的乘法遊戲", "icon": "🎮", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-mix/", "path": "apps/multiplication-mix/index.html"}, {"num": 13, "title": "乘法的計算（二）", "name": "6 的乘法遊戲", "icon": "🧩", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-6/", "path": "apps/multiplication-6/index.html"}];
+const lessons=[{"num": 7, "title": "認識及比較角", "name": "認識及比較角", "icon": "📐", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/compare-angles/", "path": "apps/compare-angles/index.html"}, {"num": 8, "title": "直角、銳角和鈍角", "name": "直角、銳角和鈍角", "icon": "🔺", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/types-of-angles/", "path": "apps/types-of-angles/index.html"}, {"num": 9, "title": "垂直線", "name": "垂直線", "icon": "📏", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/perpendicular-lines/", "path": "apps/perpendicular-lines/index.html"}, {"num": 10, "title": "四個主要方向", "name": "四個主要方向", "icon": "🧭", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/directions-combined/", "path": "apps/directions-combined/index.html", "bundle": true}, {"num": 12, "title": "乘法的計算（一）", "name": "乘法的計算（一）", "icon": "🔢", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-lesson-1/", "path": "apps/multiplication-lesson-1/index.html", "bundle": true}, {"num": 13, "title": "乘法的計算（二）", "name": "乘法的計算（二）", "icon": "🧩", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-lesson-2/", "path": "apps/multiplication-lesson-2/index.html", "bundle": true}];
 
 const $ = id => document.getElementById(id);
 
@@ -476,58 +432,32 @@ $('portal-actions').append(createActions({
   url: 'https://hkluiml.github.io/maths-app/selected-lessons/',
 }, downloadPortal));
 
-const appsByLesson = new Map();
 for (const lesson of lessons) {
-  if (!appsByLesson.has(lesson.num)) appsByLesson.set(lesson.num, []);
-  appsByLesson.get(lesson.num).push(lesson);
-}
-
-for (const [number, apps] of appsByLesson) {
-  const [firstApp] = apps;
-  const grouped = apps.length > 1 || firstApp.name !== firstApp.title;
-  const [color, rim, sticker] = cardPalettes[number];
+  const [color, rim, sticker] = cardPalettes[lesson.num];
   const entry = document.createElement('div');
   entry.className = 'card-entry';
 
-  const card = document.createElement(grouped ? 'article' : 'button');
-  card.className = grouped ? 'card card-group' : 'card';
+  const card = document.createElement('button');
+  card.type = 'button';
+  card.className = 'card';
   card.style.setProperty('--color', color);
   card.style.setProperty('--rim', rim);
   card.style.setProperty('--sticker', sticker);
 
   for (const [role, label] of [
-    ['icon', firstApp.icon],
-    ['number', '第 ' + number + ' 課'],
-    ['title', firstApp.title],
+    ['icon', lesson.icon],
+    ['number', '第 ' + lesson.num + ' 課'],
+    ['title', lesson.title],
   ]) {
-    const element = document.createElement(grouped && role === 'title' ? 'h2' : 'span');
+    const element = document.createElement('span');
     element.className = role;
     if (role === 'icon') element.setAttribute('aria-hidden', 'true');
     element.textContent = label;
     card.append(element);
   }
 
-  entry.append(card);
-  if (grouped) {
-    const appList = document.createElement('div');
-    appList.className = 'lesson-apps';
-    for (const app of apps) {
-      const row = document.createElement('div');
-      row.className = 'lesson-app';
-      const open = document.createElement('button');
-      open.type = 'button';
-      open.className = 'lesson-open';
-      open.textContent = app.name;
-      open.onclick = () => openApp(app);
-      row.append(open, createActions(app));
-      appList.append(row);
-    }
-    card.append(appList);
-  } else {
-    card.type = 'button';
-    card.onclick = () => openApp(firstApp);
-    entry.append(createActions(firstApp));
-  }
+  card.onclick = () => openApp(lesson);
+  entry.append(card, createActions(lesson));
   $('grid').append(entry);
 }
 
