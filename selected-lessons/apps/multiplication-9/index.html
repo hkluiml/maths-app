@@ -1,0 +1,1274 @@
+Warning: truncated output (original token count: 294055)
+... 127642 bytes omitted ...
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>9× 🐠</title>
+  <style>
+    :root {
+      --panel-bg: #07192f;
+      --key-bg: #0e2a4a;
+      --key-hover: #163d68;
+      --key-active: #1e4f85;
+      --accent-aqua: #22d3ee;
+      --accent-coral: #fb7185;
+      --accent-gold: #fde047;
+      --accent-green: #34d399;
+      --accent-red: #f43f5e;
+      --text-main: #f0f9ff;
+      --text-dim: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: #041021;
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100dvh;
+      max-width: 960px;
+      margin: 0 auto;
+      background: #06172c;
+      position: relative;
+      box-shadow: 0 0 50px rgba(34, 211, 238, 0.22);
+    }
+
+    /* TOP HUD */
+    .hud {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px 6px;
+      z-index: 25;
+      flex-shrink: 0;
+      background: rgba(4, 18, 38, 0.56);
+      backdrop-filter: blur(8px);
+    }
+
+    .badge-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.4px;
+      background: rgba(14, 42, 74, 0.85);
+      border: 1.5px solid rgba(255, 255, 255, 0.22);
+      color: #f0f9ff;
+      white-space: nowrap;
+    }
+
+    .pill-stage {
+      color: #a5f3fc;
+      border-color: rgba(34, 211, 238, 0.48);
+      background: rgba(34, 211, 238, 0.16);
+    }
+
+    .pill-combo {
+      color: #fde047;
+      border-color: rgba(253, 224, 71, 0.48);
+      background: rgba(253, 224, 71, 0.14);
+      transition: transform 0.15s ease;
+    }
+
+    .pill-combo.pop {
+      transform: scale(1.22);
+    }
+
+    .pill-mode {
+      color: #7dd3fc;
+      border-color: rgba(56, 189, 248, 0.45);
+      background: rgba(56, 189, 248, 0.14);
+    }
+
+    .pill-mode.rand {
+      color: #f9a8d4;
+      border-color: rgba(244, 114, 182, 0.5);
+      background: rgba(244, 114, 182, 0.18);
+    }
+
+    /* AQUARIUM PROGRESS BAR */
+    .prog-wrap {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .prog-bar-outer {
+      position: relative;
+      width: 100%;
+      height: 24px;
+      background: rgba(4, 16, 33, 0.88);
+      border-radius: 999px;
+      border: 2px solid rgba(34, 211, 238, 0.5);
+      overflow: hidden;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6), 0 0 14px rgba(34, 211, 238, 0.26);
+    }
+
+    .prog-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 0%;
+      background: linear-gradient(90deg, #06b6d4 0%, #34d399 42%, #fb7185 75%, #fde047 100%);
+      transition: width 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+      border-radius: 999px;
+      box-shadow: 0 0 14px rgba(34, 211, 238, 0.65);
+    }
+
+    .prog-segments {
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent calc(10% - 1px),
+        rgba(255, 255, 255, 0.2) calc(10% - 1px),
+        rgba(255, 255, 255, 0.2) 10%
+      );
+      pointer-events: none;
+    }
+
+    .prog-phase-mark {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: #fde047;
+      box-shadow: 0 0 8px rgba(253, 224, 71, 0.95);
+      pointer-events: none;
+    }
+
+    .prog-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: 0.6px;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95);
+      pointer-events: none;
+    }
+
+    /* TEACHER SCRUBBER */
+    .teacher-slider {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      opacity: 0;
+      cursor: ew-resize;
+      z-index: 5;
+      display: none;
+    }
+
+    .teacher-mode .prog-bar-outer {
+      overflow: visible;
+      border-color: #fde047;
+      box-shadow: 0 0 16px rgba(253, 224, 71, 0.45);
+    }
+
+    .teacher-mode .prog-fill {
+      transition: none;
+    }
+
+    .teacher-mode .teacher-slider {
+      display: block;
+    }
+
+    .teacher-thumb {
+      position: absolute;
+      top: 50%;
+      left: 0%;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fde047;
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 0 12px rgba(253, 224, 71, 0.95);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      display: none;
+      z-index: 4;
+    }
+
+    .teacher-mode .teacher-thumb {
+      display: block;
+    }
+
+    /* ICON BUTTONS */
+    .icon-btns {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(34, 211, 238, 0.34);
+      background: rgba(14, 42, 74, 0.85);
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      padding: 0;
+    }
+
+    .icon-btn:hover {
+      background: rgba(34, 211, 238, 0.25);
+    }
+
+    .icon-btn:active {
+      transform: scale(0.92);
+    }
+
+    .icon-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* AQUARIUM ARENA */
+    .arena-wrap {
+      position: relative;
+      flex: 1;
+      min-height: 200px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    #arena {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 10 VFX DOCK */
+    .vfx-dock {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(4, 18, 38, 0.72);
+      border: 1.5px solid rgba(34, 211, 238, 0.3);
+      backdrop-filter: blur(6px);
+      z-index: 6;
+      pointer-events: none;
+    }
+
+    .vfx-dock.hidden-victory {
+      display: none;
+    }
+
+    .vfx-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      background: rgba(255, 255, 255, 0.08);
+      opacity: 0.52;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .vfx-dot.active {
+      opacity: 1;
+      transform: scale(1.35);
+      background: rgba(255, 255, 255, 0.24);
+      box-shadow: 0 0 14px var(--dot-color, #22d3ee);
+    }
+
+    /* OCEAN MAGIC BAR */
+    .sp-bar-wrap {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      z-index: 7;
+    }
+
+    .sp-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #22d3ee, #34d399, #fb7185, #fde047);
+      box-shadow: 0 0 12px rgba(34, 211, 238, 0.85);
+      transition: width 0.25s ease-out;
+    }
+
+    .sp-bar-fill.full {
+      animation: spPulse 0.55s infinite alternate;
+    }
+
+    @keyframes spPulse {
+      from { filter: brightness(1); }
+      to { filter: brightness(1.55); }
+    }
+
+    /* FULL AQUARIUM VICTORY OVERLAY */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(4, 18, 38, 0.42) 0%, rgba(4, 18, 38, 0) 24%, rgba(4, 18, 38, 0) 72%, rgba(4, 18, 38, 0.68) 100%);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 12px 18px;
+      z-index: 20;
+      pointer-events: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .overlay.show {
+      display: flex;
+    }
+
+    .overlay button {
+      pointer-events: auto;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .victory-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 20px;
+      border-radius: 999px;
+      background: rgba(7, 25, 47, 0.86);
+      border: 2px solid rgba(253, 224, 71, 0.78);
+      box-shadow: 0 0 26px rgba(34, 211, 238, 0.42);
+    }
+
+    .victory-crown {
+      font-size: 32px;
+      line-height: 1;
+      animation: bounceCrown 0.9s infinite alternate ease-in-out;
+    }
+
+    @keyframes bounceCrown {
+      from { transform: translateY(0) scale(1); }
+      to { transform: translateY(-6px) scale(1.08); }
+    }
+
+    .victory-score {
+      font-size: 24px;
+      font-weight: 900;
+      color: #fde047;
+      letter-spacing: 0.6px;
+    }
+
+    .victory-bottom {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .victory-stats {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .stat-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 14px;
+      background: rgba(7, 25, 47, 0.88);
+      border: 1.5px solid rgba(34, 211, 238, 0.5);
+      color: #f0f9ff;
+      font-size: 17px;
+      font-weight: 900;
+      box-shadow: 0 0 14px rgba(34, 211, 238, 0.25);
+    }
+
+    .replay-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 40px;
+      border-radius: 999px;
+      border: 2px solid rgba(255, 255, 255, 0.78);
+      background: linear-gradient(135deg, #06b6d4, #2563eb);
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 0 24px rgba(34, 211, 238, 0.48);
+      transition: transform 0.12s, filter 0.15s;
+    }
+
+    .replay-btn:hover {
+      filter: brightness(1.1);
+    }
+
+    .replay-btn:active {
+      transform: scale(0.94);
+    }
+
+    /* BOTTOM CONTROL DECK */
+    .deck {
+      background: var(--panel-bg);
+      border-top: 1.5px solid rgba(34, 211, 238, 0.24);
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .deck.hidden-victory {
+      display: none;
+    }
+
+    .equation-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .eq-prompt {
+      font-size: clamp(28px, 6vw, 40px);
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--text-main);
+      text-shadow: 0 0 14px rgba(34, 211, 238, 0.35);
+    }
+
+    .eq-prompt .mul {
+      color: var(--accent-aqua);
+    }
+
+    .eq-prompt .eq-sign {
+      color: var(--text-dim);
+    }
+
+    .answer-box {
+      min-width: 96px;
+      height: clamp(46px, 8vw, 56px);
+      padding: 0 16px;
+      border-radius: 14px;
+      background: #041021;
+      border: 2.5px solid var(--accent-aqua);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(28px, 6vw, 38px);
+      font-weight: 900;
+      color: #ffffff;
+      box-shadow: 0 0 18px rgba(34, 211, 238, 0.25);
+      transition: border-color 0.15s, background 0.15s, transform 0.12s;
+    }
+
+    .answer-box.empty::after {
+      content: "";
+      width: 3px;
+      height: 26px;
+      background: var(--accent-aqua);
+      border-radius: 2px;
+      animation: blink 0.9s infinite;
+    }
+
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+
+    .answer-box.wrong {
+      border-color: var(--accent-red);
+      background: rgba(244, 63, 94, 0.22);
+      animation: shakeX 0.32s ease;
+    }
+
+    .answer-box.correct {
+      border-color: var(--accent-green);
+      background: rgba(52, 211, 153, 0.22);
+      transform: scale(1.08);
+    }
+
+    @keyframes shakeX {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+
+    /* NUMPAD */
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      max-width: 640px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .key {
+      height: clamp(46px, 7.5dvh, 58px);
+      border-radius: 13px;
+      border: 1.5px solid rgba(34, 211, 238, 0.22);
+      border-bottom: 3px solid rgba(0, 0, 0, 0.55);
+      background: var(--key-bg);
+      color: var(--text-main);
+      font-size: clamp(20px, 4.2vw, 26px);
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.1s, transform 0.08s;
+      touch-action: manipulation;
+    }
+
+    .key:hover {
+      background: var(--key-hover);
+      border-color: rgba(34, 211, 238, 0.55);
+    }
+
+    .key:active {
+      background: var(--key-active);
+      transform: translateY(2px);
+      border-bottom-width: 1px;
+    }
+
+    .key-del {
+      background: #271a36;
+      color: #fda4af;
+    }
+
+    .key-go {
+      background: linear-gradient(135deg, #06b6d4, #2563eb);
+      border-color: rgba(34, 211, 238, 0.72);
+      border-bottom-color: #1e3a8a;
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(34, 211, 238, 0.36);
+    }
+
+    .key-go:hover {
+      filter: brightness(1.1);
+    }
+
+    @media (max-width: 480px) {
+      .numpad {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      .vfx-dock {
+        gap: 3px;
+        padding: 4px 6px;
+      }
+      .vfx-dot {
+        width: 20px;
+        height: 20px;
+        font-size: 11px;
+      }
+      .hud {
+        gap: 6px;
+        padding: 8px 8px 4px;
+      }
+      .pill {
+        padding: 3px 7px;
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body class="">
+  <div id="app">
+    <!-- Dreamy Cartoon Reef Background & 18 Unique Sea Creature Sprites -->
+    <img id="imgReefBg" src="data:image/jpeg;base64,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…250152 tokens truncated…ve', idx === id);
+        });
+      }
+
+      function startGame() {
+        state.life = 0;
+        state.displayLife = 0;
+        state.seqIndex = 1;
+        state.questionBag = [];
+        state.vfxBag = [];
+        state.sp = 0;
+        state.combo = 0;
+        state.hits = 0;
+        state.crits = 0;
+        state.skills = 0;
+        state.victory = false;
+        state.teacherScrubbed = false;
+        state.startTime = performance.now();
+        state.input = '';
+        activeEffects.length = 0;
+        particles.length = 0;
+        floatTexts.length = 0;
+        victoryOverlay.classList.remove('show');
+        controlDeck.classList.remove('hidden-victory');
+        vfxDock.classList.remove('hidden-victory');
+        progPhaseMark.style.left = '50%';
+        resizeCanvas();
+        updateHud();
+        nextQuestion();
+      }
+
+      function updateHud() {
+        const pct = Math.max(0, Math.min(100, (state.life / state.goal) * 100));
+        progFill.style.width = pct + '%';
+        progText.textContent = Math.min(state.goal, Math.floor(state.life)) + ' / ' + state.goal;
+        if (IS_TEACHER) {
+          teacherSlider.value = Math.round(state.life);
+          teacherThumb.style.left = pct + '%';
+        }
+        comboBadge.textContent = '⭐ ' + state.combo;
+        spFill.style.width = Math.min(100, state.sp) + '%';
+        spFill.classList.toggle('full', state.sp >= 100);
+        updateModeAndStage();
+      }
+
+      function renderAnswerBox() {
+        answerBox.textContent = state.input;
+        answerBox.classList.toggle('empty', state.input.length === 0);
+      }
+
+      /* ================= INPUT HANDLING ================= */
+      function appendDigit(d) {
+        if (state.victory || state.input.length >= 2) return;
+        ensureAudio();
+        playKeySound();
+        state.input += d;
+        renderAnswerBox();
+      }
+
+      function deleteDigit() {
+        if (state.victory || !state.input.length) return;
+        ensureAudio();
+        playKeySound();
+        state.input = state.input.slice(0, -1);
+        renderAnswerBox();
+      }
+
+      function submitAnswer() {
+        if (state.victory || !state.input.length) return;
+        ensureAudio();
+        const ans = parseInt(state.input, 10);
+        const expected = 9 * state.factorB;
+
+        if (ans === expected) {
+          answerBox.classList.remove('wrong');
+          answerBox.classList.add('correct');
+          setTimeout(() => answerBox.classList.remove('correct'), 200);
+          triggerOceanBloom();
+          nextQuestion();
+        } else {
+          state.combo = 0;
+          updateHud();
+          playWrongSound();
+          answerBox.classList.remove('wrong');
+          void answerBox.offsetWidth;
+          answerBox.classList.add('wrong');
+          state.input = '';
+          renderAnswerBox();
+          setTimeout(() => answerBox.classList.remove('wrong'), 340);
+        }
+      }
+
+      /* ================= BLOOM, CRITS & SKILLS ================= */
+      function triggerOceanBloom() {
+        state.teacherScrubbed = false;
+        state.hits += 1;
+        if (state.hits % 4 === 0) {
+          const newIdx = Math.floor(state.hits / 4) - 1;
+          if (newIdx >= 0 && newIdx < fishes.length) {
+            const cr = fishes[newIdx];
+            spawnBubbleBurst(width * 0.5, height * 0.42, '#fde047', 24);
+            floatTexts.push({
+              x: width * 0.5,
+              y: height * 0.34,
+              vy: -52,
+              text: '+1 ' + cr.icon,
+              tag: '',
+              color: '#fde047',
+              scale: 1.4,
+              life: 1.25,
+              maxLife: 1.25
+            });
+            playTone(880, 'sine', 0.2, 0.15, 1318, 0.02);
+            playTone(1318, 'triangle', 0.25, 0.14, 1760, 0.09);
+          }
+        }
+        state.combo += 1;
+        comboBadge.classList.remove('pop');
+        void comboBadge.offsetWidth;
+        comboBadge.classList.add('pop');
+        setTimeout(() => comboBadge.classList.remove('pop'), 180);
+
+        const skillFromGauge = state.sp >= 100;
+        const skillFromProc = !skillFromGauge && Math.random() < 0.16;
+        const isSkill = skillFromGauge || skillFromProc;
+
+        if (isSkill) {
+          state.sp = 0;
+          state.skills += 1;
+          state.skillRays = 0.85;
+          const v1 = nextVfxId();
+          const v2 = nextVfxId();
+          const v3 = nextVfxId();
+          fireSingleBloom(v1, false, true, 0);
+          setTimeout(() => { if (!state.victory) fireSingleBloom(v2, Math.random() < 0.45, true, 1); }, 135);
+          setTimeout(() => { if (!state.victory) fireSingleBloom(v3, true, true, 2); }, 270);
+        } else {
+          state.sp = Math.min(100, state.sp + 20);
+          const critChance = state.combo >= 5 ? 0.34 : 0.24;
+          const isCrit = Math.random() < critChance;
+          const vfxId = nextVfxId();
+          fireSingleBloom(vfxId, isCrit, false, 0);
+        }
+        updateHud();
+      }
+
+      function fireSingleBloom(vfxId, isCrit, isSkill, hitIndex) {
+        const baseGain = 95 + Math.floor(Math.random() * 26) + Math.min(state.combo * 3, 45);
+        const mult = isCrit ? 2.25 : 1;
+        const skillBonus = isSkill ? 1.15 : 1;
+        const gain = Math.round(baseGain * mult * skillBonus);
+
+        if (isCrit && hitIndex === 0) state.crits += 1;
+        else if (isCrit && isSkill && hitIndex === 2) state.crits += 1;
+
+        state.life = Math.min(state.goal, state.life + gain);
+
+        highlightVfxDot(vfxId);
+        playOceanSound(vfxId, isCrit, isSkill && hitIndex === 0);
+
+        const tx = width * (0.28 + Math.random() * 0.44);
+        const ty = height * (0.35 + Math.random() * 0.28);
+
+        spawnVfx(vfxId, tx, ty, isCrit ? 1.3 : 1.0);
+        spawnBubbleBurst(tx, ty, VFX_LIST[vfxId].color, isCrit ? 22 : 12);
+
+        floatTexts.push({
+          x: tx,
+          y: ty - 18 - hitIndex * 24,
+          vy: isCrit ? -80 : -56,
+          text: '+' + gain,
+          tag: isCrit ? '🫧 海洋奇蹟!' : (isSkill && hitIndex === 0 ? '🌊 碧海狂歡!' : ''),
+          color: isCrit ? '#fde047' : (isSkill ? '#f472b6' : '#67e8f9'),
+          scale: isCrit ? 1.38 : (isSkill ? 1.18 : 1.0),
+          life: 0.95,
+          maxLife: 0.95
+        });
+
+        updateHud();
+
+        if (state.life >= state.goal && !state.victory) {
+          handleVictory(false);
+        }
+      }
+
+      function handleVictory(instant) {
+        state.victory = true;
+        spawnBubbleBurst(width * 0.35, height * 0.45, '#fde047', 28);
+        spawnBubbleBurst(width * 0.65, height * 0.45, '#22d3ee', 28);
+        if (!instant) playAquariumFanfare();
+
+        const secs = Math.max(1, Math.round((performance.now() - state.startTime) / 1000));
+        const mm = String(Math.floor(secs / 60)).padStart(2, '0');
+        const ss = String(secs % 60).padStart(2, '0');
+        statScore.textContent = state.goal;
+        statHits.textContent = state.hits;
+        statCrits.textContent = state.crits;
+        statSkills.textContent = state.skills;
+        statTime.textContent = mm + ':' + ss;
+
+        const showOverlay = () => {
+          if (!state.victory) return;
+          controlDeck.classList.add('hidden-victory');
+          vfxDock.classList.add('hidden-victory');
+          victoryOverlay.classList.add('show');
+          resizeCanvas();
+        };
+        if (instant) showOverlay();
+        else setTimeout(showOverlay, 600);
+      }
+
+      /* ================= 10 ANIME OCEAN VFX ================= */
+      function spawnVfx(id, x, y, scale) {
+        activeEffects.push({ id, x, y, scale, t: 0, dur: 0.6, seed: Math.random() * 100 });
+      }
+
+      function spawnBubbleBurst(x, y, color, count) {
+        const palette = [color, '#a5f3fc', '#ffffff', '#fde047', '#f472b6'];
+        for (let i = 0; i < count; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 40 + Math.random() * 155;
+          particles.push({
+            x, y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd - 65,
+            r: 3 + Math.random() * 5,
+            color: palette[i % palette.length],
+            life: 0.55 + Math.random() * 0.45,
+            maxLife: 1.0
+          });
+        }
+      }
+
+      function drawStar(cx, cy, spikes, outerR, innerR) {
+        ctx.beginPath();
+        for (let i = 0; i < spikes * 2; i++) {
+          const r = i % 2 === 0 ? outerR : innerR;
+          const a = (i * Math.PI) / spikes - Math.PI / 2;
+          if (i === 0) ctx.moveTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+          else ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+        }
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      function drawVfx(e) {
+        const p = Math.min(1, e.t / e.dur);
+        const inv = 1 - p;
+        const sc = e.scale;
+        ctx.save();
+
+        switch (e.id) {
+          case 0: { // 1. Bubble Stream
+            for (let i = 0; i < 10; i++) {
+              const bx = e.x + Math.sin(e.seed + i * 1.3 + p * 6) * 44 * sc;
+              const by = e.y + 40 - p * 145 * sc - i * 8;
+              const r = (6 + (i % 3) * 4) * sc;
+              ctx.strokeStyle = `rgba(165, 243, 252, ${inv})`;
+              ctx.fillStyle = `rgba(34, 211, 238, ${inv * 0.25})`;
+              ctx.lineWidth = 2;
+              ctx.beginPath(); ctx.arc(bx, by, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            }
+            break;
+          }
+          case 1: { // 2. Tropical Swirl
+            for (let i = 0; i < 6; i++) {
+              const a = (i / 6) * Math.PI * 2 + p * 4.5;
+              const rad = (20 + p * 78) * sc;
+              ctx.fillStyle = i % 2 === 0 ? `rgba(251, 146, 60, ${inv})` : `rgba(253, 224, 71, ${inv})`;
+              ctx.beginPath();
+              ctx.ellipse(e.x + Math.cos(a) * rad, e.y + Math.sin(a) * rad * 0.65, 9 * sc, 5 * sc, a, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            break;
+          }
+          case 2: { // 3. Coral Bloom Rings
+            for (let i = 0; i < 3; i++) {
+              ctx.strokeStyle = i % 2 === 0 ? `rgba(251, 113, 133, ${inv})` : `rgba(244, 114, 182, ${inv})`;
+              ctx.lineWidth = (5 - i) * sc;
+              ctx.beginPath(); ctx.arc(e.x, e.y, (20 + i * 15 + p * 75) * sc, 0, Math.PI * 2); ctx.stroke();
+            }
+            break;
+          }
+          case 3: { // 4. Pearl Sparkle
+            for (let i = 0; i < 8; i++) {
+              const a = (i / 8) * Math.PI * 2 + p * 3.5;
+              const rad = (16 + p * 82) * sc;
+              ctx.fillStyle = i % 2 === 0 ? `rgba(254, 240, 138, ${inv})` : `rgba(255, 255, 255, ${inv})`;
+              drawStar(e.x + Math.cos(a) * rad, e.y + Math.sin(a) * rad, 5, 10 * sc * inv, 4 * sc * inv);
+            }
+            break;
+          }
+          case 4: { // 5. Ocean Sunbeam
+            const bw = (42 + Math.sin(p * Math.PI) * 38) * sc;
+            const g = ctx.createLinearGradient(e.x - bw, 0, e.x + bw, 0);
+            g.addColorStop(0, 'rgba(165, 243, 252, 0)');
+            g.addColorStop(0.5, `rgba(224, 242, 254, ${inv * 0.62})`);
+            g.addColorStop(1, 'rgba(165, 243, 252, 0)');
+            ctx.fillStyle = g;
+            ctx.fillRect(e.x - bw, 0, bw * 2, height);
+            break;
+          }
+          case 5: { // 6. Aqua Wave Rings
+            ctx.strokeStyle = `rgba(56, 189, 248, ${inv})`;
+            ctx.lineWidth = 4 * sc;
+            ctx.beginPath(); ctx.ellipse(e.x, e.y, (32 + p * 95) * sc, (14 + p * 42) * sc, 0, 0, Math.PI * 2); ctx.stroke();
+            break;
+          }
+          case 6: { // 7. Shell Shimmer
+            const cols = ['#f472b6', '#fde047', '#38bdf8'];
+            cols.forEach((col, i) => {
+              ctx.strokeStyle = col;
+              ctx.globalAlpha = inv * 0.85;
+              ctx.lineWidth = 4 * sc;
+              ctx.beginPath(); ctx.arc(e.x, e.y + 20, (24 + i * 10 + p * 56) * sc, Math.PI, 0); ctx.stroke();
+            });
+            break;
+          }
+          case 7: { // 8. Jellyfish Glow
+            const g = ctx.createRadialGradient(e.x, e.y, 4, e.x, e.y, (30 + p * 75) * sc);
+            g.addColorStop(0, `rgba(192, 132, 252, ${inv * 0.85})`);
+            g.addColorStop(1, 'rgba(192, 132, 252, 0)');
+            ctx.fillStyle = g;
+            ctx.beginPath(); ctx.arc(e.x, e.y, (30 + p * 75) * sc, 0, Math.PI * 2); ctx.fill();
+            break;
+          }
+          case 8: { // 9. Reef Rainbow
+            const cols = ['#22d3ee', '#34d399', '#fde047', '#fb7185', '#c084fc'];
+            cols.forEach((col, i) => {
+              ctx.strokeStyle = col;
+              ctx.globalAlpha = inv * 0.82;
+              ctx.lineWidth = 4.5 * sc;
+              ctx.beginPath(); ctx.arc(e.x, e.y, (18 + i * 8 + p * 82) * sc, 0, Math.PI * 2); ctx.stroke();
+            });
+            break;
+          }
+          case 9: { // 10. Ocean Starlight
+            ctx.translate(e.x, e.y);
+            ctx.fillStyle = `rgba(254, 240, 138, ${inv * 0.9})`;
+            ctx.shadowColor = '#22d3ee';
+            ctx.shadowBlur = 22;
+            drawStar(0, 0, 8, (32 + p * 88) * sc, (13 + p * 26) * sc);
+            break;
+          }
+        }
+        ctx.restore();
+      }
+
+      /* ================= DRAW LIVING ANIME AQUARIUM ================= */
+      function stageProg(p, s, e) { return Math.max(0, Math.min(1, (p - s) / (e - s))); }
+
+      function drawCoverImage(img, x, y, w, h) {
+        if (!img || !img.complete || img.naturalWidth === 0) return;
+        const ir = img.naturalWidth / img.naturalHeight;
+        const cr = w / h;
+        let dw, dh, dx, dy;
+        if (cr > ir) {
+          dw = w;
+          dh = w / ir;
+          dx = x;
+          dy = y + (h - dh) * 0.65;
+        } else {
+          dh = h;
+          dw = h * ir;
+          dx = x + (w - dw) * 0.5;
+          dy = y;
+        }
+        ctx.drawImage(img, dx, dy, dw, dh);
+      }
+
+      function drawAquariumScene(dt, prog) {
+        // 1. STUDIO-ANIME UNDERWATER CORAL REEF BACKGROUND
+        const bgImg = SPRITES.bg;
+        if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
+          drawCoverImage(bgImg, 0, 0, width, height);
+          // Progressive lighting: serene deeper blue at 0% -> radiant sunlit aquarium at 100%!
+          const dimAlpha = Math.max(0, 0.42 * (1 - prog));
+          if (dimAlpha > 0.01) {
+            ctx.fillStyle = `rgba(3, 18, 42, ${dimAlpha})`;
+            ctx.fillRect(0, 0, width, height);
+          }
+        } else {
+          const water = ctx.createLinearGradient(0, 0, 0, height);
+          water.addColorStop(0, '#0284c7');
+          water.addColorStop(1, '#082f49');
+          ctx.fillStyle = water;
+          ctx.fillRect(0, 0, width, height);
+        }
+
+        // 2. SHIMMERING ANIMATED SUNBEAMS OVER THE REEF
+        ctx.save();
+        for (let i = 0; i < 5; i++) {
+          const rx = width * (0.14 + i * 0.18) + Math.sin(state.time * 0.55 + i) * 26;
+          const rg = ctx.createLinearGradient(rx, 0, rx + 50, height * 0.85);
+          rg.addColorStop(0, `rgba(254, 249, 195, ${0.08 + prog * 0.14})`);
+          rg.addColorStop(1, 'rgba(186, 230, 253, 0)');
+          ctx.fillStyle = rg;
+          ctx.beginPath();
+          ctx.moveTo(rx - 18, 0);
+          ctx.lineTo(rx + 26, 0);
+          ctx.lineTo(rx + 95, height * 0.85);
+          ctx.lineTo(rx + 15, height * 0.85);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+
+        // 3. UNLOCKED ANIME SEA CREATURES (+1 NEW CREATURE EVERY 4 CORRECT ANSWERS!)
+        const unlockedCount = getActiveCreatureCount(prog);
+        const responsiveScale = Math.min(1.15, Math.max(0.58, width / 760));
+
+        for (let i = 0; i < unlockedCount; i++) {
+          const c = fishes[i];
+          c.x += dt * c.spd;
+          if (c.x > 1.18) c.x = -0.18;
+          if (c.x < -0.18) c.x = 1.18;
+
+          const img = SPRITES[c.kind];
+          if (!img || !img.complete || img.naturalWidth === 0) continue;
+
+          const cx = c.x * width;
+          const bobAmp = c.kind === 'jellyfish' ? 16 : (c.kind === 'whale' ? 12 : 8);
+          const bobSpd = c.kind === 'jellyfish' ? 1.8 : (c.kind === 'whale' ? 1.3 : 2.8);
+          const cy = c.y * height + Math.sin(state.time * bobSpd + c.phase) * bobAmp;
+
+          const drawW = c.w * responsiveScale;
+          const drawH = drawW * (img.naturalHeight / img.naturalWidth);
+
+          ctx.save();
+          ctx.translate(cx, cy);
+
+          const isEpic = i >= 12;
+          if (c.kind === 'jellyfish' || c.kind === 'octopus') {
+            const pulse = 1 + Math.sin(state.time * 3.2 + c.phase) * 0.07;
+            ctx.rotate(Math.sin(state.time * 1.4 + c.phase) * 0.1);
+            ctx.scale(pulse, 1 / pulse);
+          } else if (c.kind === 'crab') {
+            const flipX = c.dir === c.baseDir ? 1 : -1;
+            ctx.rotate(Math.sin(state.time * 8 + c.phase) * 0.05);
+            ctx.scale(flipX, 1);
+          } else {
+            const flipX = c.dir === c.baseDir ? 1 : -1;
+            const tilt = Math.cos(state.time * bobSpd + c.phase) * 0.055 * c.dir;
+            ctx.rotate(tilt);
+            ctx.scale(flipX, 1);
+          }
+
+          ctx.shadowColor = isEpic ? 'rgba(253, 224, 71, 0.55)' : 'rgba(14, 42, 74, 0.3)';
+          ctx.shadowBlur = isEpic ? 18 : 8;
+          ctx.shadowOffsetY = isEpic ? 0 : 4;
+          ctx.drawImage(img, -drawW * 0.5, -drawH * 0.5, drawW, drawH);
+          ctx.restore();
+        }
+
+        // 4. RISING CRYSTAL AIR BUBBLES
+        bgBubbles.forEach((b) => {
+          b.y -= dt * b.spd;
+          if (b.y < -0.05) { b.y = 1.05; b.x = Math.random(); }
+          const bx = b.x * width + Math.sin(state.time * 2.4 + b.phase) * 9;
+          const by = b.y * height;
+          ctx.strokeStyle = 'rgba(224, 242, 254, 0.6)';
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
+          ctx.lineWidth = 1.4;
+          ctx.beginPath(); ctx.arc(bx, by, b.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        });
+      }
+
+      /* ================= MAIN RENDER LOOP ================= */
+      function resizeCanvas() {
+        const rect = arenaWrap.getBoundingClientRect();
+        width = Math.max(200, rect.width);
+        height = Math.max(160, rect.height);
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function tick(ts) {
+        const dt = Math.min(0.05, lastTs ? (ts - lastTs) / 1000 : 0.016);
+        lastTs = ts;
+        state.time += dt;
+
+        state.displayLife += (state.life - state.displayLife) * Math.min(1, dt * 8);
+        const prog = Math.min(1, state.displayLife / state.goal);
+        if (state.skillRays > 0) state.skillRays = Math.max(0, state.skillRays - dt * 1.2);
+
+        ctx.clearRect(0, 0, width, height);
+        drawAquariumScene(dt, prog);
+
+        // Active 10 VFX
+        for (let i = activeEffects.length - 1; i >= 0; i--) {
+          const ef = activeEffects[i];
+          ef.t += dt;
+          if (ef.t >= ef.dur) activeEffects.splice(i, 1);
+          else drawVfx(ef);
+        }
+
+        // Particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const pt = particles[i];
+          pt.life -= dt;
+          if (pt.life <= 0) { particles.splice(i, 1); continue; }
+          pt.x += pt.vx * dt;
+          pt.y += pt.vy * dt;
+          const alpha = Math.max(0, Math.min(1, pt.life / pt.maxLife));
+          ctx.fillStyle = pt.color;
+          ctx.globalAlpha = alpha;
+          ctx.beginPath(); ctx.arc(pt.x, pt.y, pt.r * (0.45 + alpha * 0.55), 0, Math.PI * 2); ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+
+        // Floating Progress Numbers
+        for (let i = floatTexts.length - 1; i >= 0; i--) {
+          const ft = floatTexts[i];
+          ft.life -= dt;
+          if (ft.life <= 0) { floatTexts.splice(i, 1); continue; }
+          ft.y += ft.vy * dt;
+          ft.vy *= Math.pow(0.2, dt);
+          const alpha = Math.min(1, (ft.life / ft.maxLife) * 1.6);
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          ctx.textAlign = 'center';
+          ctx.font = `900 ${Math.round(28 * ft.scale)}px -apple-system, BlinkMacSystemFont, sans-serif`;
+          ctx.lineWidth = 6;
+          ctx.strokeStyle = 'rgba(4, 18, 38, 0.92)';
+          ctx.strokeText(ft.text, ft.x, ft.y);
+          ctx.fillStyle = ft.color;
+          ctx.fillText(ft.text, ft.x, ft.y);
+
+          if (ft.tag) {
+            ctx.font = `900 ${Math.round(16 * ft.scale)}px -apple-system, BlinkMacSystemFont, sans-serif`;
+            ctx.strokeText(ft.tag, ft.x, ft.y - 28 * ft.scale);
+            ctx.fillStyle = '#fde047';
+            ctx.fillText(ft.tag, ft.x, ft.y - 28 * ft.scale);
+          }
+          ctx.restore();
+        }
+
+        rafId = requestAnimationFrame(tick);
+      }
+
+      /* ================= TEACHER PROGRESS BAR SCRUBBER ================= */
+      if (IS_TEACHER) {
+        teacherSlider.addEventListener('input', () => {
+          const val = parseInt(teacherSlider.value, 10) || 0;
+          state.teacherScrubbed = true;
+          state.life = val;
+          state.displayLife = val;
+          if (val >= state.goal) {
+            if (!state.victory) handleVictory(true);
+          } else {
+            if (state.victory) {
+              state.victory = false;
+              victoryOverlay.classList.remove('show');
+              controlDeck.classList.remove('hidden-victory');
+              vfxDock.classList.remove('hidden-victory');
+              resizeCanvas();
+            }
+          }
+          updateHud();
+        });
+      }
+
+      /* ================= EVENT LISTENERS ================= */
+      numpad.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('.key');
+        if (!btn) return;
+        const num = btn.getAttribute('data-num');
+        const action = btn.getAttribute('data-action');
+        if (num !== null) appendDigit(num);
+        else if (action === 'del') deleteDigit();
+        else if (action === 'submit') submitAnswer();
+      });
+
+      window.addEventListener('keydown', (ev) => {
+        if (ev.key >= '0' && ev.key <= '9') {
+          ev.preventDefault();
+          appendDigit(ev.key);
+        } else if (ev.key === 'Backspace' || ev.key === 'Delete') {
+          ev.preventDefault();
+          deleteDigit();
+        } else if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          if (state.victory) startGame();
+          else submitAnswer();
+        }
+      });
+
+      btnSound.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        soundIconOn.style.display = soundEnabled ? '' : 'none';
+        soundIconOff.style.display = soundEnabled ? 'none' : '';
+        if (soundEnabled) {
+          ensureAudio();
+          playKeySound();
+        }
+      });
+
+      btnReset.addEventListener('click', () => {
+        ensureAudio();
+        playKeySound();
+        startGame();
+      });
+
+      btnReplay.addEventListener('click', () => {
+        ensureAudio();
+        playKeySound();
+        startGame();
+      });
+
+      btnDownload.addEventListener('click', () => {
+        const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = IS_TEACHER ? '9x_anime_ocean_aquarium_teacher.html' : '9x_anime_ocean_aquarium.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+
+      window.addEventListener('resize', resizeCanvas);
+      window.addEventListener('load', () => {
+        initOceanLife();
+        resizeCanvas();
+        startGame();
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(tick);
+      });
+    })();
+  </script>
+</body>
+</html>
