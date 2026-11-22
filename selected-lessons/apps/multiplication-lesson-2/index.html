@@ -42,6 +42,10 @@
     button[aria-pressed="true"] { color: #fff; background: #31597c; border-color: #31597c; }
     button:focus-visible { outline: 2px solid #254d73; outline-offset: 2px; }
     button:active { transform: scale(.96); transition: transform .4s; }
+    .activity-entry { display: inline-flex; align-items: center; gap: 2px; }
+    .activity-share { display: grid; place-items: center; width: 28px; min-width: 28px; height: 28px; min-height: 28px; padding: 5px; border: 0; border-radius: 8px; background: #ffffffc4; color: inherit; }
+    .activity-share svg { width: 14px; height: 14px; }
+    .activity-share:hover, .activity-share:active { background: #fff; }
     .activity-actions { display: flex; gap: 4px; }
     .activity-actions button { padding-inline: 8px; }
     main { flex: 1; min-height: 0; }
@@ -55,9 +59,9 @@
 <body>
   <div class="ios-blur-fix" aria-hidden="true"></div>
   <nav aria-label="第 13 課教具">
-    <button type="button" aria-pressed="false" data-source="../multiplication-6/index.html">6 的乘法遊戲</button>
-    <button type="button" aria-pressed="false" data-source="../multiplication-7/index.html">7 的乘法遊戲
-    <button type="button" aria-pressed="false" data-source="../multiplication-8/index.html">8 的乘法遊戲</button>
+    <span class="activity-entry"><button type="button" aria-pressed="false" data-source="../multiplication-6/index.html">6 的乘法遊戲</button><button type="button" class="activity-share" data-share-source="../multiplication-6/index.html" data-share-title="6 的乘法遊戲" title="分享6 的乘法遊戲" aria-label="分享6 的乘法遊戲"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10V2m-3 3 3-3 3 3M3 8v5h10V8"/></svg></button></span>
+    <span class="activity-entry"><button type="button" aria-pressed="false" data-source="../multiplication-7/index.html">7 的乘法遊戲</button><button type="button" class="activity-share" data-share-source="../multiplication-7/index.html" data-share-title="7 的乘法遊戲" title="分享7 的乘法遊戲" aria-label="分享7 的乘法遊戲"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10V2m-3 3 3-3 3 3M3 8v5h10V8"/></svg></button></span>
+    <span class="activity-entry"><button type="button" aria-pressed="false" data-source="../multiplication-8/index.html">8 的乘法遊戲</button><button type="button" class="activity-share" data-share-source="../multiplication-8/index.html" data-share-title="8 的乘法遊戲" title="分享8 的乘法遊戲" aria-label="分享8 的乘法遊戲"><svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10V2m-3 3 3-3 3 3M3 8v5h10V8"/></svg></button></span>
     <div class="activity-actions">
       <button type="button" id="download-activity" title="下載目前教具" aria-label="下載目前教具">⤓</button>
       <button type="button" id="copy-activity" title="複製目前教具連結" aria-label="複製目前教具連結">🔗</button>
@@ -74,6 +78,34 @@
     const copyActivity = document.getElementById('copy-activity');
     let current = 0;
     let feedbackTimer;
+
+    document.querySelectorAll('.activity-share').forEach(shareButton => {
+      let shareTimer;
+      shareButton.onclick = async () => {
+        const url = new URL(shareButton.dataset.shareSource, publicDirectory).href.replace(/index\.html$/, '');
+        const title = shareButton.dataset.shareTitle;
+        if (navigator.share) {
+          try {
+            await navigator.share({ title, url });
+            return;
+          } catch (error) {
+            if (error && error.name === 'AbortError') return;
+          }
+        }
+        try {
+          await navigator.clipboard.writeText(url);
+          shareButton.textContent = '✓';
+          shareButton.title = '已複製連結';
+          clearTimeout(shareTimer);
+          shareTimer = setTimeout(() => {
+            shareButton.innerHTML = '<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10V2m-3 3 3-3 3 3M3 8v5h10V8"/></svg>';
+            shareButton.title = '分享' + title;
+          }, 1500);
+        } catch {
+          window.prompt('此裝置不支援系統分享，請複製連結', url);
+        }
+      };
+    });
 
     document.getElementById('download-activity').onclick = () => {
       const activity = buttons[current];
