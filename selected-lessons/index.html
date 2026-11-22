@@ -99,7 +99,13 @@ button:focus-visible { outline: 3px solid #3157a3; outline-offset: 3px; }
 .math-tiles span:nth-child(1) { background: #ffdbac; transform: rotate(-12deg); }
 .math-tiles span:nth-child(2) { background: #dff5ca; transform: translateY(-9px) rotate(9deg); }
 .math-tiles span:nth-child(3) { background: #f6d6ee; transform: translateY(7px) rotate(13deg); }
-.viewing .math-icon, .viewing .math-tiles { display: none; }
+.math-tiles { margin-right: 55px; }
+.portal-actions .card-actions { right: 9px; bottom: 6px; gap: 3px; }
+.portal-actions :is(.card-download, .card-copy) { width: 36px; height: 36px; }
+.portal-actions :is(.card-download, .card-copy)::after { inset: 3px; border-radius: 8px; }
+.portal-actions :is(.card-download, .card-copy) svg { width: 17px; height: 17px; }
+.portal-actions button:disabled { opacity: .55; cursor: wait; }
+.viewing .math-icon, .viewing .math-tiles, .viewing .portal-actions { display: none; }
 .viewing .bar { border-bottom: 1px solid #e1e8f4; }
 .viewer { flex: 1; min-height: 0; background: #fff; }
 .viewer iframe { display: block; width: 100%; height: 100%; border: 0; }
@@ -276,14 +282,16 @@ button.card:active { transform: translateY(3px) scale(.985); box-shadow: 0 2px 0
     width: calc(100% - 24px);
     min-height: 90px;
     margin-top: 13px;
-    padding: 10px 13px;
+    padding: 10px 13px 28px;
     gap: 8px;
     border-radius: 24px;
   }
   .shell:not(.viewing) .bar::before { right: -229px; }
   .shell:not(.viewing) .brand { font-size: clamp(28px, 7.4vw, 38px); }
   .math-icon { flex-basis: 44px; height: 44px; font-size: 26px; border-radius: 15px; margin-right: 0; }
-  .math-tiles { gap: 4px; padding: 0; }
+  .math-tiles { gap: 4px; padding: 0; margin-right: 0; }
+  .portal-actions .card-actions { right: 6px; bottom: 4px; }
+  .portal-actions :is(.card-download, .card-copy) { width: 32px; height: 32px; }
   .math-tiles span { width: 30px; font-size: 22px; border-width: 2px; }
   .math-tiles span:nth-child(3) { display: none; }
   .content { padding: 19px 12px 20px; }
@@ -314,7 +322,7 @@ button.card:active { transform: translateY(3px) scale(.985); box-shadow: 0 2px 0
 .card-copy .tick-icon, .card-copy.copied .link-icon { display: none; }
 .card-copy.copied .tick-icon { display: block; color: #18734e; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-</style></head><body><div class="ios-blur-fix" aria-hidden="true"></div><div class="shell" id="shell"><header class="bar" id="toolbar"><span class="math-icon" aria-hidden="true">🧮</span><span class="brand" id="brand">小二數學</span><div class="math-tiles" aria-hidden="true"><span>＋</span><span>×</span><span>△</span></div><button class="nav" id="full" hidden>⛶ 全螢幕</button><button class="nav" id="home" hidden>⌂ 首頁</button></header><main class="content" id="menu" aria-label="小二數學教具選集"><div class="grid" id="grid"></div><div id="copy-status" class="visually-hidden" role="status"></div></main><section class="viewer" id="viewer" hidden aria-label="教學 App"></section></div><script>
+</style></head><body><div class="ios-blur-fix" aria-hidden="true"></div><div class="shell" id="shell"><header class="bar" id="toolbar"><span class="math-icon" aria-hidden="true">🧮</span><span class="brand" id="brand">小二數學</span><div class="math-tiles" aria-hidden="true"><span>＋</span><span>×</span><span>△</span></div><div class="portal-actions" id="portal-actions"></div><button class="nav" id="full" hidden>⛶ 全螢幕</button><button class="nav" id="home" hidden>⌂ 首頁</button></header><main class="content" id="menu" aria-label="小二數學教具選集"><div class="grid" id="grid"></div><div id="copy-status" class="visually-hidden" role="status"></div></main><section class="viewer" id="viewer" hidden aria-label="教學 App"></section></div><script id="portal-script">
 const lessons=[{"num": 7, "title": "認識及比較角", "name": "認識及比較角", "icon": "📐", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/compare-angles/", "path": "apps/compare-angles/index.html"}, {"num": 8, "title": "直角、銳角和鈍角", "name": "直角、銳角和鈍角", "icon": "🔺", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/types-of-angles/", "path": "apps/types-of-angles/index.html"}, {"num": 9, "title": "垂直線", "name": "垂直線", "icon": "📏", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/perpendicular-lines/", "path": "apps/perpendicular-lines/index.html"}, {"num": 10, "title": "四個主要方向", "name": "四個主要方向", "icon": "🧭", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/directions-combined/", "path": "apps/directions-combined/index.html", "bundle": true}, {"num": 12, "title": "乘法的計算（一）", "name": "乘法分組操作台", "icon": "🔢", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-groups/", "path": "apps/multiplication-groups/index.html"}, {"num": 12, "title": "4 的乘法遊戲", "name": "4 的乘法遊戲", "icon": "🏰", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-4/", "path": "apps/multiplication-4/index.html"}, {"num": 12, "title": "10、5、2、3、4 的乘法遊戲", "name": "10、5、2、3、4 的乘法遊戲", "icon": "🎮", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-mix/", "path": "apps/multiplication-mix/index.html"}, {"num": 13, "title": "乘法的計算（二）", "name": "6 的乘法遊戲", "icon": "🧩", "url": "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-6/", "path": "apps/multiplication-6/index.html"}];
 
 const $ = id => document.getElementById(id);
@@ -330,7 +338,8 @@ function openApp(lesson) {
   const frame = document.createElement('iframe');
   frame.title = lesson.name;
   frame.setAttribute('allow', 'fullscreen');
-  frame.src = lesson.path;
+  if (lesson.document) frame.srcdoc = lesson.document;
+  else frame.src = lesson.path;
   $('viewer').replaceChildren(frame);
 }
 
@@ -353,6 +362,14 @@ const cardPalettes = {
   13: ['#d9f4ef', '#a2ccc5', '#d4f0b7'],
 };
 
+function htmlBlobUrl(html) {
+  return URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
+}
+
+function embeddedJson(value) {
+  return JSON.stringify(value).replace(/</g, '\\u003c');
+}
+
 async function bundleActivity(path) {
   const response = await fetch(path);
   if (!response.ok) throw new Error('Unable to open activity');
@@ -365,12 +382,37 @@ async function bundleActivity(path) {
     if (!result.ok) throw new Error('Unable to load activity source');
     return result.text();
   }));
-  embedded.textContent = JSON.stringify(documents).replace(/</g, '\\u003c');
-  const html = '<!doctype html>\n' + page.documentElement.outerHTML;
-  return URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
+  embedded.textContent = embeddedJson(documents);
+  return '<!doctype html>\n' + page.documentElement.outerHTML;
 }
 
-function createActions(lesson) {
+async function activityDocument(lesson) {
+  if (lesson.document) return lesson.document;
+  if (lesson.bundle) return bundleActivity(lesson.path);
+  const response = await fetch(lesson.path);
+  if (!response.ok) throw new Error('Unable to load activity');
+  return response.text();
+}
+
+async function downloadPortal() {
+  const page = document.documentElement.cloneNode(true);
+  for (const id of ['grid', 'viewer', 'copy-status', 'portal-actions']) {
+    page.querySelector('#' + id).replaceChildren();
+  }
+  if (lessons.some(lesson => !lesson.document)) {
+    const offlineLessons = await Promise.all(lessons.map(async lesson => ({
+      ...lesson,
+      document: await activityDocument(lesson),
+    })));
+    const script = page.querySelector('#portal-script');
+    script.textContent = script.textContent.replace(/^const lessons=.*;$/m, () =>
+      'const lessons=' + embeddedJson(offlineLessons) + ';'
+    );
+  }
+  return htmlBlobUrl('<!doctype html>\n' + page.outerHTML);
+}
+
+function createActions(lesson, downloadPage) {
   const download = document.createElement('button');
   download.type = 'button';
   download.className = 'card-download';
@@ -379,10 +421,10 @@ function createActions(lesson) {
   download.innerHTML = '<svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8m-3-3 3 3 3-3M3 12v2h10v-2"/></svg>';
   download.onclick = async () => {
     let href = lesson.path;
-    if (lesson.bundle) {
+    if (downloadPage || lesson.document || lesson.bundle) {
       download.disabled = true;
       try {
-        href = await bundleActivity(lesson.path);
+        href = downloadPage ? await downloadPage() : htmlBlobUrl(await activityDocument(lesson));
       } catch {
         $('copy-status').textContent = '下載失敗，請再試一次。';
         return;
@@ -396,7 +438,7 @@ function createActions(lesson) {
     document.body.append(link);
     link.click();
     link.remove();
-    if (lesson.bundle) setTimeout(() => URL.revokeObjectURL(href), 30000);
+    if (href.startsWith('blob:')) setTimeout(() => URL.revokeObjectURL(href), 30000);
   };
 
   const copy = document.createElement('button');
@@ -428,6 +470,11 @@ function createActions(lesson) {
   actions.append(download, copy);
   return actions;
 }
+
+$('portal-actions').append(createActions({
+  name: '小二數學教具選集',
+  url: 'https://hkluiml.github.io/maths-app/selected-lessons/',
+}, downloadPortal));
 
 const appsByLesson = new Map();
 for (const lesson of lessons) {
