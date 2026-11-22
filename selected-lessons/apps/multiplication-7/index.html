@@ -1,0 +1,1936 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>7× 🌸</title>
+  <style>
+    :root {
+      --panel-bg: #0f172a;
+      --key-bg: #1e293b;
+      --key-hover: #293852;
+      --key-active: #334668;
+      --accent-pink: #f472b6;
+      --accent-cyan: #38bdf8;
+      --accent-gold: #fbbf24;
+      --accent-green: #34d399;
+      --accent-red: #fb7185;
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: #090d1f;
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100dvh;
+      max-width: 960px;
+      margin: 0 auto;
+      background: #0b1026;
+      position: relative;
+      box-shadow: 0 0 48px rgba(244, 114, 182, 0.18);
+    }
+
+    /* TOP HUD */
+    .hud {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px 6px;
+      z-index: 25;
+      flex-shrink: 0;
+      background: rgba(9, 13, 31, 0.55);
+      backdrop-filter: blur(8px);
+    }
+
+    .badge-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.4px;
+      background: rgba(30, 41, 59, 0.82);
+      border: 1.5px solid rgba(255, 255, 255, 0.22);
+      color: #f8fafc;
+      white-space: nowrap;
+    }
+
+    .pill-stage {
+      color: #fbcfe8;
+      border-color: rgba(244, 114, 182, 0.45);
+      background: rgba(244, 114, 182, 0.16);
+    }
+
+    .pill-combo {
+      color: #fde047;
+      border-color: rgba(251, 191, 36, 0.45);
+      background: rgba(251, 191, 36, 0.14);
+      transition: transform 0.15s ease;
+    }
+
+    .pill-combo.pop {
+      transform: scale(1.22);
+    }
+
+    .pill-mode {
+      color: #7dd3fc;
+      border-color: rgba(56, 189, 248, 0.45);
+      background: rgba(56, 189, 248, 0.14);
+    }
+
+    .pill-mode.rand {
+      color: #f0abfc;
+      border-color: rgba(232, 121, 249, 0.5);
+      background: rgba(232, 121, 249, 0.18);
+    }
+
+    /* GROWTH PROGRESS BAR */
+    .prog-wrap {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .prog-bar-outer {
+      position: relative;
+      width: 100%;
+      height: 24px;
+      background: rgba(15, 23, 42, 0.85);
+      border-radius: 999px;
+      border: 2px solid rgba(244, 114, 182, 0.48);
+      overflow: hidden;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.55), 0 0 14px rgba(244, 114, 182, 0.25);
+    }
+
+    .prog-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 0%;
+      background: linear-gradient(90deg, #38bdf8 0%, #34d399 36%, #f472b6 72%, #fde047 100%);
+      transition: width 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+      border-radius: 999px;
+      box-shadow: 0 0 14px rgba(244, 114, 182, 0.6);
+    }
+
+    .prog-segments {
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent calc(10% - 1px),
+        rgba(255, 255, 255, 0.2) calc(10% - 1px),
+        rgba(255, 255, 255, 0.2) 10%
+      );
+      pointer-events: none;
+    }
+
+    .prog-phase-mark {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: #fde047;
+      box-shadow: 0 0 8px rgba(253, 224, 71, 0.95);
+      pointer-events: none;
+    }
+
+    .prog-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: 0.6px;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.92);
+      pointer-events: none;
+    }
+
+    /* TEACHER SCRUBBER (HIDDEN IN STUDENT VERSION) */
+    .teacher-slider {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      opacity: 0;
+      cursor: ew-resize;
+      z-index: 5;
+      display: none;
+    }
+
+    .teacher-mode .prog-bar-outer {
+      overflow: visible;
+      border-color: #fde047;
+      box-shadow: 0 0 16px rgba(253, 224, 71, 0.4);
+    }
+
+    .teacher-mode .prog-fill {
+      transition: none;
+    }
+
+    .teacher-mode .teacher-slider {
+      display: block;
+    }
+
+    .teacher-thumb {
+      position: absolute;
+      top: 50%;
+      left: 0%;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fde047;
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 0 12px rgba(253, 224, 71, 0.95);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      display: none;
+      z-index: 4;
+    }
+
+    .teacher-mode .teacher-thumb {
+      display: block;
+    }
+
+    /* ICON BUTTONS */
+    .icon-btns {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(255, 255, 255, 0.26);
+      background: rgba(30, 41, 59, 0.8);
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      padding: 0;
+    }
+
+    .icon-btn:hover {
+      background: rgba(244, 114, 182, 0.22);
+    }
+
+    .icon-btn:active {
+      transform: scale(0.92);
+    }
+
+    .icon-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ANIME GARDEN ARENA */
+    .arena-wrap {
+      position: relative;
+      flex: 1;
+      min-height: 200px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    #arena {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 10 VFX DOCK */
+    .vfx-dock {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(9, 13, 31, 0.72);
+      border: 1.5px solid rgba(244, 114, 182, 0.32);
+      backdrop-filter: blur(6px);
+      z-index: 6;
+      pointer-events: none;
+    }
+
+    .vfx-dock.hidden-victory {
+      display: none;
+    }
+
+    .vfx-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      background: rgba(255, 255, 255, 0.08);
+      opacity: 0.52;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .vfx-dot.active {
+      opacity: 1;
+      transform: scale(1.35);
+      background: rgba(255, 255, 255, 0.24);
+      box-shadow: 0 0 14px var(--dot-color, #f472b6);
+    }
+
+    /* MANA ENERGY BAR */
+    .sp-bar-wrap {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      z-index: 7;
+    }
+
+    .sp-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #38bdf8, #f472b6, #fde047);
+      box-shadow: 0 0 12px rgba(244, 114, 182, 0.8);
+      transition: width 0.25s ease-out;
+    }
+
+    .sp-bar-fill.full {
+      animation: spPulse 0.55s infinite alternate;
+    }
+
+    @keyframes spPulse {
+      from { filter: brightness(1); }
+      to { filter: brightness(1.55); }
+    }
+
+    /* VICTORY OVERLAY (TRANSPARENT CENTER FOR ANIME MAGIC TREE) */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(9, 13, 31, 0.45) 0%, rgba(9, 13, 31, 0) 24%, rgba(9, 13, 31, 0) 72%, rgba(9, 13, 31, 0.65) 100%);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 12px 18px;
+      z-index: 20;
+      pointer-events: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .overlay.show {
+      display: flex;
+    }
+
+    .overlay button {
+      pointer-events: auto;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .victory-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 20px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.84);
+      border: 2px solid rgba(253, 224, 71, 0.72);
+      box-shadow: 0 0 24px rgba(244, 114, 182, 0.4);
+    }
+
+    .victory-crown {
+      font-size: 32px;
+      line-height: 1;
+      animation: bounceCrown 0.9s infinite alternate ease-in-out;
+    }
+
+    @keyframes bounceCrown {
+      from { transform: translateY(0) scale(1); }
+      to { transform: translateY(-6px) scale(1.08); }
+    }
+
+    .victory-score {
+      font-size: 24px;
+      font-weight: 900;
+      color: #fde047;
+      letter-spacing: 0.6px;
+    }
+
+    .victory-bottom {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .victory-stats {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .stat-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.86);
+      border: 1.5px solid rgba(244, 114, 182, 0.5);
+      color: #f8fafc;
+      font-size: 17px;
+      font-weight: 900;
+      box-shadow: 0 0 14px rgba(244, 114, 182, 0.22);
+    }
+
+    .replay-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 40px;
+      border-radius: 999px;
+      border: 2px solid rgba(255, 255, 255, 0.75);
+      background: linear-gradient(135deg, #ec4899, #8b5cf6);
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 0 24px rgba(236, 72, 153, 0.45);
+      transition: transform 0.12s, filter 0.15s;
+    }
+
+    .replay-btn:hover {
+      filter: brightness(1.1);
+    }
+
+    .replay-btn:active {
+      transform: scale(0.94);
+    }
+
+    /* BOTTOM CONTROL DECK */
+    .deck {
+      background: var(--panel-bg);
+      border-top: 1.5px solid rgba(244, 114, 182, 0.24);
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .deck.hidden-victory {
+      display: none;
+    }
+
+    .equation-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .eq-prompt {
+      font-size: clamp(28px, 6vw, 40px);
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--text-main);
+      text-shadow: 0 0 12px rgba(244, 114, 182, 0.32);
+    }
+
+    .eq-prompt .mul {
+      color: var(--accent-pink);
+    }
+
+    .eq-prompt .eq-sign {
+      color: var(--text-dim);
+    }
+
+    .answer-box {
+      min-width: 96px;
+      height: clamp(46px, 8vw, 56px);
+      padding: 0 16px;
+      border-radius: 14px;
+      background: #090e1f;
+      border: 2.5px solid var(--accent-pink);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(28px, 6vw, 38px);
+      font-weight: 900;
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(244, 114, 182, 0.25);
+      transition: border-color 0.15s, background 0.15s, transform 0.12s;
+    }
+
+    .answer-box.empty::after {
+      content: "";
+      width: 3px;
+      height: 26px;
+      background: var(--accent-pink);
+      border-radius: 2px;
+      animation: blink 0.9s infinite;
+    }
+
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+
+    .answer-box.wrong {
+      border-color: var(--accent-red);
+      background: rgba(244, 63, 94, 0.22);
+      animation: shakeX 0.32s ease;
+    }
+
+    .answer-box.correct {
+      border-color: var(--accent-green);
+      background: rgba(52, 211, 153, 0.22);
+      transform: scale(1.08);
+    }
+
+    @keyframes shakeX {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+
+    /* NUMPAD */
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      max-width: 640px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .key {
+      height: clamp(46px, 7.5dvh, 58px);
+      border-radius: 13px;
+      border: 1.5px solid rgba(244, 114, 182, 0.22);
+      border-bottom: 3px solid rgba(0, 0, 0, 0.55);
+      background: var(--key-bg);
+      color: var(--text-main);
+      font-size: clamp(20px, 4.2vw, 26px);
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.1s, transform 0.08s;
+      touch-action: manipulation;
+    }
+
+    .key:hover {
+      background: var(--key-hover);
+      border-color: rgba(244, 114, 182, 0.55);
+    }
+
+    .key:active {
+      background: var(--key-active);
+      transform: translateY(2px);
+      border-bottom-width: 1px;
+    }
+
+    .key-del {
+      background: #2b1a36;
+      color: #fda4af;
+    }
+
+    .key-go {
+      background: linear-gradient(135deg, #ec4899, #8b5cf6);
+      border-color: rgba(244, 114, 182, 0.72);
+      border-bottom-color: #5b21b6;
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(236, 72, 153, 0.36);
+    }
+
+    .key-go:hover {
+      filter: brightness(1.12);
+    }
+
+    @media (max-width: 480px) {
+      .numpad {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      .vfx-dock {
+        gap: 3px;
+        padding: 4px 6px;
+      }
+      .vfx-dot {
+        width: 20px;
+        height: 20px;
+        font-size: 11px;
+      }
+      .hud {
+        gap: 6px;
+        padding: 8px 8px 4px;
+      }
+      .pill {
+        padding: 3px 7px;
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body class="">
+  <div id="app">
+    <!-- TOP HUD -->
+    <div class="hud">
+      <div class="badge-group">
+        <div class="pill pill-stage" id="stageBadge">✨</div>
+        <div class="pill pill-combo" id="comboBadge">⭐ 0</div>
+        <div class="pill pill-mode" id="modeBadge">1→10</div>
+      </div>
+
+      <div class="prog-wrap">
+        <div class="prog-bar-outer" id="progBarOuter">
+          <div class="prog-fill" id="progFill"></div>
+          <div class="prog-segments"></div>
+          <div class="prog-phase-mark" id="progPhaseMark" style="left:50%;"></div>
+          <div class="prog-text" id="progText">0 / 20000</div>
+          <div class="teacher-thumb" id="teacherThumb"></div>
+          <input type="range" class="teacher-slider" id="teacherSlider" min="0" max="20000" step="50" value="0" aria-label="Progress" />
+        </div>
+      </div>
+
+      <div class="icon-btns">
+        <button class="icon-btn" id="btnSound" aria-label="Sound" title="Sound">
+          <svg id="soundIconOn" viewBox="0 0 24 24">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <svg id="soundIconOff" viewBox="0 0 24 24" style="display:none;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+        <button class="icon-btn" id="btnReset" aria-label="Reset" title="Reset">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+        </button>
+        <button class="icon-btn" id="btnDownload" aria-label="Download HTML" title="HTML">
+          <svg viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ANIME MAGIC TREE ARENA -->
+    <div class="arena-wrap" id="arenaWrap">
+      <canvas id="arena"></canvas>
+
+      <!-- 10 ANIME MAGIC VFX DOCK -->
+      <div class="vfx-dock" id="vfxDock"></div>
+
+      <!-- MANA ENERGY GAUGE -->
+      <div class="sp-bar-wrap">
+        <div class="sp-bar-fill" id="spFill"></div>
+      </div>
+
+      <!-- FULL BLOOM VICTORY OVERLAY -->
+      <div class="overlay" id="victoryOverlay">
+        <div class="victory-top">
+          <div class="victory-crown">👑</div>
+          <div class="victory-score" id="statScore">20000</div>
+        </div>
+        <div class="victory-bottom">
+          <div class="victory-stats">
+            <div class="stat-chip">🌸 <span id="statHits">0</span></div>
+            <div class="stat-chip">🌟 <span id="statCrits">0</span></div>
+            <div class="stat-chip">🌈 <span id="statSkills">0</span></div>
+            <div class="stat-chip">⏱️ <span id="statTime">00:00</span></div>
+          </div>
+          <button class="replay-btn" id="btnReplay">↻</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM CONTROL DECK -->
+    <div class="deck" id="controlDeck">
+      <div class="equation-row">
+        <div class="eq-prompt">
+          <span>7</span>
+          <span class="mul">×</span>
+          <span id="factorB">1</span>
+          <span class="eq-sign">=</span>
+        </div>
+        <div class="answer-box empty" id="answerBox"></div>
+      </div>
+
+      <div class="numpad" id="numpad">
+        <button class="key" data-num="1">1</button>
+        <button class="key" data-num="2">2</button>
+        <button class="key" data-num="3">3</button>
+        <button class="key" data-num="4">4</button>
+        <button class="key" data-num="5">5</button>
+        <button class="key key-del" data-action="del">⌫</button>
+        <button class="key" data-num="6">6</button>
+        <button class="key" data-num="7">7</button>
+        <button class="key" data-num="8">8</button>
+        <button class="key" data-num="9">9</button>
+        <button class="key" data-num="0">0</button>
+        <button class="key key-go" data-action="submit">🌸</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const IS_TEACHER = document.body.classList.contains('teacher-mode');
+
+      /* ================= 10 ANIME MAGIC TREE VFX ================= */
+      const VFX_LIST = [
+        { id: 0, icon: '🌸', color: '#f472b6' }, // 1. Sakura Storm
+        { id: 1, icon: '💎', color: '#38bdf8' }, // 2. Mana Crystal Surge
+        { id: 2, icon: '✨', color: '#fde047' }, // 3. Starlight Spirals
+        { id: 3, icon: '🦋', color: '#c084fc' }, // 4. Spirit Butterflies
+        { id: 4, icon: '🌙', color: '#818cf8' }, // 5. Lunar Halo
+        { id: 5, icon: '🌈', color: '#ec4899' }, // 6. Aurora Ribbon
+        { id: 6, icon: '💧', color: '#22d3ee' }, // 7. Spirit Dew
+        { id: 7, icon: '🔥', color: '#fb923c' }, // 8. Golden Wisps
+        { id: 8, icon: '🌿', color: '#34d399' }, // 9. Emerald Wind
+        { id: 9, icon: '🌟', color: '#fbbf24' }  // 10. Celestial Nova
+      ];
+
+      /* ================= ANIME FANTASY WEB AUDIO SYNTH ================= */
+      let audioCtx = null;
+      let soundEnabled = true;
+
+      function ensureAudio() {
+        if (!soundEnabled) return null;
+        if (!audioCtx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (AC) audioCtx = new AC();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      }
+
+      function playTone(freq, type, duration, gainVal, freqEnd, delay = 0) {
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const now = ctx.currentTime + delay;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        if (freqEnd) {
+          osc.frequency.exponentialRampToValueAtTime(Math.max(40, freqEnd), now + duration);
+        }
+        gain.gain.setValueAtTime(gainVal, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+      }
+
+      function playMagicSound(vfxId, isCrit, isSkill) {
+        if (!soundEnabled) return;
+        const harp = [523.25, 659.25, 783.99, 987.77, 1046.5, 1318.5];
+        const base = harp[vfxId % harp.length];
+        playTone(base, 'sine', 0.24, 0.13, base * 1.12);
+        playTone(base * 1.5, 'triangle', 0.22, 0.1, base * 1.55, 0.05);
+        if (isCrit) {
+          playTone(1046.5, 'sine', 0.24, 0.15, 1568, 0.04);
+          playTone(1568, 'triangle', 0.24, 0.12, 2093, 0.09);
+        }
+        if (isSkill) {
+          [523.25, 659.25, 783.99, 987.77, 1318.5].forEach((n, i) => {
+            playTone(n, 'sine', 0.26, 0.12, n * 1.02, i * 0.055);
+          });
+        }
+      }
+
+      function playKeySound() {
+        playTone(680, 'sine', 0.045, 0.07, 820);
+      }
+
+      function playWrongSound() {
+        playTone(220, 'sine', 0.16, 0.11, 160);
+      }
+
+      function playFullBloomFanfare() {
+        const notes = [523.25, 659.25, 783.99, 987.77, 1046.5, 1567.98];
+        notes.forEach((n, i) => playTone(n, 'sine', 0.42, 0.15, n * 1.01, i * 0.09));
+      }
+
+      /* ================= DOM ELEMENTS ================= */
+      const canvas = document.getElementById('arena');
+      const ctx = canvas.getContext('2d');
+      const arenaWrap = document.getElementById('arenaWrap');
+      const stageBadge = document.getElementById('stageBadge');
+      const comboBadge = document.getElementById('comboBadge');
+      const modeBadge = document.getElementById('modeBadge');
+      const progFill = document.getElementById('progFill');
+      const progPhaseMark = document.getElementById('progPhaseMark');
+      const progText = document.getElementById('progText');
+      const teacherSlider = document.getElementById('teacherSlider');
+      const teacherThumb = document.getElementById('teacherThumb');
+      const spFill = document.getElementById('spFill');
+      const factorBEl = document.getElementById('factorB');
+      const answerBox = document.getElementById('answerBox');
+      const numpad = document.getElementById('numpad');
+      const vfxDock = document.getElementById('vfxDock');
+      const controlDeck = document.getElementById('controlDeck');
+      const victoryOverlay = document.getElementById('victoryOverlay');
+      const statScore = document.getElementById('statScore');
+      const statHits = document.getElementById('statHits');
+      const statCrits = document.getElementById('statCrits');
+      const statSkills = document.getElementById('statSkills');
+      const statTime = document.getElementById('statTime');
+      const btnReplay = document.getElementById('btnReplay');
+      const btnSound = document.getElementById('btnSound');
+      const soundIconOn = document.getElementById('soundIconOn');
+      const soundIconOff = document.getElementById('soundIconOff');
+      const btnReset = document.getElementById('btnReset');
+      const btnDownload = document.getElementById('btnDownload');
+
+      /* Build 10 VFX icons dock */
+      vfxDock.innerHTML = '';
+      const vfxDotEls = [];
+      VFX_LIST.forEach((v) => {
+        const el = document.createElement('div');
+        el.className = 'vfx-dot';
+        el.textContent = v.icon;
+        el.style.setProperty('--dot-color', v.color);
+        vfxDock.appendChild(el);
+        vfxDotEls.push(el);
+      });
+
+      /* ================= GAME STATE ================= */
+      const state = {
+        goal: 20000,
+        growth: 0,
+        displayGrowth: 0,
+        seqIndex: 1,
+        seqLimit: 10000,
+        sp: 0,
+        combo: 0,
+        hits: 0,
+        crits: 0,
+        skills: 0,
+        factorB: 1,
+        questionBag: [],
+        vfxBag: [],
+        input: '',
+        victory: false,
+        startTime: 0,
+        treeBounce: 0,
+        treeGlow: 0,
+        skillRays: 0,
+        petalTimer: 0,
+        time: 0
+      };
+
+      const activeEffects = [];
+      const particles = [];
+      const floatTexts = [];
+      const skyStars = [];
+      const fireflies = [];
+      let rafId = null;
+      let lastTs = 0;
+      let width = 600;
+      let height = 340;
+      let dpr = 1;
+
+      function initAmbient() {
+        skyStars.length = 0;
+        for (let i = 0; i < 65; i++) {
+          skyStars.push({
+            x: Math.random(),
+            y: Math.random() * 0.65,
+            r: 0.7 + Math.random() * 1.8,
+            phase: Math.random() * Math.PI * 2
+          });
+        }
+        fireflies.length = 0;
+        for (let i = 0; i < 28; i++) {
+          fireflies.push({
+            ox: (Math.random() - 0.5) * 340,
+            oy: -20 - Math.random() * 240,
+            r: 1.5 + Math.random() * 3,
+            spd: 0.6 + Math.random() * 1.4,
+            phase: Math.random() * Math.PI * 2,
+            col: i % 3 === 0 ? '#fde047' : (i % 3 === 1 ? '#38bdf8' : '#f472b6')
+          });
+        }
+      }
+
+      function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      function refillQuestionBag() {
+        const arr = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+        if (arr[arr.length - 1] === state.factorB) {
+          [arr[0], arr[arr.length - 1]] = [arr[arr.length - 1], arr[0]];
+        }
+        state.questionBag = arr;
+      }
+
+      function updateModeAndStage() {
+        const isRandom = state.growth >= state.seqLimit;
+        modeBadge.textContent = isRandom ? '🔀' : '1→10';
+        modeBadge.classList.toggle('rand', isRandom);
+
+        const pct = state.growth / state.goal;
+        if (pct < 0.08) stageBadge.textContent = '✨';
+        else if (pct < 0.25) stageBadge.textContent = '🌱';
+        else if (pct < 0.55) stageBadge.textContent = '🌿';
+        else if (pct < 0.85) stageBadge.textContent = '🌳';
+        else stageBadge.textContent = '🌸';
+      }
+
+      function nextQuestion() {
+        if (state.growth < state.seqLimit) {
+          state.factorB = state.seqIndex;
+          state.seqIndex = state.seqIndex >= 10 ? 1 : state.seqIndex + 1;
+        } else {
+          if (state.questionBag.length === 0) refillQuestionBag();
+          state.factorB = state.questionBag.pop();
+        }
+        updateModeAndStage();
+        factorBEl.textContent = state.factorB;
+        state.input = '';
+        renderAnswerBox();
+      }
+
+      function nextVfxId() {
+        if (state.vfxBag.length === 0) {
+          state.vfxBag = shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        }
+        return state.vfxBag.pop();
+      }
+
+      function highlightVfxDot(id) {
+        vfxDotEls.forEach((el, idx) => {
+          el.classList.toggle('active', idx === id);
+        });
+      }
+
+      function getTreeAnchor() {
+        return {
+          x: width * 0.5,
+          y: height * (state.victory ? 0.74 : 0.79),
+          scale: Math.min(width * 0.0022, height * 0.0032, 1.32)
+        };
+      }
+
+      function startGame() {
+        state.growth = 0;
+        state.displayGrowth = 0;
+        state.seqIndex = 1;
+        state.questionBag = [];
+        state.vfxBag = [];
+        state.sp = 0;
+        state.combo = 0;
+        state.hits = 0;
+        state.crits = 0;
+        state.skills = 0;
+        state.victory = false;
+        state.startTime = performance.now();
+        state.treeBounce = 0;
+        state.treeGlow = 0;
+        state.input = '';
+        activeEffects.length = 0;
+        particles.length = 0;
+        floatTexts.length = 0;
+        victoryOverlay.classList.remove('show');
+        controlDeck.classList.remove('hidden-victory');
+        vfxDock.classList.remove('hidden-victory');
+        progPhaseMark.style.left = '50%';
+        resizeCanvas();
+        updateHud();
+        nextQuestion();
+      }
+
+      function updateHud() {
+        const pct = Math.max(0, Math.min(100, (state.growth / state.goal) * 100));
+        progFill.style.width = pct + '%';
+        progText.textContent = Math.min(state.goal, Math.floor(state.growth)) + ' / ' + state.goal;
+        if (IS_TEACHER) {
+          teacherSlider.value = Math.round(state.growth);
+          teacherThumb.style.left = pct + '%';
+        }
+        comboBadge.textContent = '⭐ ' + state.combo;
+        spFill.style.width = Math.min(100, state.sp) + '%';
+        spFill.classList.toggle('full', state.sp >= 100);
+        updateModeAndStage();
+      }
+
+      function renderAnswerBox() {
+        answerBox.textContent = state.input;
+        answerBox.classList.toggle('empty', state.input.length === 0);
+      }
+
+      /* ================= INPUT HANDLING ================= */
+      function appendDigit(d) {
+        if (state.victory || state.input.length >= 2) return;
+        ensureAudio();
+        playKeySound();
+        state.input += d;
+        renderAnswerBox();
+      }
+
+      function deleteDigit() {
+        if (state.victory || !state.input.length) return;
+        ensureAudio();
+        playKeySound();
+        state.input = state.input.slice(0, -1);
+        renderAnswerBox();
+      }
+
+      function submitAnswer() {
+        if (state.victory || !state.input.length) return;
+        ensureAudio();
+        const ans = parseInt(state.input, 10);
+        const expected = 7 * state.factorB;
+
+        if (ans === expected) {
+          answerBox.classList.remove('wrong');
+          answerBox.classList.add('correct');
+          setTimeout(() => answerBox.classList.remove('correct'), 200);
+          triggerTreeGrowth();
+          nextQuestion();
+        } else {
+          state.combo = 0;
+          updateHud();
+          playWrongSound();
+          answerBox.classList.remove('wrong');
+          void answerBox.offsetWidth;
+          answerBox.classList.add('wrong');
+          state.input = '';
+          renderAnswerBox();
+          setTimeout(() => answerBox.classList.remove('wrong'), 340);
+        }
+      }
+
+      /* ================= GROWTH, CRITS & SKILLS ================= */
+      function triggerTreeGrowth() {
+        state.hits += 1;
+        state.combo += 1;
+        comboBadge.classList.remove('pop');
+        void comboBadge.offsetWidth;
+        comboBadge.classList.add('pop');
+        setTimeout(() => comboBadge.classList.remove('pop'), 180);
+
+        const skillFromGauge = state.sp >= 100;
+        const skillFromProc = !skillFromGauge && Math.random() < 0.16;
+        const isSkill = skillFromGauge || skillFromProc;
+
+        if (isSkill) {
+          state.sp = 0;
+          state.skills += 1;
+          state.skillRays = 0.85;
+          const v1 = nextVfxId();
+          const v2 = nextVfxId();
+          const v3 = nextVfxId();
+          fireSingleGrowth(v1, false, true, 0);
+          setTimeout(() => { if (!state.victory) fireSingleGrowth(v2, Math.random() < 0.45, true, 1); }, 135);
+          setTimeout(() => { if (!state.victory) fireSingleGrowth(v3, true, true, 2); }, 270);
+        } else {
+          state.sp = Math.min(100, state.sp + 20);
+          const critChance = state.combo >= 5 ? 0.34 : 0.24;
+          const isCrit = Math.random() < critChance;
+          const vfxId = nextVfxId();
+          fireSingleGrowth(vfxId, isCrit, false, 0);
+        }
+        updateHud();
+      }
+
+      function fireSingleGrowth(vfxId, isCrit, isSkill, hitIndex) {
+        const baseGain = 95 + Math.floor(Math.random() * 26) + Math.min(state.combo * 3, 45);
+        const mult = isCrit ? 2.25 : 1;
+        const skillBonus = isSkill ? 1.15 : 1;
+        const gain = Math.round(baseGain * mult * skillBonus);
+
+        if (isCrit && hitIndex === 0) state.crits += 1;
+        else if (isCrit && isSkill && hitIndex === 2) state.crits += 1;
+
+        state.growth = Math.min(state.goal, state.growth + gain);
+        state.treeBounce = isCrit ? 1.0 : 0.65;
+        state.treeGlow = isCrit ? 0.6 : 0.28;
+
+        highlightVfxDot(vfxId);
+        playMagicSound(vfxId, isCrit, isSkill && hitIndex === 0);
+
+        const t = getTreeAnchor();
+        const prog = state.growth / state.goal;
+        const targetY = t.y - (26 + prog * 150) * t.scale;
+
+        spawnVfx(vfxId, t.x, targetY, isCrit ? 1.3 : 1.0);
+        spawnManaParticles(t.x, targetY, VFX_LIST[vfxId].color, isCrit ? 24 : 14);
+
+        const offsetX = (Math.random() - 0.5) * 80;
+        const offsetY = -36 - hitIndex * 24;
+        floatTexts.push({
+          x: t.x + offsetX,
+          y: targetY + offsetY,
+          vy: isCrit ? -82 : -58,
+          text: '+' + gain,
+          tag: isCrit ? '🌟 大綻放!' : (isSkill && hitIndex === 0 ? '🌈 魔力湧動!' : ''),
+          color: isCrit ? '#fde047' : (isSkill ? '#f472b6' : '#38bdf8'),
+          scale: isCrit ? 1.38 : (isSkill ? 1.18 : 1.0),
+          life: 0.95,
+          maxLife: 0.95
+        });
+
+        updateHud();
+
+        if (state.growth >= state.goal && !state.victory) {
+          handleVictory(false);
+        }
+      }
+
+      function handleVictory(instant) {
+        state.victory = true;
+        const t = getTreeAnchor();
+        spawnManaParticles(t.x, t.y - 130, '#f472b6', 36);
+        spawnManaParticles(t.x - 80, t.y - 110, '#fde047', 30);
+        spawnManaParticles(t.x + 80, t.y - 110, '#38bdf8', 30);
+        if (!instant) playFullBloomFanfare();
+
+        const secs = Math.max(1, Math.round((performance.now() - state.startTime) / 1000));
+        const mm = String(Math.floor(secs / 60)).padStart(2, '0');
+        const ss = String(secs % 60).padStart(2, '0');
+        statScore.textContent = state.goal;
+        statHits.textContent = state.hits;
+        statCrits.textContent = state.crits;
+        statSkills.textContent = state.skills;
+        statTime.textContent = mm + ':' + ss;
+
+        const showOverlay = () => {
+          if (!state.victory) return;
+          controlDeck.classList.add('hidden-victory');
+          vfxDock.classList.add('hidden-victory');
+          victoryOverlay.classList.add('show');
+          resizeCanvas();
+        };
+        if (instant) showOverlay();
+        else setTimeout(showOverlay, 600);
+      }
+
+      /* ================= 10 ANIME MAGIC CANVAS VFX ================= */
+      function spawnVfx(id, x, y, scale) {
+        activeEffects.push({
+          id,
+          x, y,
+          scale,
+          t: 0,
+          dur: 0.62,
+          seed: Math.random() * 100
+        });
+      }
+
+      function spawnManaParticles(x, y, color, count) {
+        const palette = [color, '#fde047', '#ffffff', '#f472b6', '#38bdf8'];
+        for (let i = 0; i < count; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 45 + Math.random() * 175;
+          particles.push({
+            x, y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd - 65,
+            r: 2.5 + Math.random() * 4.5,
+            color: palette[i % palette.length],
+            life: 0.5 + Math.random() * 0.45,
+            maxLife: 0.95,
+            gravity: 130
+          });
+        }
+      }
+
+      function drawStar(cx, cy, spikes, outerR, innerR) {
+        ctx.beginPath();
+        for (let i = 0; i < spikes * 2; i++) {
+          const r = i % 2 === 0 ? outerR : innerR;
+          const a = (i * Math.PI) / spikes - Math.PI / 2;
+          if (i === 0) ctx.moveTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+          else ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+        }
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      function drawVfx(e) {
+        const p = Math.min(1, e.t / e.dur);
+        const inv = 1 - p;
+        const sc = e.scale;
+        ctx.save();
+
+        switch (e.id) {
+          case 0: { // 1. Sakura Storm
+            for (let i = 0; i < 14; i++) {
+              const ang = (i / 14) * Math.PI * 2 + p * 3.8;
+              const rad = (20 + p * 110) * sc;
+              ctx.save();
+              ctx.translate(e.x + Math.cos(ang) * rad, e.y + Math.sin(ang) * rad * 0.65 - p * 30);
+              ctx.rotate(ang + p * 5);
+              ctx.fillStyle = i % 2 === 0 ? `rgba(244, 114, 182, ${inv})` : `rgba(251, 207, 232, ${inv})`;
+              ctx.beginPath();
+              ctx.ellipse(0, 0, 10 * sc, 5 * sc, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.restore();
+            }
+            break;
+          }
+          case 1: { // 2. Mana Crystal Surge
+            ctx.translate(e.x, e.y);
+            ctx.rotate(p * 1.4);
+            const r = (28 + p * 82) * sc;
+            ctx.strokeStyle = `rgba(56, 189, 248, ${inv})`;
+            ctx.shadowColor = '#38bdf8';
+            ctx.shadowBlur = 18;
+            ctx.lineWidth = 4 * sc;
+            ctx.beginPath();
+            ctx.moveTo(0, -r); ctx.lineTo(r * 0.65, 0); ctx.lineTo(0, r); ctx.lineTo(-r * 0.65, 0);
+            ctx.closePath();
+            ctx.stroke();
+            break;
+          }
+          case 2: { // 3. Starlight Spirals
+            for (let i = 0; i < 8; i++) {
+              const ang = (i / 8) * Math.PI * 2 + p * 4.5;
+              const rad = (18 + p * 90) * sc;
+              ctx.fillStyle = i % 2 === 0 ? `rgba(253, 224, 71, ${inv})` : `rgba(255, 255, 255, ${inv})`;
+              drawStar(e.x + Math.cos(ang) * rad, e.y + Math.sin(ang) * rad, 5, 11 * sc * inv, 5 * sc * inv);
+            }
+            break;
+          }
+          case 3: { // 4. Spirit Butterflies
+            const cols = ['#c084fc', '#f472b6', '#38bdf8', '#fde047'];
+            for (let i = 0; i < 6; i++) {
+              const ang = (i / 6) * Math.PI * 2 + p * 4.2;
+              const rad = (24 + p * 88) * sc;
+              const flap = 0.45 + 0.55 * Math.abs(Math.sin(p * 24 + i));
+              ctx.save();
+              ctx.translate(e.x + Math.cos(ang) * rad, e.y + Math.sin(ang) * rad * 0.55 - p * 45);
+              ctx.fillStyle = cols[i % cols.length];
+              ctx.shadowColor = cols[i % cols.length];
+              ctx.shadowBlur = 10;
+              ctx.globalAlpha = inv;
+              ctx.beginPath();
+              ctx.ellipse(-6 * sc * flap, 0, 8 * sc * flap, 10 * sc, -0.3, 0, Math.PI * 2);
+              ctx.ellipse(6 * sc * flap, 0, 8 * sc * flap, 10 * sc, 0.3, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.restore();
+            }
+            break;
+          }
+          case 4: { // 5. Lunar Halo Rings
+            for (let i = 0; i < 3; i++) {
+              ctx.strokeStyle = i % 2 === 0 ? `rgba(129, 140, 248, ${inv})` : `rgba(253, 224, 71, ${inv})`;
+              ctx.lineWidth = (5 - i) * sc;
+              ctx.beginPath();
+              ctx.arc(e.x, e.y, (22 + i * 16 + p * 85) * sc, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+            break;
+          }
+          case 5: { // 6. Aurora Ribbon
+            const cols = ['#38bdf8', '#34d399', '#f472b6', '#a855f7'];
+            cols.forEach((col, i) => {
+              ctx.strokeStyle = col;
+              ctx.globalAlpha = inv * 0.85;
+              ctx.lineWidth = 6 * sc;
+              ctx.beginPath();
+              ctx.arc(e.x, e.y + 40, (48 + i * 9 + p * 52) * sc, Math.PI, Math.PI + Math.PI * Math.min(1, p * 1.5));
+              ctx.stroke();
+            });
+            break;
+          }
+          case 6: { // 7. Spirit Dew Beams
+            const bw = (38 + Math.sin(p * Math.PI) * 38) * sc;
+            const g = ctx.createLinearGradient(e.x - bw, 0, e.x + bw, 0);
+            g.addColorStop(0, 'rgba(34, 211, 238, 0)');
+            g.addColorStop(0.5, `rgba(165, 243, 252, ${inv * 0.65})`);
+            g.addColorStop(1, 'rgba(34, 211, 238, 0)');
+            ctx.fillStyle = g;
+            ctx.fillRect(e.x - bw, 0, bw * 2, height);
+            break;
+          }
+          case 7: { // 8. Golden Wisps
+            for (let i = 0; i < 6; i++) {
+              const wy = e.y + 50 - p * 140 * sc - i * 14;
+              const wx = e.x + Math.sin(p * 12 + i * 1.4) * 55 * sc;
+              ctx.fillStyle = `rgba(253, 224, 71, ${inv})`;
+              ctx.shadowColor = '#fbbf24';
+              ctx.shadowBlur = 14;
+              ctx.beginPath();
+              ctx.arc(wx, wy, 7 * sc * inv, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            break;
+          }
+          case 8: { // 9. Emerald Wind Spirals
+            ctx.translate(e.x, e.y + 40);
+            for (let i = 0; i < 6; i++) {
+              const frac = i / 5;
+              ctx.strokeStyle = `rgba(52, 211, 153, ${inv * (0.45 + frac * 0.55)})`;
+              ctx.lineWidth = 3.5 * inv;
+              ctx.beginPath();
+              ctx.ellipse(Math.sin(p * 16 + i) * 12, -frac * 135 * sc, (30 + frac * 55) * sc, 11 * sc, 0, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+            break;
+          }
+          case 9: { // 10. Celestial Nova
+            ctx.translate(e.x, e.y);
+            ctx.fillStyle = `rgba(254, 240, 138, ${inv * 0.88})`;
+            ctx.shadowColor = '#f472b6';
+            ctx.shadowBlur = 24;
+            drawStar(0, 0, 8, (34 + p * 92) * sc, (14 + p * 28) * sc);
+            break;
+          }
+        }
+        ctx.restore();
+      }
+
+      /* ================= DRAW ANIME SKY & GORGEOUS MAGIC WORLD TREE ================= */
+      function stageProg(p, s, e) {
+        return Math.max(0, Math.min(1, (p - s) / (e - s)));
+      }
+      function lerp(a, b, t) { return a + (b - a) * t; }
+      function lerpColor(c1, c2, t) {
+        return `rgb(${Math.round(lerp(c1[0], c2[0], t))},${Math.round(lerp(c1[1], c2[1], t))},${Math.round(lerp(c1[2], c2[2], t))})`;
+      }
+
+      function drawAnimeBackdrop(prog) {
+        // Makoto Shinkai / Ghibli twilight -> radiant sakura-aurora sky
+        const topC = lerpColor([10, 14, 38], [26, 32, 92], prog);
+        const midC = lerpColor([28, 22, 68], [134, 65, 148], prog);
+        const botC = lerpColor([45, 34, 78], [251, 182, 168], prog);
+
+        const sky = ctx.createLinearGradient(0, 0, 0, height);
+        sky.addColorStop(0, topC);
+        sky.addColorStop(0.56, midC);
+        sky.addColorStop(1, botC);
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, width, height);
+
+        // Twinkling Anime Stars
+        skyStars.forEach((st) => {
+          const alpha = 0.25 + 0.65 * Math.abs(Math.sin(state.time * 2.2 + st.phase));
+          ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(st.x * width, st.y * height, st.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Luminous Aurora Ribbons (> 55%!)
+        const aurP = stageProg(prog, 0.55, 1.0);
+        if (aurP > 0) {
+          ctx.save();
+          ctx.globalAlpha = aurP * 0.42;
+          for (let band = 0; band < 2; band++) {
+            const g = ctx.createLinearGradient(0, height * 0.08, width, height * 0.36);
+            g.addColorStop(0, 'rgba(56, 189, 248, 0)');
+            g.addColorStop(0.35, band === 0 ? '#38bdf8' : '#f472b6');
+            g.addColorStop(0.65, band === 0 ? '#34d399' : '#fde047');
+            g.addColorStop(1, 'rgba(168, 85, 247, 0)');
+            ctx.strokeStyle = g;
+            ctx.lineWidth = 28;
+            ctx.beginPath();
+            for (let x = 0; x <= width; x += 28) {
+              const y = height * (0.14 + band * 0.09) + Math.sin(x * 0.009 + state.time * 1.1 + band * 2) * 24;
+              if (x === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        // Crescent Moon / Radiant Celestial Halo
+        const moonX = width * 0.16;
+        const moonY = height * 0.18;
+        ctx.save();
+        const mg = ctx.createRadialGradient(moonX, moonY, 8, moonX, moonY, 64);
+        mg.addColorStop(0, 'rgba(254, 249, 195, 0.9)');
+        mg.addColorStop(0.4, 'rgba(244, 114, 182, 0.28)');
+        mg.addColorStop(1, 'rgba(244, 114, 182, 0)');
+        ctx.fillStyle = mg;
+        ctx.beginPath();
+        ctx.arc(moonX, moonY, 64, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fef9c3';
+        ctx.beginPath();
+        ctx.arc(moonX, moonY, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Distant Misty Fantasy Mountains
+        const groundY = height * (state.victory ? 0.74 : 0.79);
+        ctx.fillStyle = lerpColor([20, 24, 58], [58, 42, 108], prog);
+        ctx.beginPath();
+        ctx.moveTo(0, groundY + 10);
+        ctx.lineTo(width * 0.18, groundY - 62);
+        ctx.lineTo(width * 0.36, groundY - 22);
+        ctx.lineTo(width * 0.58, groundY - 76);
+        ctx.lineTo(width * 0.82, groundY - 30);
+        ctx.lineTo(width, groundY - 68);
+        ctx.lineTo(width, groundY + 10);
+        ctx.closePath();
+        ctx.fill();
+
+        // Enchanted Meadow Hill & Reflecting Glow
+        const hillG = ctx.createLinearGradient(0, groundY - 12, 0, height);
+        hillG.addColorStop(0, lerpColor([22, 48, 66], [30, 96, 92], prog));
+        hillG.addColorStop(1, '#091526');
+        ctx.fillStyle = hillG;
+        ctx.beginPath();
+        ctx.ellipse(width * 0.5, groundY + 62, width * 0.68, 92, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function drawAnimeMagicTree(prog) {
+        const t = getTreeAnchor();
+        const s = t.scale;
+        const bounce = Math.sin(state.treeBounce * Math.PI) * 0.07;
+        const sway = Math.sin(state.time * 1.9) * (0.012 + prog * 0.012);
+
+        ctx.save();
+        ctx.translate(t.x, t.y);
+        ctx.scale(s * (1 - bounce * 0.4), s * (1 + bounce));
+
+        // 1. ROTATING GOLDEN-CYAN MAGIC RUNE CIRCLE UNDER ROOTS
+        ctx.save();
+        ctx.translate(0, 8);
+        ctx.scale(1, 0.28);
+        ctx.rotate(state.time * 0.5);
+        const runeR = 68 + prog * 95;
+        ctx.strokeStyle = `rgba(56, 189, 248, ${0.32 + prog * 0.55})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, runeR, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.strokeStyle = `rgba(253, 224, 71, ${0.25 + prog * 0.6})`;
+        ctx.setLineDash([12, 10]);
+        ctx.beginPath();
+        ctx.arc(0, 0, runeR * 0.78, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+
+        // 2. CELESTIAL SUNBURST HALO BEHIND FULL TREE (> 75%!)
+        const haloP = stageProg(prog, 0.75, 1.0);
+        if (haloP > 0 || state.skillRays > 0) {
+          const hAlpha = Math.max(haloP * 0.6, state.skillRays * 0.55);
+          ctx.save();
+          ctx.translate(0, -135);
+          // Soft Sacred Glow
+          const g = ctx.createRadialGradient(0, 0, 20, 0, 0, 210);
+          g.addColorStop(0, `rgba(254, 240, 138, ${hAlpha * 0.7})`);
+          g.addColorStop(0.5, `rgba(244, 114, 182, ${hAlpha * 0.35})`);
+          g.addColorStop(1, 'rgba(56, 189, 248, 0)');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(0, 0, 210, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Rotating Sacred Halo Ring
+          ctx.rotate(state.time * 0.35);
+          ctx.strokeStyle = `rgba(253, 224, 71, ${hAlpha * 0.85})`;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(0, 0, 138 * (0.6 + haloP * 0.4), 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // 3. LUMINOUS MANA SEED AT 0% - 12%
+        if (prog < 0.14) {
+          const sa = Math.max(0, 1 - Math.max(0, prog - 0.08) / 0.06);
+          ctx.save();
+          ctx.globalAlpha = sa;
+          ctx.fillStyle = '#38bdf8';
+          ctx.shadowColor = '#38bdf8';
+          ctx.shadowBlur = 22;
+          ctx.beginPath();
+          ctx.moveTo(0, -24);
+          ctx.quadraticCurveTo(15, -6, 0, 6);
+          ctx.quadraticCurveTo(-15, -6, 0, -24);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // 4. ANCIENT GNARLED ANIME TRUNK + FLOWING MANA VEINS (0.01 -> 1.0)
+        const trunkP = stageProg(prog, 0.01, 0.74);
+        const trunkH = 18 + trunkP * 150;
+        const baseW = 8 + trunkP * 40;
+        const topW = 4 + trunkP * 16;
+
+        ctx.save();
+        ctx.rotate(sway);
+
+        if (prog > 0.01) {
+          // Sweeping Ancient Roots
+          if (trunkP > 0.15) {
+            ctx.fillStyle = '#3b2042';
+            ctx.beginPath();
+            ctx.moveTo(-baseW * 1.45, 10);
+            ctx.quadraticCurveTo(-baseW * 0.7, -14, -baseW * 0.55, -32);
+            ctx.lineTo(baseW * 0.55, -32);
+            ctx.quadraticCurveTo(baseW * 0.7, -14, baseW * 1.45, 10);
+            ctx.quadraticCurveTo(0, 18, -baseW * 1.45, 10);
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          // Graceful Curved Trunk
+          const tg = ctx.createLinearGradient(-baseW, 0, baseW, 0);
+          tg.addColorStop(0, '#2e1638');
+          tg.addColorStop(0.5, '#582c5c');
+          tg.addColorStop(1, '#261230');
+          ctx.fillStyle = tg;
+          ctx.beginPath();
+          ctx.moveTo(-baseW * 0.72, 6);
+          ctx.bezierCurveTo(-baseW * 0.45, -trunkH * 0.35, -topW * 0.9, -trunkH * 0.7, -topW * 0.55, -trunkH);
+          ctx.lineTo(topW * 0.55, -trunkH);
+          ctx.bezierCurveTo(topW * 0.9, -trunkH * 0.7, baseW * 0.45, -trunkH * 0.35, baseW * 0.72, 6);
+          ctx.closePath();
+          ctx.fill();
+
+          // Glowing Turquoise-Gold Mana Veins Flowing Up Trunk!
+          ctx.save();
+          ctx.strokeStyle = `rgba(56, 189, 248, ${0.45 + 0.45 * Math.sin(state.time * 4)})`;
+          ctx.shadowColor = '#38bdf8';
+          ctx.shadowBlur = 12;
+          ctx.lineWidth = 2.4 + trunkP * 2;
+          ctx.beginPath();
+          ctx.moveTo(-baseW * 0.18, 4);
+          ctx.bezierCurveTo(baseW * 0.15, -trunkH * 0.35, -topW * 0.3, -trunkH * 0.7, 0, -trunkH);
+          ctx.stroke();
+          ctx.restore();
+
+          // Sweeping Grand Anime Boughs (16% -> 68%)
+          const brP = stageProg(prog, 0.16, 0.68);
+          if (brP > 0) {
+            ctx.strokeStyle = '#4a2352';
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 4 + brP * 11;
+            // Lower Left & Right Sweeping Boughs
+            ctx.beginPath();
+            ctx.moveTo(-6, -trunkH * 0.58);
+            ctx.bezierCurveTo(-48 * brP, -trunkH * 0.64, -85 * brP, -trunkH * 0.84, -118 * brP, -trunkH * 0.78);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(6, -trunkH * 0.54);
+            ctx.bezierCurveTo(52 * brP, -trunkH * 0.62, 88 * brP, -trunkH * 0.82, 122 * brP, -trunkH * 0.75);
+            ctx.stroke();
+            // Upper Crown Branches
+            ctx.lineWidth = 3 + brP * 7;
+            ctx.beginPath();
+            ctx.moveTo(-4, -trunkH * 0.84);
+            ctx.quadraticCurveTo(-44 * brP, -trunkH * 1.12, -74 * brP, -trunkH * 1.24);
+            ctx.moveTo(4, -trunkH * 0.84);
+            ctx.quadraticCurveTo(44 * brP, -trunkH * 1.12, 74 * brP, -trunkH * 1.24);
+            ctx.stroke();
+          }
+
+          // Glowing Spirit Shrine Arch in Trunk Heart (> 46%)
+          const shP = stageProg(prog, 0.46, 0.62);
+          if (shP > 0) {
+            ctx.save();
+            ctx.fillStyle = '#fef08a';
+            ctx.shadowColor = '#38bdf8';
+            ctx.shadowBlur = 16;
+            ctx.beginPath();
+            ctx.arc(0, -24 * shP, 11 * shP, Math.PI, 0);
+            ctx.lineTo(11 * shP, 4);
+            ctx.lineTo(-11 * shP, 4);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+          }
+
+          // 5. GORGEOUS LAYERED ANIME SAKURA-EMERALD-GOLD CANOPY (12% -> 94%)
+          const canP = stageProg(prog, 0.12, 0.94);
+          if (canP > 0) {
+            const clusters = [
+              // Deep back shadow foliage
+              { x: -96, y: -trunkH * 0.86, r: 46, c1: '#6d28d9', c2: '#ec4899', s: 0.18 },
+              { x: 98, y: -trunkH * 0.84, r: 46, c1: '#6d28d9', c2: '#ec4899', s: 0.22 },
+              { x: -56, y: -trunkH * 1.22, r: 52, c1: '#7c3aed', c2: '#f472b6', s: 0.12 },
+              { x: 58, y: -trunkH * 1.20, r: 52, c1: '#7c3aed', c2: '#f472b6', s: 0.15 },
+              // Luminous mid-layer sakura & aqua mana clusters
+              { x: -115, y: -trunkH * 0.92, r: 38, c1: '#f472b6', c2: '#fbcfe8', s: 0.28 },
+              { x: 118, y: -trunkH * 0.90, r: 38, c1: '#f472b6', c2: '#fbcfe8', s: 0.32 },
+              { x: -46, y: -trunkH * 1.02, r: 50, c1: '#ec4899', c2: '#f9a8d4', s: 0.05 },
+              { x: 48, y: -trunkH * 1.00, r: 50, c1: '#ec4899', c2: '#f9a8d4', s: 0.08 },
+              // Radiant crown sunlit sakura & starlight gold
+              { x: 0, y: -trunkH * 1.38, r: 62, c1: '#f472b6', c2: '#fef08a', s: 0.0 },
+              { x: -28, y: -trunkH * 1.26, r: 42, c1: '#fb7185', c2: '#fde68a', s: 0.2 },
+              { x: 30, y: -trunkH * 1.25, r: 42, c1: '#38bdf8', c2: '#fbcfe8', s: 0.25 },
+              { x: 0, y: -trunkH * 1.06, r: 48, c1: '#f472b6', c2: '#fdf2f8', s: 0.02 }
+            ];
+            clusters.forEach((cl) => {
+              const local = stageProg(canP, cl.s, 1.0);
+              if (local <= 0) return;
+              const cx = cl.x * local;
+              const cy = cl.y;
+              const cr = cl.r * local;
+              const cg = ctx.createRadialGradient(cx - cr * 0.25, cy - cr * 0.3, cr * 0.1, cx, cy, cr);
+              cg.addColorStop(0, cl.c2);
+              cg.addColorStop(1, cl.c1);
+              ctx.fillStyle = cg;
+              ctx.beginPath();
+              ctx.arc(cx, cy, cr, 0, Math.PI * 2);
+              ctx.fill();
+            });
+          }
+
+          // 6. WEEPING LUMINOUS STARLIGHT WISTERIA VINES (> 48%!)
+          const vineP = stageProg(prog, 0.48, 0.92);
+          if (vineP > 0) {
+            const vines = [-112, -84, -52, 54, 86, 114];
+            vines.forEach((vx, idx) => {
+              const vLen = (34 + (idx % 2) * 24) * vineP;
+              const vy = -trunkH * (idx === 2 || idx === 3 ? 0.92 : 0.78);
+              const wave = Math.sin(state.time * 2.5 + idx) * 6;
+              ctx.strokeStyle = idx % 2 === 0 ? 'rgba(244, 114, 182, 0.78)' : 'rgba(125, 211, 252, 0.78)';
+              ctx.lineWidth = 3;
+              ctx.beginPath();
+              ctx.moveTo(vx, vy);
+              ctx.quadraticCurveTo(vx + wave, vy + vLen * 0.55, vx + wave * 1.3, vy + vLen);
+              ctx.stroke();
+
+              // Glowing Dewdrop Tip
+              ctx.fillStyle = '#fef08a';
+              ctx.beginPath();
+              ctx.arc(vx + wave * 1.3, vy + vLen, 3.5 * vineP, 0, Math.PI * 2);
+              ctx.fill();
+            });
+          }
+
+          // 7. HANGING CRYSTAL FAIRY LANTERNS (> 66%!)
+          const lanP = stageProg(prog, 0.66, 0.88);
+          if (lanP > 0) {
+            const lans = [
+              { x: -96, y: -trunkH * 0.66 },
+              { x: 98, y: -trunkH * 0.64 },
+              { x: -34, y: -trunkH * 0.84 },
+              { x: 36, y: -trunkH * 0.82 }
+            ];
+            lans.forEach((ln, i) => {
+              const swing = Math.sin(state.time * 2.4 + i) * 3;
+              ctx.save();
+              ctx.strokeStyle = 'rgba(253, 224, 71, 0.7)';
+              ctx.lineWidth = 1.5;
+              ctx.beginPath();
+              ctx.moveTo(ln.x, ln.y - 16);
+              ctx.lineTo(ln.x + swing, ln.y);
+              ctx.stroke();
+              ctx.fillStyle = '#fef08a';
+              ctx.shadowColor = '#fbbf24';
+              ctx.shadowBlur = 16;
+              ctx.beginPath();
+              ctx.arc(ln.x + swing, ln.y + 4, 6.5 * lanP, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.restore();
+            });
+          }
+        }
+        ctx.restore(); // end sway
+
+        // 8. FLOATING ANIME MANA FIREFLIES & ORBS (scales with prog!)
+        if (prog > 0.15) {
+          const ffCount = Math.floor(fireflies.length * Math.min(1, prog * 1.15));
+          for (let i = 0; i < ffCount; i++) {
+            const f = fireflies[i];
+            const fx = f.ox + Math.sin(state.time * f.spd + f.phase) * 22;
+            const fy = f.oy - ((state.time * 18 * f.spd + i * 17) % 140);
+            const al = 0.35 + 0.65 * Math.abs(Math.sin(state.time * 3 + f.phase));
+            ctx.save();
+            ctx.fillStyle = f.col;
+            ctx.shadowColor = f.col;
+            ctx.shadowBlur = 10;
+            ctx.globalAlpha = al;
+            ctx.beginPath();
+            ctx.arc(fx, fy, f.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+
+        ctx.restore();
+      }
+
+      /* ================= MAIN RENDER LOOP ================= */
+      function resizeCanvas() {
+        const rect = arenaWrap.getBoundingClientRect();
+        width = Math.max(200, rect.width);
+        height = Math.max(160, rect.height);
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function tick(ts) {
+        const dt = Math.min(0.05, lastTs ? (ts - lastTs) / 1000 : 0.016);
+        lastTs = ts;
+        state.time += dt;
+
+        state.displayGrowth += (state.growth - state.displayGrowth) * Math.min(1, dt * 8);
+        const prog = Math.min(1, state.displayGrowth / state.goal);
+
+        if (state.treeBounce > 0) state.treeBounce = Math.max(0, state.treeBounce - dt * 3.8);
+        if (state.treeGlow > 0) state.treeGlow = Math.max(0, state.treeGlow - dt * 1.4);
+        if (state.skillRays > 0) state.skillRays = Math.max(0, state.skillRays - dt * 1.2);
+
+        // Ambient drifting sakura petals when prog > 40%
+        if (prog > 0.4) {
+          state.petalTimer -= dt;
+          if (state.petalTimer <= 0) {
+            state.petalTimer = state.victory ? 0.14 : 0.38;
+            particles.push({
+              x: width * (0.1 + Math.random() * 0.8),
+              y: -8,
+              vx: -25 + Math.random() * 55,
+              vy: 35 + Math.random() * 35,
+              r: 3.5 + Math.random() * 3,
+              color: Math.random() < 0.65 ? '#f9a8d4' : '#fde047',
+              life: 3.5,
+              maxLife: 3.5,
+              gravity: 6
+            });
+          }
+        }
+
+        ctx.clearRect(0, 0, width, height);
+        drawAnimeBackdrop(prog);
+        drawAnimeMagicTree(prog);
+
+        // Active 10 VFX
+        for (let i = activeEffects.length - 1; i >= 0; i--) {
+          const ef = activeEffects[i];
+          ef.t += dt;
+          if (ef.t >= ef.dur) {
+            activeEffects.splice(i, 1);
+          } else {
+            drawVfx(ef);
+          }
+        }
+
+        // Particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const pt = particles[i];
+          pt.life -= dt;
+          if (pt.life <= 0) {
+            particles.splice(i, 1);
+            continue;
+          }
+          pt.vy += pt.gravity * dt;
+          pt.x += pt.vx * dt;
+          pt.y += pt.vy * dt;
+          const alpha = Math.max(0, Math.min(1, pt.life / pt.maxLife));
+          ctx.fillStyle = pt.color;
+          ctx.globalAlpha = alpha;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, pt.r * (0.45 + alpha * 0.55), 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+
+        // Floating Progress Numbers
+        for (let i = floatTexts.length - 1; i >= 0; i--) {
+          const ft = floatTexts[i];
+          ft.life -= dt;
+          if (ft.life <= 0) {
+            floatTexts.splice(i, 1);
+            continue;
+          }
+          ft.y += ft.vy * dt;
+          ft.vy *= Math.pow(0.2, dt);
+          const alpha = Math.min(1, (ft.life / ft.maxLife) * 1.6);
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          ctx.textAlign = 'center';
+          ctx.font = `900 ${Math.round(28 * ft.scale)}px -apple-system, BlinkMacSystemFont, sans-serif`;
+          ctx.lineWidth = 6;
+          ctx.strokeStyle = 'rgba(9, 13, 31, 0.9)';
+          ctx.strokeText(ft.text, ft.x, ft.y);
+          ctx.fillStyle = ft.color;
+          ctx.fillText(ft.text, ft.x, ft.y);
+
+          if (ft.tag) {
+            ctx.font = `900 ${Math.round(16 * ft.scale)}px -apple-system, BlinkMacSystemFont, sans-serif`;
+            ctx.strokeText(ft.tag, ft.x, ft.y - 28 * ft.scale);
+            ctx.fillStyle = '#fde047';
+            ctx.fillText(ft.tag, ft.x, ft.y - 28 * ft.scale);
+          }
+          ctx.restore();
+        }
+
+        rafId = requestAnimationFrame(tick);
+      }
+
+      /* ================= TEACHER PROGRESS BAR SCRUBBER ================= */
+      if (IS_TEACHER) {
+        teacherSlider.addEventListener('input', () => {
+          const val = parseInt(teacherSlider.value, 10) || 0;
+          state.growth = val;
+          state.displayGrowth = val;
+          if (val >= state.goal) {
+            if (!state.victory) handleVictory(true);
+          } else {
+            if (state.victory) {
+              state.victory = false;
+              victoryOverlay.classList.remove('show');
+              controlDeck.classList.remove('hidden-victory');
+              vfxDock.classList.remove('hidden-victory');
+              resizeCanvas();
+            }
+          }
+          updateHud();
+        });
+      }
+
+      /* ================= EVENT LISTENERS ================= */
+      numpad.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('.key');
+        if (!btn) return;
+        const num = btn.getAttribute('data-num');
+        const action = btn.getAttribute('data-action');
+        if (num !== null) appendDigit(num);
+        else if (action === 'del') deleteDigit();
+        else if (action === 'submit') submitAnswer();
+      });
+
+      window.addEventListener('keydown', (ev) => {
+        if (ev.key >= '0' && ev.key <= '9') {
+          ev.preventDefault();
+          appendDigit(ev.key);
+        } else if (ev.key === 'Backspace' || ev.key === 'Delete') {
+          ev.preventDefault();
+          deleteDigit();
+        } else if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          if (state.victory) startGame();
+          else submitAnswer();
+        }
+      });
+
+      btnSound.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        soundIconOn.style.display = soundEnabled ? '' : 'none';
+        soundIconOff.style.display = soundEnabled ? 'none' : '';
+        if (soundEnabled) {
+          ensureAudio();
+          playKeySound();
+        }
+      });
+
+      btnReset.addEventListener('click', () => {
+        ensureAudio();
+        playKeySound();
+        startGame();
+      });
+
+      btnReplay.addEventListener('click', () => {
+        ensureAudio();
+        playKeySound();
+        startGame();
+      });
+
+      btnDownload.addEventListener('click', () => {
+        const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = IS_TEACHER ? '7x_anime_magic_tree_teacher.html' : '7x_anime_magic_tree.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+
+      window.addEventListener('resize', resizeCanvas);
+      window.addEventListener('load', () => {
+        initAmbient();
+        resizeCanvas();
+        startGame();
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(tick);
+      });
+    })();
+  </script>
+</body>
+</html>
