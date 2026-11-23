@@ -27,9 +27,19 @@
   <main class="card">
     <div class="icon" aria-hidden="true">✖️</div>
     <h1>乘法混合練習</h1>
-    <p>按下方按鈕，即可進入數學遊戲。</p>
-    <a class="button" href="https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-mix/?v=compact">開始遊戲 →</a>
-    <div class="hint">也可以點擊<a class="source" href="https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-mix/?v=compact">遊戲原始連結</a></div>
+    <p>按下方按鈕，嘗試直接在 Safari 開啟數學遊戲。</p>
+    <a id="openSafari" class="button" href="x-safari-https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-mix/?v=compact">在 Safari 開啟遊戲 ↗</a>
+    <div class="hint">無法切換到 Safari？<a class="source" href="https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-mix/?v=compact">改用一般方式開啟遊戲</a><br><br>部分 App 會限制切換瀏覽器；可在 App 選單選擇「在 Safari 開啟」。</div>
   </main>
+  <script>
+    // 非 Apple 行動裝置無法處理 Safari 專用連結，改用標準 HTTPS。
+    const isAppleMobile = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if (!isAppleMobile) {
+      document.getElementById("openSafari").href =
+        "https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-mix/?v=compact";
+      document.getElementById("openSafari").textContent = "開始遊戲 →";
+    }
+  </script>
 </body>
 </html>
