@@ -993,20 +993,26 @@ button.card:active {
   }
 }
 
-.offline-status {
-  display: table;
-  max-width: 100%;
-  margin: 0 auto 16px;
-  padding: 5px 14px;
-  border-radius: 999px;
-  background: #fff9ee;
-  color: #543e5c;
-  font-size: 13px;
-  font-weight: 700;
-  text-align: center;
+/* The offline check stays out of the lesson grid. */
+.offline-status { display: none; }
+.offline-status[data-ready="true"] {
+  display: block;
+  position: fixed;
+  left: 14px;
+  left: max(14px, env(safe-area-inset-left));
+  bottom: 10px;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  z-index: 5;
+  margin: 0;
+  color: #a1ffc2;
+  font-size: 0;
+  pointer-events: none;
 }
-.offline-status:empty { display: none; }
-.offline-status[data-ready="true"] { background: #e7f8e9; color: #285948; }
+.offline-status[data-ready="true"]::before {
+  content: '✓';
+  font: 800 24px/1 system-ui, sans-serif;
+  text-shadow: 0 1px 2px #194c35;
+}
 </style>
 </head>
 <body>
@@ -1585,11 +1591,7 @@ async function prepareOfflineApp() {
     return;
   }
   if (!('serviceWorker' in navigator) || location.protocol !== 'https:' && !window.isSecureContext) return;
-  status.dataset.ready = 'false';
-  status.textContent = '正在準備離線教具…';
-  const timeout = setTimeout(() => {
-    if (status.dataset.ready !== 'true') status.textContent = '離線教具仍在準備，請保持連線';
-  }, 15000);
+  status.removeAttribute('data-ready');
   try {
     const registration = await navigator.serviceWorker.register('../selected-lessons-sw.js');
     if (!registration.active && registration.installing) {
@@ -1619,11 +1621,9 @@ async function prepareOfflineApp() {
     });
     if (!available) throw new Error('Offline files unavailable');
     status.dataset.ready = 'true';
-    status.textContent = '✓ 全套教具可離線使用';
+    status.textContent = '全套教具可離線使用';
   } catch {
-    status.textContent = '離線教具未下載完成。請連線後重新開啟。';
-  } finally {
-    clearTimeout(timeout);
+    status.removeAttribute('data-ready');
   }
 }
 
