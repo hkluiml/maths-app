@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#eff7ff">
+  <title>乘法混合練習｜開啟遊戲</title>
+  <style>
+    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:linear-gradient(145deg,#eef8ff,#f8f0ff);color:#26364f}
+    body{min-height:100dvh;display:grid;place-items:center;padding:24px}
+    .ios-blur-fix{position:fixed;inset:0;pointer-events:none;z-index:-1}
+    .card{width:min(100%,480px);border:1px solid #ffffffcc;border-radius:30px;padding:44px 28px;text-align:center;background:#ffffffeb;box-shadow:0 15px 48px #51628b1c}
+    .icon{width:80px;height:80px;display:grid;place-items:center;margin:0 auto 20px;border-radius:22px;background:#ecf3ff;font-size:40px}
+    h1{font-size:clamp(25px,5vw,36px);margin:0 0 12px;font-weight:800}
+    p{font-size:17px;color:#63738a;line-height:1.6;margin:0 0 30px}
+    .button{display:block;background:#486ee9;color:#fff;text-decoration:none;padding:19px 18px;border-radius:18px;font-size:21px;font-weight:750;box-shadow:0 8px 20px #486ee936;transition:transform .15s,background .15s}
+    .button:active{transform:scale(.98);background:#345cd8}
+    .hint{font-size:13px;color:#8490a0;margin-top:24px;overflow-wrap:anywhere}
+    .source{font-size:13px;color:#4760b0;text-decoration:underline;text-underline-offset:3px}
+    @media(prefers-reduced-motion:reduce){.button{transition:none}}
+  </style>
+</head>
+<body>
+  <div class="ios-blur-fix" aria-hidden="true"></div>
+  <main class="card">
+    <div class="icon" aria-hidden="true">✖️</div>
+    <h1>乘法混合練習</h1>
+    <p>按下方按鈕，即可進入數學遊戲。</p>
+    <a class="button" href="https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-mix/?v=compact">開始遊戲 →</a>
+    <div class="hint">也可以點擊<a class="source" href="https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-mix/?v=compact">遊戲原始連結</a></div>
+  </main>
+</body>
+</html>
