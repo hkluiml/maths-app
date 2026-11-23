@@ -14,9 +14,90 @@ function openApp(lesson) {
   const frame = document.createElement('iframe');
   frame.title = lesson.name;
   frame.setAttribute('allow', 'fullscreen');
+  frame.addEventListener('load', () => {
+    if (frame.parentNode === $('viewer')) mergeLessonToolbar(frame, lesson.name);
+  });
   if (lesson.document) frame.srcdoc = lesson.document;
   else frame.src = lesson.path;
   $('viewer').replaceChildren(frame);
+}
+
+function mergeLessonToolbar(frame, title) {
+  const child = frame.contentDocument;
+  if (!child) return;
+  const tabs = [...child.querySelectorAll('nav')].find(nav =>
+    nav.classList.contains('tabs') || nav.querySelector('button[data-source]')
+  );
+  if (!tabs || tabs.classList.contains('portal-lesson-tabs')) return;
+
+  const style = child.createElement('style');
+  style.textContent = `
+    .portal-lesson-bar {
+      display: flex; align-items: center; flex: 0 0 auto; min-width: 0;
+      gap: 8px; padding: 4px 8px; background: #fff; color: #25324d;
+      box-sizing: border-box; border-bottom: 1px solid #dce6f3;
+      font-family: ui-rounded, "PingFang HK", "Microsoft JhengHei", system-ui, sans-serif;
+    }
+    .portal-lesson-title {
+      flex: 0 1 auto; min-width: min(100px, 22vw); max-width: 29%;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-size: clamp(12px, 1.5vw, 17px); font-weight: 900;
+    }
+    .portal-lesson-bar > nav.portal-lesson-tabs {
+      display: flex; flex: 1 1 0; min-width: 0; align-items: center;
+      flex-wrap: nowrap; justify-content: flex-start; gap: 5px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; padding: 2px 4px; border: 0; background: transparent;
+    }
+    .portal-lesson-tabs::-webkit-scrollbar { display: none; }
+    .portal-lesson-tabs > * { flex: 0 0 auto; white-space: nowrap; }
+    .portal-lesson-tabs > :first-child { margin-left: auto; }
+    .portal-lesson-tabs > :last-child { margin-right: auto; }
+    .portal-lesson-actions { flex: none; display: flex; align-items: center; gap: 5px; }
+    .portal-lesson-actions > button {
+      min-height: 36px; min-width: 36px; padding: 5px 9px;
+      border: 0; border-radius: 11px; background: #edf3ff; color: #25324d;
+      font: 750 14px/1.2 system-ui, sans-serif; white-space: nowrap;
+      cursor: pointer; touch-action: manipulation;
+    }
+    .portal-lesson-action-icon { margin-right: 4px; }
+    @media (max-width: 620px) {
+      .portal-lesson-bar { gap: 4px; padding-inline: 4px; }
+      .portal-lesson-title { max-width: 24%; }
+      .portal-lesson-tabs > button { font-size: 14px; padding-inline: 8px; }
+      .portal-lesson-action-label { display: none; }
+      .portal-lesson-action-icon { margin-right: 0; }
+    }
+  `;
+  child.head.append(style);
+
+  const bar = child.createElement('div');
+  bar.className = 'portal-lesson-bar';
+  const label = child.createElement('span');
+  label.className = 'portal-lesson-title';
+  label.textContent = title;
+  label.title = title;
+  const actions = child.createElement('div');
+  actions.className = 'portal-lesson-actions';
+  for (const [icon, text, action] of [['⛶', '全螢幕', toggleFullscreen], ['⌂', '首頁', home]]) {
+    const button = child.createElement('button');
+    button.type = 'button';
+    button.title = text;
+    button.setAttribute('aria-label', text);
+    for (const [cls, value] of [['icon', icon], ['label', text]]) {
+      const span = child.createElement('span');
+      span.className = 'portal-lesson-action-' + cls;
+      span.textContent = value;
+      span.setAttribute('aria-hidden', 'true');
+      button.append(span);
+    }
+    button.addEventListener('click', action);
+    actions.append(button);
+  }
+  tabs.before(bar);
+  tabs.classList.add('portal-lesson-tabs');
+  bar.append(label, tabs, actions);
+  $('toolbar').hidden = true;
 }
 
 function home() {
@@ -25,6 +106,7 @@ function home() {
   $('menu').hidden = false;
   $('shell').classList.remove('viewing');
   $('brand').textContent = '小二數學';
+  $('toolbar').hidden = false;
   $('home').hidden = true;
   $('full').hidden = true;
 }
@@ -218,11 +300,12 @@ for (const lesson of lessons) {
 }
 
 $('home').onclick = home;
-$('full').onclick = async () => {
+$('full').onclick = toggleFullscreen;
+async function toggleFullscreen() {
   try {
     if (document.fullscreenElement) await document.exitFullscreen();
     else await document.documentElement.requestFullscreen();
   } catch {}
-};
+}
 document.addEventListener('dblclick', event => event.preventDefault(), { passive: false });
 home(); </script></body></html>
