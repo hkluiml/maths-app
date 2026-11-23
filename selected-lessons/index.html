@@ -1035,10 +1035,6 @@ const lessons=[{"num":7,"title":"認識及比較角","name":"認識及比較角"
 const $ = id => document.getElementById(id);
 
 const SUBAPP_POLISH_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap');
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@500;700;900&text=%E7%9B%B4%E7%9C%9F&display=swap');
-  @import url('https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@500;700;800&display=swap');
-  @import url('https://fonts.googleapis.com/css2?family=Chiron+Hei+HK:wght@500;700&display=swap');
   :root {
     --cute-font: "Fredoka", "Noto Sans HK", "Chiron GoRound TC", "Chiron Hei HK", "PingFang HK", "Microsoft JhengHei", system-ui, sans-serif;
   }
@@ -1061,12 +1057,32 @@ const SUBAPP_POLISH_CSS = `
   }
 `;
 
+const subappFontUrls = [
+  'https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap',
+  'https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@500;700;900&text=%E7%9B%B4%E7%9C%9F&display=swap',
+  'https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@500;700;800&display=swap',
+  'https://fonts.googleapis.com/css2?family=Chiron+Hei+HK:wght@500;700&display=swap',
+];
+
+function loadSubappFonts(doc) {
+  for (const href of subappFontUrls) {
+    const link = doc.createElement('link');
+    link.rel = 'stylesheet';
+    // Apply the custom fonts when ready without blocking the app's first paint.
+    link.media = 'print';
+    link.addEventListener('load', () => { link.media = 'all'; }, { once: true });
+    link.href = href;
+    doc.head.append(link);
+  }
+}
+
 function injectPolishIntoDoc(doc) {
   if (!doc || !doc.head || doc.getElementById('sunset-cute-polish')) return;
   const st = doc.createElement('style');
   st.id = 'sunset-cute-polish';
   st.textContent = SUBAPP_POLISH_CSS;
   doc.head.append(st);
+  loadSubappFonts(doc);
 
   const attachChildFrames = () => {
     doc.querySelectorAll('iframe').forEach(subFrame => {
@@ -1100,17 +1116,31 @@ function openApp(lesson) {
   frame.title = lesson.name;
   frame.setAttribute('allow', 'fullscreen');
   frame.style.visibility = 'hidden';
-  frame.addEventListener('load', () => {
-    if (frame.parentNode !== $('viewer')) return;
+  let displayed = false;
+  function revealLesson(event) {
+    if (displayed || frame.parentNode !== $('viewer')) return;
+    const child = frame.contentDocument;
+    if (event.type === 'load' && lesson.document && child && child.URL === 'about:blank') return;
+    displayed = true;
     try {
       mergeLessonToolbar(frame, lesson.icon + ' ' + lesson.name);
-      injectPolishIntoDoc(frame.contentDocument);
     } finally {
       frame.style.removeProperty('visibility');
     }
-  });
-  if (lesson.document) frame.srcdoc = lesson.document;
-  else frame.src = lesson.path;
+    requestAnimationFrame(() => {
+      if (frame.parentNode === $('viewer')) injectPolishIntoDoc(child);
+    });
+  }
+  frame.addEventListener('lesson-dom-ready', revealLesson);
+  frame.addEventListener('load', revealLesson);
+
+  if (lesson.document) {
+    // The controls exist after the lesson's final script, even if its child iframes are still loading.
+    const readySignal = '<script>if(window.frameElement){window.frameElement.dispatchEvent(new Event("lesson-dom-ready"));}<' + '/script>';
+    frame.srcdoc = lesson.document.replace(/<\/body>\s*<\/html>\s*$/i, end => readySignal + end);
+  } else {
+    frame.src = lesson.path;
+  }
   $('viewer').replaceChildren(frame);
 }
 
@@ -1124,10 +1154,6 @@ function mergeLessonToolbar(frame, title) {
 
   const style = child.createElement('style');
   style.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@500;700;900&text=%E7%9B%B4%E7%9C%9F&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@500;700;800&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Chiron+Hei+HK:wght@500;700&display=swap');
     .portal-lesson-bar {
       display: flex; align-items: center; flex: 0 0 60px; height: 60px; min-width: 0;
       gap: 10px; padding: 6px 14px;
