@@ -9,17 +9,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="小二數學">
 <title>小二數學</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@500;700;900&text=%E7%9B%B4%E7%9C%9F&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@500;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Chiron+Hei+HK:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root {
   color-scheme: light;
-  /* 可愛圓潤字體組合：Fredoka（圓潤英數）＋ Noto Sans HK 鎖定「直、真」香港標準字形 ＋ Chiron GoRound TC 昭源圓體 ＋ 備援 */
-  --font-cute: "Fredoka", "Noto Sans HK", "Chiron GoRound TC", "Chiron Hei HK", "PingFang HK", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-cute: "PingFang HK", "Microsoft JhengHei", system-ui, sans-serif;
   --ink: #32233b;
   --ink-soft: #5a4663;
   --focus-ring: #ff8c42;
@@ -1062,7 +1055,7 @@ const $ = id => document.getElementById(id);
 
 const SUBAPP_POLISH_CSS = `
   :root {
-    --cute-font: "Fredoka", "Noto Sans HK", "Chiron GoRound TC", "Chiron Hei HK", "PingFang HK", "Microsoft JhengHei", system-ui, sans-serif;
+    --cute-font: "PingFang HK", "Microsoft JhengHei", system-ui, sans-serif;
   }
   body, button, select, input, text {
     font-family: var(--cute-font) !important;
@@ -1083,32 +1076,12 @@ const SUBAPP_POLISH_CSS = `
   }
 `;
 
-const subappFontUrls = [
-  'https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap',
-  'https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@500;700;900&text=%E7%9B%B4%E7%9C%9F&display=swap',
-  'https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@500;700;800&display=swap',
-  'https://fonts.googleapis.com/css2?family=Chiron+Hei+HK:wght@500;700&display=swap',
-];
-
-function loadSubappFonts(doc) {
-  for (const href of subappFontUrls) {
-    const link = doc.createElement('link');
-    link.rel = 'stylesheet';
-    // Apply the custom fonts when ready without blocking the app's first paint.
-    link.media = 'print';
-    link.addEventListener('load', () => { link.media = 'all'; }, { once: true });
-    link.href = href;
-    doc.head.append(link);
-  }
-}
-
 function injectPolishIntoDoc(doc) {
   if (!doc || !doc.head || doc.getElementById('sunset-cute-polish')) return;
   const st = doc.createElement('style');
   st.id = 'sunset-cute-polish';
   st.textContent = SUBAPP_POLISH_CSS;
   doc.head.append(st);
-  loadSubappFonts(doc);
 
   const attachChildFrames = () => {
     doc.querySelectorAll('iframe').forEach(subFrame => {
@@ -1188,7 +1161,7 @@ function mergeLessonToolbar(frame, title) {
       color: #32233b; box-sizing: border-box;
       border-bottom: 1.5px solid rgba(196, 152, 168, 0.35);
       box-shadow: 0 6px 18px -6px rgba(68, 42, 78, 0.12);
-      font-family: "Fredoka", "Noto Sans HK", "Chiron GoRound TC", "Chiron Hei HK", "PingFang HK", "Microsoft JhengHei", system-ui, sans-serif;
+      font-family: "PingFang HK", "Microsoft JhengHei", system-ui, sans-serif;
     }
     .portal-lesson-title {
       flex: 0 1 auto; min-width: min(115px, 24vw); max-width: 30%;
@@ -1212,7 +1185,7 @@ function mergeLessonToolbar(frame, title) {
       min-height: 36px !important; padding: 6px 15px !important;
       border: 1.5px solid rgba(188, 146, 164, 0.38) !important; border-radius: 999px !important;
       background: linear-gradient(180deg, #ffffff 0%, #faf5fb 100%) !important; color: #543e5c !important;
-      font-family: "Fredoka", "Noto Sans HK", "Chiron GoRound TC", "Chiron Hei HK", "PingFang HK", sans-serif !important;
+      font-family: "PingFang HK", sans-serif !important;
       font-size: 14.5px !important; font-weight: 700 !important;
       box-shadow: inset 0 1.5px 0 #ffffff, 0 3px 0 rgba(182, 144, 166, 0.36), 0 4px 8px rgba(68, 42, 74, 0.08) !important;
       transition: transform .16s cubic-bezier(0.34, 1.48, 0.64, 1), box-shadow .16s ease !important;
@@ -1243,7 +1216,7 @@ function mergeLessonToolbar(frame, title) {
       background: linear-gradient(180deg, #ffffff 0%, #f5eaff 100%);
       box-shadow: inset 0 1.5px 0 #ffffff, 0 3.5px 0 #d5c1e8, 0 5px 10px rgba(68, 42, 74, 0.12);
       color: #4a3554;
-      font: 700 14px/1.2 "Fredoka", "Noto Sans HK", "Chiron GoRound TC", "Chiron Hei HK", "PingFang HK", sans-serif; white-space: nowrap;
+      font: 700 14px/1.2 "PingFang HK", sans-serif; white-space: nowrap;
       cursor: pointer; touch-action: manipulation;
       transition: transform .16s cubic-bezier(0.34, 1.48, 0.64, 1), box-shadow .16s ease;
     }
