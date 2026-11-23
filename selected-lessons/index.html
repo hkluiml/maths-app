@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#50689b">
 <title>小二數學</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -976,6 +977,15 @@ button.card:active {
   .card, .card .icon, .card::before, .card::after, .math-icon, .math-tiles span, .nav, .card-entry, .mc-sun-bloom, .god-ray, .mc-cloud, .mote {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+/* Keep the portal controls below the iOS status bar and its blur edge. */
+@supports (-webkit-touch-callout: none) {
+  html, body { background-color: #50689b; }
+  .shell {
+    border-top: 18px solid #50689b;
+    border-top-width: calc(env(safe-area-inset-top, 0px) + 18px);
   }
 }
 </style>
