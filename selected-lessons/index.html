@@ -260,9 +260,7 @@ button:focus-visible {
   gap: 14px;
   min-height: 50px;
   padding: 6px max(16px, env(safe-area-inset-right)) 6px max(16px, env(safe-area-inset-left));
-  background: rgba(255, 250, 245, 0.92);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: #fffaf5;
 }
 
 .brand {
@@ -348,12 +346,10 @@ button:focus-visible {
   background:
     linear-gradient(
       118deg,
-      rgba(235, 246, 255, 0.90) 0%,
-      rgba(255, 243, 247, 0.88) 48%,
-      rgba(255, 238, 204, 0.92) 100%
+      #ebf6ff 0%,
+      #fff3f7 48%,
+      #ffeecc 100%
     );
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
   /* 厚實 3D 底座邊緣 + 頂部鏡面高光 + 浮空柔影 */
   box-shadow:
     inset 0 3px 0 rgba(255, 255, 255, 0.96),
@@ -526,8 +522,8 @@ button:focus-visible {
 }
 
 .viewing .bar {
-  height: 58px;
-  min-height: 58px;
+  height: 60px;
+  min-height: 60px;
   padding: 6px max(16px, env(safe-area-inset-right)) 6px max(16px, env(safe-area-inset-left));
   gap: 8px;
   background: linear-gradient(90deg, #ebf6ff 0%, #fceef5 52%, #fff5e2 100%);
