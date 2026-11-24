@@ -567,7 +567,7 @@ html,button,input,select,textarea,a,[role=&quot;button&quot;],.datebox,.calendar
 &lt;section class=&quot;panel&quot;&gt;&lt;div class=&quot;topline&quot;&gt;&lt;form class=&quot;add&quot; id=&quot;addForm&quot;&gt;&lt;input id=&quot;newLesson&quot; maxlength=&quot;100&quot; aria-label=&quot;課次或課題&quot; placeholder=&quot;輸入課次／課題，例如：第7課 角的認識&quot; required&gt;&lt;button class=&quot;primary&quot; type=&quot;submit&quot;&gt;＋新增課題&lt;/button&gt;&lt;/form&gt;&lt;select id=&quot;filter&quot; aria-label=&quot;篩選課題&quot;&gt;&lt;option value=&quot;all&quot;&gt;全部課題&lt;/option&gt;&lt;option value=&quot;pending&quot;&gt;尚未派齊&lt;/option&gt;&lt;option value=&quot;done&quot;&gt;已派齊&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;
 &lt;div class=&quot;summary&quot;&gt;&lt;strong id=&quot;classTitle&quot;&gt;兩班總覽&lt;/strong&gt;&lt;span id=&quot;count&quot; class=&quot;pill&quot;&gt;&lt;/span&gt;&lt;span class=&quot;muted&quot;&gt;○ 未派　◷ 待派　✓ 已派&lt;/span&gt;&lt;/div&gt;&lt;div id=&quot;list&quot;&gt;&lt;/div&gt;&lt;div id=&quot;warning&quot; class=&quot;notice&quot; hidden&gt;&lt;/div&gt;&lt;/section&gt;
 &lt;div class=&quot;tools&quot;&gt;&lt;button id=&quot;export&quot;&gt;匯出備份&lt;/button&gt;&lt;button id=&quot;import&quot;&gt;匯入備份&lt;/button&gt;&lt;input type=&quot;file&quot; id=&quot;file&quot; accept=&quot;.json,application/json&quot; hidden&gt;&lt;button id=&quot;print&quot;&gt;列印兩班&lt;/button&gt;&lt;/div&gt;
-&lt;footer class=&quot;muted&quot;&gt;每份功課兩頁獨立記錄；第十二課後的作業綜合測試共兩頁；綜合測驗共五頁；補充進展性評估2為第30–33頁。自訂功課可在每日功課中新增及修改。舊版日期會保留在第 1 頁，第 2 頁留空。課題由兩班共用；派發日期分班獨立記錄。資料儲存在目前瀏覽器，換裝置或清除瀏覽資料前，請先匯出備份。&lt;span id=&quot;saveStatus&quot; role=&quot;status&quot;&gt;&lt;/span&gt;&lt;/footer&gt;
+&lt;footer class=&quot;muted&quot;&gt;每份功課兩頁獨立記錄；第十二課後的作業綜合測試共兩頁；綜合測驗共五頁；補充進展性評估2為第30–33頁，綠工綜合解難共四頁。自訂功課可在每日功課中新增及修改。舊版日期會保留在第 1 頁，第 2 頁留空。課題由兩班共用；派發日期分班獨立記錄。資料儲存在目前瀏覽器，換裝置或清除瀏覽資料前，請先匯出備份。&lt;span id=&quot;saveStatus&quot; role=&quot;status&quot;&gt;&lt;/span&gt;&lt;/footer&gt;
 &lt;/main&gt;&lt;div id=&quot;calendarOverlay&quot; hidden&gt;&lt;section id=&quot;calendarDialog&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;calendarTitle&quot; tabindex=&quot;-1&quot;&gt;&lt;div class=&quot;calendarTop&quot;&gt;&lt;h2 id=&quot;calendarTitle&quot;&gt;選擇派發日期&lt;/h2&gt;&lt;button id=&quot;calendarClose&quot; type=&quot;button&quot; aria-label=&quot;關閉日曆&quot;&gt;✕&lt;/button&gt;&lt;/div&gt;&lt;div class=&quot;calendarNav&quot;&gt;&lt;button id=&quot;prevMonth&quot; type=&quot;button&quot; aria-label=&quot;上一個月&quot;&gt;‹&lt;/button&gt;&lt;strong id=&quot;calendarMonth&quot;&gt;&lt;/strong&gt;&lt;button id=&quot;nextMonth&quot; type=&quot;button&quot; aria-label=&quot;下一個月&quot;&gt;›&lt;/button&gt;&lt;/div&gt;&lt;div id=&quot;calendarWeek&quot;&gt;&lt;span&gt;一&lt;/span&gt;&lt;span&gt;二&lt;/span&gt;&lt;span&gt;三&lt;/span&gt;&lt;span&gt;四&lt;/span&gt;&lt;span&gt;五&lt;/span&gt;&lt;span&gt;六&lt;/span&gt;&lt;span&gt;日&lt;/span&gt;&lt;/div&gt;&lt;div id=&quot;calendarDays&quot;&gt;&lt;/div&gt;&lt;div class=&quot;calendarBottom&quot;&gt;&lt;button id=&quot;calendarToday&quot; type=&quot;button&quot;&gt;選擇今天&lt;/button&gt;&lt;button id=&quot;calendarClear&quot; type=&quot;button&quot;&gt;清除日期&lt;/button&gt;&lt;/div&gt;&lt;/section&gt;&lt;/div&gt;&lt;div id=&quot;toast&quot; role=&quot;status&quot; hidden&gt;&lt;/div&gt;
 &lt;div id=&quot;customOverlay&quot; hidden&gt;&lt;section id=&quot;customDialog&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;customTitle&quot; tabindex=&quot;-1&quot;&gt;&lt;div class=&quot;calendarTop&quot;&gt;&lt;h2 id=&quot;customTitle&quot;&gt;新增自訂功課&lt;/h2&gt;&lt;button id=&quot;customClose&quot; type=&quot;button&quot; aria-label=&quot;關閉自訂功課&quot;&gt;✕&lt;/button&gt;&lt;/div&gt;&lt;form id=&quot;customForm&quot;&gt;&lt;label&gt;班別&lt;select id=&quot;customClass&quot;&gt;&lt;option value=&quot;2C&quot;&gt;2C&lt;/option&gt;&lt;option value=&quot;2D&quot;&gt;2D&lt;/option&gt;&lt;option value=&quot;both&quot;&gt;2C 及 2D&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;&lt;label&gt;派發日期&lt;input type=&quot;date&quot; id=&quot;customDate&quot; required&gt;&lt;/label&gt;&lt;label&gt;功課內容&lt;textarea id=&quot;customText&quot; maxlength=&quot;300&quot; required placeholder=&quot;例如：完成乘法工作紙、帶直尺&quot;&gt;&lt;/textarea&gt;&lt;/label&gt;&lt;p id=&quot;customError&quot; role=&quot;alert&quot; hidden&gt;&lt;/p&gt;&lt;div class=&quot;customActions&quot;&gt;&lt;button id=&quot;customDelete&quot; type=&quot;button&quot; class=&quot;danger&quot; hidden&gt;刪除&lt;/button&gt;&lt;button id=&quot;customCancel&quot; type=&quot;button&quot;&gt;取消&lt;/button&gt;&lt;button type=&quot;submit&quot; class=&quot;primary&quot;&gt;儲存&lt;/button&gt;&lt;/div&gt;&lt;/form&gt;&lt;/section&gt;&lt;/div&gt;
 &lt;script&gt;
@@ -576,10 +576,10 @@ const KEY=&#x27;hk-p2-homework-v1&#x27;,TYPES=[&#x27;鞏工&#x27;,&#x27;作業&#
 let model={version:3,lessons:[],customHomework:[],records:{&#x27;2C&#x27;:{},&#x27;2D&#x27;:{}}},editing=null,timer;
 const $=id=&gt;document.getElementById(id);
 function validDate(s){if(s===&#x27;&#x27;)return true;if(typeof s!==&#x27;string&#x27;||!/^\d{4}-\d{2}-\d{2}$/.test(s))return false;const d=new Date(s+&#x27;T00:00:00Z&#x27;);return !isNaN(d)&amp;&amp;d.toISOString().slice(0,10)===s;}
-function isAssessment(l){return [&#x27;assessment&#x27;,&#x27;supplement-assessment&#x27;,&#x27;workbook-test-2&#x27;].includes(l.kind);}
-function pageCount(l){return l.kind===&#x27;workbook-test-2&#x27;?2:l.kind===&#x27;supplement-assessment&#x27;?4:l.kind===&#x27;assessment&#x27;?5:8;}
+function isAssessment(l){return [&#x27;assessment&#x27;,&#x27;supplement-assessment&#x27;,&#x27;workbook-test-2&#x27;,&#x27;green-problem-solving&#x27;].includes(l.kind);}
+function pageCount(l){return l.kind===&#x27;green-problem-solving&#x27;?4:l.kind===&#x27;workbook-test-2&#x27;?2:l.kind===&#x27;supplement-assessment&#x27;?4:l.kind===&#x27;assessment&#x27;?5:8;}
 function pageNumber(l,index){return l.kind===&#x27;supplement-assessment&#x27;?30+index:isAssessment(l)?index+1:index%2+1;}
-function taskType(l,index){return l.kind===&#x27;workbook-test-2&#x27;?&#x27;作業・綜合測試&#x27;:l.kind===&#x27;supplement-assessment&#x27;?&#x27;補充・進展性評估2&#x27;:l.kind===&#x27;assessment&#x27;?&#x27;作業綜合測驗&#x27;:TYPES[Math.floor(index/2)];}
+function taskType(l,index){return l.kind===&#x27;green-problem-solving&#x27;?&#x27;綠工・綜合解難&#x27;:l.kind===&#x27;workbook-test-2&#x27;?&#x27;作業・綜合測試&#x27;:l.kind===&#x27;supplement-assessment&#x27;?&#x27;補充・進展性評估2&#x27;:l.kind===&#x27;assessment&#x27;?&#x27;作業綜合測驗&#x27;:TYPES[Math.floor(index/2)];}
 function blankDates(l){return Array(pageCount(l)).fill(&#x27;&#x27;);}
 function validate(v){
  if(!v||![1,2,3].includes(v.version)||!Array.isArray(v.lessons)||v.lessons.length&gt;1000||!v.records)throw Error(&#x27;格式不正確&#x27;);
@@ -602,7 +602,7 @@ function validate(v){
    customIds.add(x.id);clean.customHomework.push({id:x.id,className:x.className,date:x.date,text:x.text.trim()});
   }
  }
- ensureAssessment(clean);ensureWorkbookTest(clean);ensureSupplementAssessment(clean);return clean;
+ ensureAssessment(clean);ensureWorkbookTest(clean);ensureSupplementAssessment(clean);ensureGreenProblemSolving(clean);return clean;
 }
 function ensureAssessment(data){
  if(data.lessons.some(l=&gt;l.kind===&#x27;assessment&#x27;))return;
@@ -624,6 +624,13 @@ function ensureSupplementAssessment(data){
  const index=data.lessons.findIndex(l=&gt;l.id===&#x27;preset-12&#x27;||/^(?:第\s*)?12(?:\s*課|[ .、：:])/.test(l.name)||l.name===&#x27;乘法的計算（一）&#x27;);
  const workbookIndex=data.lessons.findIndex(l=&gt;l.kind===&#x27;workbook-test-2&#x27;);
  data.lessons.splice(workbookIndex&gt;=0?workbookIndex+1:index&lt;0?data.lessons.length:index+1,0,lesson);
+ for(const c of [&#x27;2C&#x27;,&#x27;2D&#x27;])data.records[c][lesson.id]=blankDates(lesson);
+}
+function ensureGreenProblemSolving(data){
+ if(data.lessons.some(l=&gt;l.kind===&#x27;green-problem-solving&#x27;))return;
+ const lesson={id:&#x27;green-problem-solving&#x27;,name:&#x27;綠工・綜合解難&#x27;,kind:&#x27;green-problem-solving&#x27;};
+ const index=data.lessons.findIndex(l=&gt;l.kind===&#x27;supplement-assessment&#x27;);
+ data.lessons.splice(index&lt;0?data.lessons.length:index+1,0,lesson);
  for(const c of [&#x27;2C&#x27;,&#x27;2D&#x27;])data.records[c][lesson.id]=blankDates(lesson);
 }
 function warn(s){$(&#x27;warning&#x27;).hidden=false;$(&#x27;warning&#x27;).textContent=s;}
@@ -716,9 +723,9 @@ function render(){
   }else{const title=document.createElement(&#x27;div&#x27;);title.className=&#x27;lessonname&#x27;;title.textContent=l.name;const actions=document.createElement(&#x27;div&#x27;);actions.className=&#x27;lessonactions&#x27;;actions.append(button(&#x27;改名&#x27;,()=&gt;{editing=l.id;render();}),button(&#x27;刪除&#x27;,()=&gt;{if(!confirm(&#x27;刪除「&#x27;+l.name+&#x27;」及兩班所有相關日期？&#x27;))return;model.lessons=model.lessons.filter(x=&gt;x.id!==l.id);for(const c of [&#x27;2C&#x27;,&#x27;2D&#x27;])delete model.records[c][l.id];save();render();},&#x27;small danger&#x27;));head.append(title,actions);}
   const grid=document.createElement(&#x27;div&#x27;);grid.className=&#x27;classgrid&#x27;;
   for(const c of [&#x27;2C&#x27;,&#x27;2D&#x27;]){const col=document.createElement(&#x27;section&#x27;);col.className=&#x27;classcolumn&#x27;;const ch=document.createElement(&#x27;h2&#x27;);ch.className=&#x27;classname&#x27;;ch.textContent=c+&#x27; 班&#x27;;const fields=document.createElement(&#x27;div&#x27;);fields.className=&#x27;fields&#x27;;
-   const groups=isAssessment(l)?[l.kind===&#x27;workbook-test-2&#x27;?&#x27;綜合測試&#x27;:l.kind===&#x27;assessment&#x27;?&#x27;綜合測驗&#x27;:&#x27;進展性評估2&#x27;]:TYPES;
+   const groups=isAssessment(l)?[l.kind===&#x27;green-problem-solving&#x27;?&#x27;綜合解難&#x27;:l.kind===&#x27;workbook-test-2&#x27;?&#x27;綜合測試&#x27;:l.kind===&#x27;assessment&#x27;?&#x27;綜合測驗&#x27;:&#x27;進展性評估2&#x27;]:TYPES;
    if(isAssessment(l))fields.classList.add(&#x27;assessmentFields&#x27;);
-   if(l.kind===&#x27;supplement-assessment&#x27;)fields.classList.add(&#x27;supplementFields&#x27;);
+   if([&#x27;supplement-assessment&#x27;,&#x27;green-problem-solving&#x27;].includes(l.kind))fields.classList.add(&#x27;supplementFields&#x27;);
    if(l.kind===&#x27;workbook-test-2&#x27;)fields.classList.add(&#x27;workbookTestFields&#x27;);
    groups.forEach((type,groupIndex)=&gt;{
     const group=document.createElement(&#x27;div&#x27;);group.className=&#x27;homeworkGroup&#x27;;
@@ -776,14 +783,14 @@ $(&#x27;filter&#x27;).onchange=render;
 $(&#x27;export&#x27;).onclick=()=&gt;{const blob=new Blob([JSON.stringify(model,null,2)],{type:&#x27;application/json&#x27;}),url=URL.createObjectURL(blob),a=document.createElement(&#x27;a&#x27;);a.href=url;a.download=&#x27;功課記錄備份-&#x27;+today()+&#x27;.json&#x27;;a.click();setTimeout(()=&gt;URL.revokeObjectURL(url),10000);toast(&#x27;已匯出兩班全部記錄&#x27;);};
 $(&#x27;import&#x27;).onclick=()=&gt;$(&#x27;file&#x27;).click();$(&#x27;file&#x27;).onchange=async e=&gt;{const f=e.target.files[0];if(!f)return;try{if(f.size&gt;2000000)throw Error(&#x27;檔案過大&#x27;);const clean=validate(JSON.parse(await f.text()));if(!confirm(&#x27;匯入 &#x27;+clean.lessons.length+&#x27; 個課題，並取代兩班目前的記錄？建議先匯出現有備份。&#x27;))return;model=clean;model.initialBackupRevision=INITIAL_BACKUP_REVISION;editing=null;$(&#x27;filter&#x27;).value=&#x27;all&#x27;;$(&#x27;warning&#x27;).hidden=true;save();render();toast(&#x27;已匯入備份&#x27;);}catch(err){toast(&#x27;無法匯入：請選擇本 App 匯出的有效 JSON 備份。&#x27;);}finally{e.target.value=&#x27;&#x27;;}};
 function addPresetLessons(){
-if(model.presetVersion===1){ensureAssessment(model);ensureWorkbookTest(model);ensureSupplementAssessment(model);save();return;}
+if(model.presetVersion===1){ensureAssessment(model);ensureWorkbookTest(model);ensureSupplementAssessment(model);ensureGreenProblemSolving(model);save();return;}
 const presets=[[7,&#x27;認識及比較角&#x27;],[8,&#x27;直角、銳角和鈍角&#x27;],[9,&#x27;垂直線&#x27;],[10,&#x27;四個主要方向&#x27;],[11,&#x27;乘法的認識&#x27;],[12,&#x27;乘法的計算（一）&#x27;],[13,&#x27;乘法的計算（二）&#x27;],[14,&#x27;乘法應用題&#x27;]];
 for(const [number,title] of presets){
 const exists=model.lessons.some(l=&gt;l.id===&#x27;preset-&#x27;+number||new RegExp(&#x27;^(?:第\\s*)?&#x27;+number+&#x27;(?:\\s*課|[ \u3000.、：:])&#x27;).test(l.name)||l.name===title);
 if(exists)continue;
 const id=&#x27;preset-&#x27;+number;model.lessons.push({id,name:&#x27;第&#x27;+number+&#x27;課 &#x27;+title});for(const c of [&#x27;2C&#x27;,&#x27;2D&#x27;])model.records[c][id]=blankDates(model.lessons.find(l=&gt;l.id===id));
 }
-model.presetVersion=1;ensureAssessment(model);ensureWorkbookTest(model);ensureSupplementAssessment(model);save();
+model.presetVersion=1;ensureAssessment(model);ensureWorkbookTest(model);ensureSupplementAssessment(model);ensureGreenProblemSolving(model);save();
 }
 
 let calendarTarget=null,calendarYear=0,calendarMonth=0;
