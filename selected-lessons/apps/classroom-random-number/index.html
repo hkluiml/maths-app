@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#eee8ff">
+<meta name="theme-color" content="#7c7db8">
 <title>課堂隨機抽數字</title>
 <style>
 :root {
   color-scheme: light;
-  font-family: system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
-  color: #342454;
-  background: #eee8ff;
+  font-family: "PingFang HK", "Microsoft JhengHei", system-ui, sans-serif;
+  color: #32233b;
+  background: #7c7db8;
 }
 * { box-sizing: border-box; }
 body {
@@ -20,70 +20,112 @@ body {
   display: grid;
   place-items: center;
   padding: 20px;
+  isolation: isolate;
   background:
-    radial-gradient(ellipse at 10% 12%, #ffe5e8, transparent 58%),
-    radial-gradient(ellipse at 90% 90%, #dcf1ff, transparent 56%),
-    #eee8ff;
+    radial-gradient(ellipse 74% 50% at 80% 82%, #ffe89ef0, #ffb87a8f 36%, transparent 72%),
+    radial-gradient(ellipse 62% 44% at 18% 12%, #78b2f073, transparent 62%),
+    radial-gradient(ellipse 60% 42% at 18% 92%, #ffa69e7a, transparent 64%),
+    linear-gradient(180deg, #4f6ba8, #7c7db8 22%, #bd8eb3 46%, #ee9f88 72%, #ffd08a 91%, #ffe8b8);
+}
+body::before {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  pointer-events: none;
+  inset: 0;
+  background:
+    radial-gradient(circle at 12% 19%, #fff6dfa8 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 19% 39%, #fff6df82 0 2px, transparent 3px),
+    radial-gradient(circle at 82% 24%, #fff6df94 0 2px, transparent 3px),
+    radial-gradient(circle at 91% 45%, #fff6dfa8 0 3px, transparent 4px),
+    radial-gradient(circle at 85% 64%, #fff6df80 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 11% 69%, #fff6dfaa 0 2px, transparent 3.5px);
 }
 .ios-blur-fix { position: fixed; width: 0; height: 0; pointer-events: none; }
 main {
   width: min(100%, 720px);
   padding: clamp(14px, 3.1vw, 28px);
-  border: 1px solid #ffffff;
+  border: 2px solid #fffaf5;
   border-radius: 34px;
-  background: #fffaf8;
-  box-shadow: 0 22px 58px #421c701c, 0 3px 9px #421c700a;
+  background: linear-gradient(155deg, #fffbf7, #fff1ed 72%, #ffebdf);
+  box-shadow: 0 8px 0 #ad6e885c, 0 24px 58px #52275c3a;
 }
 .result {
   position: relative;
   isolation: isolate;
   overflow: hidden;
   display: grid;
+  grid-template-columns: 100%;
   justify-items: center;
   align-content: center;
   gap: 8px;
   min-height: clamp(210px, 44dvh, 420px);
   padding: 22px 12px;
+  border: 2px solid #fffaff;
   border-radius: 24px;
-  background: radial-gradient(ellipse at 50% 20%, #674798, transparent 78%), #3c265e;
-  color: #fff7ee;
+  background:
+    radial-gradient(ellipse at 46% 14%, #fff9e3, transparent 69%),
+    linear-gradient(155deg, #b6dcff, #e2c9fa 44%, #ffb8cf 73%, #ffd69b);
+  color: #482954;
+  box-shadow: inset 0 -5px 0 #8c4d781a, 0 5px 0 #d4a2c0, 0 10px 18px #d391b63d;
 }
 .result::before, .result::after {
   position: absolute;
   content: "";
   z-index: -1;
-  width: clamp(100px, 24vw, 185px);
+  width: clamp(62px, 15vw, 120px);
   aspect-ratio: 1;
-  border: 1px solid #ffede754;
-  outline: 1px solid #ffede72f;
-  outline-offset: 13px;
-  border-radius: 37%;
-  transform: rotate(25deg);
+  border-radius: 24%;
+  transform: rotate(20deg);
   pointer-events: none;
 }
-.result::before { top: -28%; left: -6%; }
-.result::after { bottom: -33%; right: -5%; }
-#caption {
-  font-size: clamp(13px, 2vw, 17px);
-  font-weight: 700;
-  letter-spacing: .12em;
-  color: #ebdcff;
+.result::before {
+  top: -8%;
+  left: -3%;
+  background: linear-gradient(155deg, #faffff, #87caff);
+  box-shadow: 32px 33px 0 -21px #fffafbce, 0 0 32px #f0f9ffb0;
+  opacity: .82;
 }
-output {
+.result::after {
+  bottom: -10%;
+  right: -2%;
+  background: linear-gradient(155deg, #fff6bb, #ffc16c);
+  box-shadow: -44px -23px 0 -29px #fff5c6, 0 0 48px #ffdc969e;
+  opacity: .86;
+}
+#caption {
+  grid-row: 1;
+  font-size: clamp(13px, 2vw, 17px);
+  font-weight: 750;
+  letter-spacing: .10em;
+  color: #57375f;
+}
+.number {
   display: block;
-  font-size: clamp(100px, 25vw, min(24dvh, 230px));
+  grid-column: 1;
+  grid-row: 2;
+  font-size: clamp(96px, 23vw, min(23dvh, 220px));
   font-weight: 850;
   font-variant-numeric: tabular-nums;
   line-height: 1;
   letter-spacing: -.025em;
+  text-shadow: 0 4px 0 #fff2f3b8;
 }
-output.pop { animation: reveal 400ms cubic-bezier(.2,.8,.25,1) both; }
+#preview { visibility: hidden; color: #634477; }
+.rolling #preview { visibility: visible; }
+.rolling #number { opacity: 0; }
+.number.tick { animation: tick 130ms ease-out both; }
+.number.pop { animation: reveal 400ms cubic-bezier(.2,.8,.25,1) both; }
+@keyframes tick {
+  from { transform: translateY(-7px) scale(.94); opacity: .64; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
 @keyframes reveal {
-  0% { transform: translateY(7px) scale(.92); opacity: .65; }
-  58% { transform: translateY(-2px) scale(1.035); }
+  0% { transform: translateY(4px) scale(.9); opacity: .75; }
+  58% { transform: translateY(-2px) scale(1.06); }
   100% { transform: translateY(0) scale(1); opacity: 1; }
 }
-.range, .buttons { display: grid; gap: 10px; margin-top: 14px; }
+.range, .buttons { display: grid; gap: 10px; margin-top: 16px; }
 .range { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .range label {
   display: flex;
@@ -92,20 +134,28 @@ output.pop { animation: reveal 400ms cubic-bezier(.2,.8,.25,1) both; }
   gap: 6px;
   min-width: 0;
   padding: 6px 8px 6px clamp(9px, 2vw, 17px);
-  border: 1px solid #e9ddf3;
+  border: 1px solid #b4d8f5;
   border-radius: 15px;
-  background: #f7effa;
+  background: linear-gradient(155deg, #f4fcff, #c9e8ff);
+  box-shadow: 0 3px 0 #a8cce9;
+  color: #31465e;
   font-size: clamp(12px, 2vw, 16px);
-  font-weight: 700;
+  font-weight: 750;
   white-space: nowrap;
 }
+.range label + label {
+  border-color: #b3ddc6;
+  background: linear-gradient(155deg, #f3fff7, #c9f1dc);
+  box-shadow: 0 3px 0 #a7ceb5;
+  color: #305744;
+}
 .range input {
-  width: clamp(52px, 9vw, 86px);
+  width: clamp(50px, 9vw, 86px);
   padding: 7px 3px;
-  border: 1px solid #dbc9ec;
+  border: 1px solid currentColor;
   border-radius: 10px;
-  background: #fff;
-  color: #342454;
+  background: #fffffff0;
+  color: inherit;
   text-align: center;
   font: inherit;
   font-size: clamp(17px, 3vw, 24px);
@@ -118,25 +168,33 @@ output.pop { animation: reveal 400ms cubic-bezier(.2,.8,.25,1) both; }
 button {
   min-height: 55px;
   padding: 10px clamp(12px, 3vw, 25px);
-  border: 1px solid transparent;
+  border: 1px solid #ffffffb5;
   border-radius: 15px;
   font: inherit;
   font-size: clamp(16px, 2.7vw, 22px);
-  font-weight: 800;
+  font-weight: 850;
   cursor: pointer;
-  transition: transform 400ms ease, background-color 160ms ease, box-shadow 160ms ease;
+  transition: transform 400ms ease, filter 160ms ease, box-shadow 160ms ease;
 }
 button, input { touch-action: manipulation; }
-button:focus-visible, input:focus-visible { outline: 3px solid #9261bf; outline-offset: 2px; }
-button:active:not(:disabled) { transform: translateY(2px) scale(.98); }
-.draw { background: #6943a6; color: #fff; box-shadow: 0 4px 0 #482b7a; }
-.reset { border-color: #e4d6f2; background: #f3ebfb; color: #51357b; }
-@media (hover: hover) {
-  .draw:hover:not(:disabled) { background: #59358f; }
-  .reset:hover { background: #eae0f7; }
+button:focus-visible, input:focus-visible { outline: 3px solid #94406c; outline-offset: 3px; }
+button:active:not(:disabled):not([aria-disabled="true"]) { transform: translateY(3px) scale(.98); }
+.draw {
+  background: linear-gradient(155deg, #fff2b3, #ffd477 58%, #ffb46a);
+  color: #59351f;
+  box-shadow: 0 5px 0 #d59455, 0 8px 15px #f5ae6c59;
 }
-.draw:disabled { background: #e8e1ef; color: #625874; box-shadow: none; cursor: not-allowed; }
-#status { margin: 14px 0 0; text-align: center; font-size: 14px; font-weight: 700; color: #553879; }
+.reset {
+  background: linear-gradient(155deg, #fff1fb, #f6c9e5 60%, #eab1dc);
+  color: #65335a;
+  box-shadow: 0 5px 0 #bd86b2;
+}
+@media (hover: hover) {
+  button:hover:not(:disabled):not([aria-disabled="true"]) { filter: brightness(1.045) saturate(1.12); }
+}
+.draw[aria-disabled="true"] { transform: translateY(2px); box-shadow: 0 3px 0 #d59455; cursor: wait; }
+.draw:disabled { background: #eee3e8; color: #625164; box-shadow: 0 3px 0 #cbb8c4; cursor: not-allowed; }
+#status { margin: 14px 0 0; text-align: center; font-size: 14px; font-weight: 700; color: #654165; }
 #status[data-error] { color: #99274c; }
 #status:empty { margin: 0; }
 @media (max-width: 440px) {
@@ -148,8 +206,8 @@ button:active:not(:disabled) { transform: translateY(2px) scale(.98); }
   body { padding: 10px; }
   main { padding: 12px; }
   .result { min-height: 148px; padding-block: 12px; }
-  output { font-size: clamp(70px, 24dvh, 105px); }
-  .range, .buttons { margin-top: 8px; }
+  .number { font-size: clamp(70px, 24dvh, 105px); }
+  .range, .buttons { margin-top: 10px; }
   button { min-height: 44px; padding-block: 7px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -160,9 +218,10 @@ button:active:not(:disabled) { transform: translateY(2px) scale(.98); }
 <body>
 <div class="ios-blur-fix" aria-hidden="true"></div>
 <main aria-label="課堂隨機抽數字">
-  <div class="result">
+  <div class="result" id="display">
     <span id="caption">準備抽取</span>
-    <output id="number" aria-live="polite">?</output>
+    <output class="number" id="number" aria-live="polite">?</output>
+    <span class="number" id="preview" aria-hidden="true"></span>
   </div>
   <div class="range">
     <label>最小數字<input id="min" type="number" inputmode="numeric" min="1" max="999" value="1"></label>
@@ -180,12 +239,25 @@ button:active:not(:disabled) { transform: translateY(2px) scale(.98); }
   const min = document.getElementById("min");
   const max = document.getElementById("max");
   const result = document.getElementById("number");
+  const display = document.getElementById("display");
+  const preview = document.getElementById("preview");
   const button = document.getElementById("draw");
   const status = document.getElementById("status");
   const caption = document.getElementById("caption");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const spinDelays = [55, 60, 70, 85, 105, 130, 155, 190];
   let bag = [];
+  let spinTimer = null;
+
+  function stopSpin() {
+    window.clearTimeout(spinTimer);
+    spinTimer = null;
+    display.classList.remove("rolling");
+    button.removeAttribute("aria-disabled");
+  }
 
   function reset() {
+    stopSpin();
     const a = min.valueAsNumber;
     const b = max.valueAsNumber;
     const valid = Number.isInteger(a) && Number.isInteger(b) &&
@@ -200,21 +272,57 @@ button:active:not(:disabled) { transform: translateY(2px) scale(.98); }
     bag = valid ? Array.from({ length: b - a + 1 }, (_, i) => a + i) : [];
   }
 
-  function draw() {
-    if (!bag.length) return;
+  function animateNumber(element, className, number) {
+    element.classList.remove(className);
+    element.textContent = String(number);
+    void element.offsetWidth;
+    element.classList.add(className);
+  }
 
-    const index = Math.floor(Math.random() * bag.length);
+  function reveal(index) {
+    stopSpin();
     const number = bag[index];
     bag[index] = bag[bag.length - 1];
     bag.pop();
 
-    result.classList.remove("pop");
-    void result.offsetWidth;
-    result.textContent = String(number);
-    result.classList.add("pop");
+    animateNumber(result, "pop", number);
     caption.textContent = "本次抽中";
     button.disabled = bag.length === 0;
     status.textContent = button.disabled ? "全部抽完。按「重新開始」可再抽一輪。" : "";
+  }
+
+  function draw() {
+    if (!bag.length || spinTimer !== null) return;
+
+    const index = Math.floor(Math.random() * bag.length);
+    if (reducedMotion.matches || bag.length === 1) {
+      reveal(index);
+      return;
+    }
+
+    display.classList.add("rolling");
+    button.setAttribute("aria-disabled", "true");
+    caption.textContent = "抽號中";
+    let step = 0;
+    let previous = -1;
+    function tick() {
+      if (step === spinDelays.length) {
+        reveal(index);
+        return;
+      }
+
+      let next = Math.floor(Math.random() * (bag.length - 1));
+      if (next >= index) next++;
+      if (next === previous && bag.length > 2) {
+        next = (next + 1) % bag.length;
+        if (next === index) next = (next + 1) % bag.length;
+      }
+      previous = next;
+      animateNumber(preview, "tick", bag[next]);
+      spinTimer = window.setTimeout(tick, spinDelays[step]);
+      step++;
+    }
+    tick();
   }
 
   min.addEventListener("input", reset);
