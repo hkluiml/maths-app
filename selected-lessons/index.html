@@ -858,57 +858,6 @@ button.card:active {
 }
 
 
-/* 課堂工具固定在課題網格下方，四個工具共用一行。 */
-.tool-strip {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(4px, 1.3vw, 10px);
-  width: 100%;
-  max-width: 480px;
-  margin: 18px auto 0;
-}
-
-.tool-entry {
-  display: grid;
-  justify-items: stretch;
-  min-width: 0;
-  padding: 1px 0 3px;
-  border: 1px solid #fffaf5;
-  border-radius: 12px;
-  background: var(--tool-bg);
-  box-shadow: 0 3px 0 var(--tool-edge);
-}
-
-.tool-open {
-  width: 100%;
-  min-height: 32px;
-  padding: 3px 1px 0;
-  border: 0;
-  border-radius: 10px;
-  background: transparent;
-  color: #2f1f38;
-  font: inherit;
-  font-size: clamp(13px, 2vw, 16px);
-  font-weight: 700;
-  white-space: nowrap;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.tool-open:hover { background: rgba(255, 255, 255, 0.32); }
-.tool-open:active { transform: translateY(1px); }
-
-.tool-entry .card-actions {
-  position: static;
-  justify-content: center;
-  gap: 0;
-}
-
-.tool-entry :is(.card-download, .card-copy, .card-share) {
-  width: min(25px, 33.33%);
-  height: 25px;
-}
-
 /* 底部浮動提示氣泡 */
 .toast-pill {
   position: fixed;
@@ -1096,7 +1045,6 @@ button.card:active {
   <main class="content" id="menu" aria-label="小二數學教具選集">
     <p id="offline-status" class="offline-status" role="status" aria-live="polite"></p>
     <div class="grid" id="grid"></div>
-    <div class="tool-strip" id="tool-strip" role="group" aria-label="課堂工具"></div>
     <div id="copy-status" class="toast-pill" role="status" aria-live="polite"></div>
   </main>
   <section class="viewer" id="viewer" aria-label="教學 App" hidden=""></section>
@@ -1105,8 +1053,6 @@ button.card:active {
 const lessons=[{"num":7,"title":"認識及比較角","name":"認識及比較角","icon":"📐","url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/compare-angles/?v=split","path":"apps/compare-angles/index.html?v=split"},{"num":8,"title":"直角、銳角和鈍角","name":"直角、銳角和鈍角","icon":"🔺","url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/types-of-angles/?v=split","path":"apps/types-of-angles/index.html?v=split"},{"num":9,"title":"垂直線","name":"垂直線","icon":"📏","url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/perpendicular-lines/?v=split","path":"apps/perpendicular-lines/index.html?v=split"},{"num":10,"title":"四個主要方向","name":"四個主要方向","icon":"🧭","url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/directions-combined/?v=split","path":"apps/directions-combined/index.html?v=split","bundle":true},{"num":12,"title":"乘法的計算（一）","name":"乘法的計算（一）","icon":"🔢","url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-lesson-1/?v=split","path":"apps/multiplication-lesson-1/index.html?v=split","bundle":true},{"num":13,"title":"乘法的計算（二）","name":"乘法的計算（二）","icon":"🧩","url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-lesson-2/?v=split","path":"apps/multiplication-lesson-2/index.html?v=split","bundle":true},{"title":"課堂隨機抽數字","name":"課堂隨機抽數字","icon":"🎲","palette":8,"url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/classroom-random-number/","path":"apps/classroom-random-number/index.html"}];
 
 // Classroom tools render in a separate row after the lesson grid.
-const classroomTools=[{"title":"作業A","name":"作業 A","icon":"📘","palette":7,"url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/workbook-a/","path":"apps/workbook-a/index.html"},{"title":"作業B","name":"作業 B","icon":"📗","palette":12,"url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/workbook-b/","path":"apps/workbook-b/index.html"},{"title":"鞏固","name":"鞏固工作紙","icon":"📝","palette":13,"url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/consolidation-worksheets/","path":"apps/consolidation-worksheets/index.html"}];
-const cards = [...lessons, ...classroomTools];
 
 const $ = id => document.getElementById(id);
 
@@ -1442,20 +1388,17 @@ async function activityDocument(lesson) {
 async function downloadPortal() {
   const page = document.documentElement.cloneNode(true);
   page.querySelectorAll('link[rel=manifest], link[rel=apple-touch-icon]').forEach(link => link.remove());
-  for (const id of ['grid', 'tool-strip', 'viewer', 'copy-status', 'portal-actions', 'offline-status']) {
+  for (const id of ['grid', 'viewer', 'copy-status', 'portal-actions', 'offline-status']) {
     page.querySelector('#' + id).replaceChildren();
   }
-  if (cards.some(card => !card.document)) {
+  if (lessons.some(lesson => !lesson.document)) {
+    const offlineLessons = await Promise.all(lessons.map(async lesson => ({
+      ...lesson,
+      document: await activityDocument(lesson),
+    })));
     const script = page.querySelector('#portal-script');
-    const groups = await Promise.all([lessons, classroomTools].map(group =>
-      Promise.all(group.map(async card => ({
-        ...card,
-        document: await activityDocument(card),
-      })))
-    ));
-    const embeddedGroups = { lessons: groups[0], classroomTools: groups[1] };
-    script.textContent = script.textContent.replace(/^const (lessons|classroomTools)=.*;$/gm, (_, group) =>
-      'const ' + group + '=' + embeddedJson(embeddedGroups[group]) + ';'
+    script.textContent = script.textContent.replace(/^const lessons=.*;$/m, () =>
+      'const lessons=' + embeddedJson(offlineLessons) + ';'
     );
   }
   return htmlBlobUrl('<!doctype html>\n' + page.outerHTML);
@@ -1609,24 +1552,6 @@ for (const lesson of lessons) {
   $('grid').append(entry);
 }
 
-for (const tool of classroomTools) {
-  const [background, , edge] = cardPalettes[tool.palette];
-  const entry = document.createElement('div');
-  entry.className = 'tool-entry';
-  entry.style.setProperty('--tool-bg', background);
-  entry.style.setProperty('--tool-edge', edge);
-
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'tool-open';
-  button.textContent = tool.title;
-  button.setAttribute('aria-label', tool.name);
-  button.onclick = () => openApp(tool);
-
-  entry.append(button, createActions(tool, null, true));
-  $('tool-strip').append(entry);
-}
-
 $('home').onclick = home;
 $('full').onclick = toggleFullscreen;
 async function toggleFullscreen() {
@@ -1638,7 +1563,7 @@ async function toggleFullscreen() {
 document.addEventListener('dblclick', event => event.preventDefault(), { passive: false });
 async function prepareOfflineApp() {
   const status = $('offline-status');
-  if (cards.every(card => card.document)) {
+  if (lessons.every(lesson => lesson.document)) {
     status.dataset.ready = 'true';
     status.textContent = '全套教具可離線使用';
     return;
