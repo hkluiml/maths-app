@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#eee8ff">
+<title>課堂隨機抽數字</title>
+<style>
+:root {
+  color-scheme: light;
+  font-family: system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+  color: #342454;
+  background: #eee8ff;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background:
+    radial-gradient(ellipse at 10% 12%, #ffe5e8, transparent 58%),
+    radial-gradient(ellipse at 90% 90%, #dcf1ff, transparent 56%),
+    #eee8ff;
+}
+.ios-blur-fix { position: fixed; width: 0; height: 0; pointer-events: none; }
+main {
+  width: min(100%, 720px);
+  padding: clamp(14px, 3.1vw, 28px);
+  border: 1px solid #ffffff;
+  border-radius: 34px;
+  background: #fffaf8;
+  box-shadow: 0 22px 58px #421c701c, 0 3px 9px #421c700a;
+}
+.result {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 8px;
+  min-height: clamp(210px, 44dvh, 420px);
+  padding: 22px 12px;
+  border-radius: 24px;
+  background: radial-gradient(ellipse at 50% 20%, #674798, transparent 78%), #3c265e;
+  color: #fff7ee;
+}
+.result::before, .result::after {
+  position: absolute;
+  content: "";
+  z-index: -1;
+  width: clamp(100px, 24vw, 185px);
+  aspect-ratio: 1;
+  border: 1px solid #ffede754;
+  outline: 1px solid #ffede72f;
+  outline-offset: 13px;
+  border-radius: 37%;
+  transform: rotate(25deg);
+  pointer-events: none;
+}
+.result::before { top: -28%; left: -6%; }
+.result::after { bottom: -33%; right: -5%; }
+#caption {
+  font-size: clamp(13px, 2vw, 17px);
+  font-weight: 700;
+  letter-spacing: .12em;
+  color: #ebdcff;
+}
+output {
+  display: block;
+  font-size: clamp(100px, 25vw, min(24dvh, 230px));
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -.025em;
+}
+output.pop { animation: reveal 400ms cubic-bezier(.2,.8,.25,1) both; }
+@keyframes reveal {
+  0% { transform: translateY(7px) scale(.92); opacity: .65; }
+  58% { transform: translateY(-2px) scale(1.035); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.range, .buttons { display: grid; gap: 10px; margin-top: 14px; }
+.range { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.range label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  padding: 6px 8px 6px clamp(9px, 2vw, 17px);
+  border: 1px solid #e9ddf3;
+  border-radius: 15px;
+  background: #f7effa;
+  font-size: clamp(12px, 2vw, 16px);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.range input {
+  width: clamp(52px, 9vw, 86px);
+  padding: 7px 3px;
+  border: 1px solid #dbc9ec;
+  border-radius: 10px;
+  background: #fff;
+  color: #342454;
+  text-align: center;
+  font: inherit;
+  font-size: clamp(17px, 3vw, 24px);
+  font-weight: 800;
+  appearance: textfield;
+}
+.range input::-webkit-inner-spin-button,
+.range input::-webkit-outer-spin-button { appearance: none; margin: 0; }
+.buttons { grid-template-columns: minmax(0, 1fr) auto; }
+button {
+  min-height: 55px;
+  padding: 10px clamp(12px, 3vw, 25px);
+  border: 1px solid transparent;
+  border-radius: 15px;
+  font: inherit;
+  font-size: clamp(16px, 2.7vw, 22px);
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 400ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+button, input { touch-action: manipulation; }
+button:focus-visible, input:focus-visible { outline: 3px solid #9261bf; outline-offset: 2px; }
+button:active:not(:disabled) { transform: translateY(2px) scale(.98); }
+.draw { background: #6943a6; color: #fff; box-shadow: 0 4px 0 #482b7a; }
+.reset { border-color: #e4d6f2; background: #f3ebfb; color: #51357b; }
+@media (hover: hover) {
+  .draw:hover:not(:disabled) { background: #59358f; }
+  .reset:hover { background: #eae0f7; }
+}
+.draw:disabled { background: #e8e1ef; color: #625874; box-shadow: none; cursor: not-allowed; }
+#status { margin: 14px 0 0; text-align: center; font-size: 14px; font-weight: 700; color: #553879; }
+#status[data-error] { color: #99274c; }
+#status:empty { margin: 0; }
+@media (max-width: 440px) {
+  body { padding: 12px; }
+  main { border-radius: 26px; }
+  .result { border-radius: 18px; }
+}
+@media (max-height: 470px) and (orientation: landscape) {
+  body { padding: 10px; }
+  main { padding: 12px; }
+  .result { min-height: 148px; padding-block: 12px; }
+  output { font-size: clamp(70px, 24dvh, 105px); }
+  .range, .buttons { margin-top: 8px; }
+  button { min-height: 44px; padding-block: 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="ios-blur-fix" aria-hidden="true"></div>
+<main aria-label="課堂隨機抽數字">
+  <div class="result">
+    <span id="caption">準備抽取</span>
+    <output id="number" aria-live="polite">?</output>
+  </div>
+  <div class="range">
+    <label>最小數字<input id="min" type="number" inputmode="numeric" min="1" max="999" value="1"></label>
+    <label>最大數字<input id="max" type="number" inputmode="numeric" min="1" max="999" value="32"></label>
+  </div>
+  <div class="buttons">
+    <button id="draw" class="draw" type="button">抽一個</button>
+    <button id="reset" class="reset" type="button">重新開始</button>
+  </div>
+  <p id="status" role="status"></p>
+</main>
+<script>
+(() => {
+  "use strict";
+  const min = document.getElementById("min");
+  const max = document.getElementById("max");
+  const result = document.getElementById("number");
+  const button = document.getElementById("draw");
+  const status = document.getElementById("status");
+  const caption = document.getElementById("caption");
+  let bag = [];
+
+  function reset() {
+    const a = min.valueAsNumber;
+    const b = max.valueAsNumber;
+    const valid = Number.isInteger(a) && Number.isInteger(b) &&
+      a >= 1 && b <= 999 && a <= b && b - a < 500;
+
+    result.classList.remove("pop");
+    result.textContent = "?";
+    caption.textContent = "準備抽取";
+    button.disabled = !valid;
+    status.toggleAttribute("data-error", !valid);
+    status.textContent = valid ? "" : "請輸入 1 至 999 的整數，範圍最多可包含 500 個數字。";
+    bag = valid ? Array.from({ length: b - a + 1 }, (_, i) => a + i) : [];
+  }
+
+  function draw() {
+    if (!bag.length) return;
+
+    const index = Math.floor(Math.random() * bag.length);
+    const number = bag[index];
+    bag[index] = bag[bag.length - 1];
+    bag.pop();
+
+    result.classList.remove("pop");
+    void result.offsetWidth;
+    result.textContent = String(number);
+    result.classList.add("pop");
+    caption.textContent = "本次抽中";
+    button.disabled = bag.length === 0;
+    status.textContent = button.disabled ? "全部抽完。按「重新開始」可再抽一輪。" : "";
+  }
+
+  min.addEventListener("input", reset);
+  max.addEventListener("input", reset);
+  button.addEventListener("click", draw);
+  document.getElementById("reset").addEventListener("click", reset);
+  reset();
+})();
+</script>
+</body>
+</html>
