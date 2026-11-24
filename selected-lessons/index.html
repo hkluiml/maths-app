@@ -728,6 +728,8 @@ button.card:active {
 }
 
 /* 卡片課程標題 — 平面清晰、易讀不累眼 */
+.card.tool-card { justify-content: center; }
+
 .title {
   position: relative;
   max-width: calc(100% - 10px);
@@ -1050,6 +1052,10 @@ button.card:active {
 </div>
 <script id="portal-script">
 const lessons=[{"num":7,"title":"認識及比較角","name":"認識及比較角","icon":"📐","url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/compare-angles/?v=split","path":"apps/compare-angles/index.html?v=split"},{"num":8,"title":"直角、銳角和鈍角","name":"直角、銳角和鈍角","icon":"🔺","url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/types-of-angles/?v=split","path":"apps/types-of-angles/index.html?v=split"},{"num":9,"title":"垂直線","name":"垂直線","icon":"📏","url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/perpendicular-lines/?v=split","path":"apps/perpendicular-lines/index.html?v=split"},{"num":10,"title":"四個主要方向","name":"四個主要方向","icon":"🧭","url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/directions-combined/?v=split","path":"apps/directions-combined/index.html?v=split","bundle":true},{"num":12,"title":"乘法的計算（一）","name":"乘法的計算（一）","icon":"🔢","url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-lesson-1/?v=split","path":"apps/multiplication-lesson-1/index.html?v=split","bundle":true},{"num":13,"title":"乘法的計算（二）","name":"乘法的計算（二）","icon":"🧩","url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/multiplication-lesson-2/?v=split","path":"apps/multiplication-lesson-2/index.html?v=split","bundle":true}];
+
+// Classroom tools always follow every numbered lesson in the grid.
+const classroomTools=[{"title":"作業 A","name":"作業 A","icon":"📘","palette":7,"url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/workbook-a/","path":"apps/workbook-a/index.html"},{"title":"作業 B","name":"作業 B","icon":"📗","palette":12,"url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/workbook-b/","path":"apps/workbook-b/index.html"},{"title":"鞏固工作紙","name":"鞏固工作紙","icon":"📝","palette":13,"url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/consolidation-worksheets/","path":"apps/consolidation-worksheets/index.html"},{"title":"抽數字","name":"抽數字","icon":"🎲","palette":8,"url":"https://hkluiml.github.io/maths-app/selected-lessons/apps/classroom-random-number/","path":"apps/classroom-random-number/index.html"}];
+const cards = [...lessons, ...classroomTools];
 
 const $ = id => document.getElementById(id);
 
@@ -1388,14 +1394,17 @@ async function downloadPortal() {
   for (const id of ['grid', 'viewer', 'copy-status', 'portal-actions', 'offline-status']) {
     page.querySelector('#' + id).replaceChildren();
   }
-  if (lessons.some(lesson => !lesson.document)) {
-    const offlineLessons = await Promise.all(lessons.map(async lesson => ({
-      ...lesson,
-      document: await activityDocument(lesson),
-    })));
+  if (cards.some(card => !card.document)) {
     const script = page.querySelector('#portal-script');
-    script.textContent = script.textContent.replace(/^const lessons=.*;$/m, () =>
-      'const lessons=' + embeddedJson(offlineLessons) + ';'
+    const groups = await Promise.all([lessons, classroomTools].map(group =>
+      Promise.all(group.map(async card => ({
+        ...card,
+        document: await activityDocument(card),
+      })))
+    ));
+    const embeddedGroups = { lessons: groups[0], classroomTools: groups[1] };
+    script.textContent = script.textContent.replace(/^const (lessons|classroomTools)=.*;$/gm, (_, group) =>
+      'const ' + group + '=' + embeddedJson(embeddedGroups[group]) + ';'
     );
   }
   return htmlBlobUrl('<!doctype html>\n' + page.outerHTML);
@@ -1503,8 +1512,8 @@ $('portal-actions').append(createActions({
   url: 'https://hkluiml.github.io/maths-app/selected-lessons/',
 }, downloadPortal));
 
-for (const lesson of lessons) {
-  const [cardBg, accent, edge, innerLip, textDepth, pillEdge, sticker, stickerEdge, glow] = cardPalettes[lesson.num] || [
+for (const lesson of cards) {
+  const [cardBg, accent, edge, innerLip, textDepth, pillEdge, sticker, stickerEdge, glow] = cardPalettes[lesson.palette ?? lesson.num] || [
     'linear-gradient(155deg, rgba(255, 250, 242, 0.94) 0%, rgba(255, 232, 204, 0.89) 100%)',
     '#eb9e5b',
     '#d9a271',
@@ -1521,6 +1530,7 @@ for (const lesson of lessons) {
   const card = document.createElement('button');
   card.type = 'button';
   card.className = 'card';
+  if (lesson.num == null) card.classList.add('tool-card');
   card.style.setProperty('--card-bg', cardBg);
   card.style.setProperty('--accent', accent);
   card.style.setProperty('--edge', edge);
@@ -1532,9 +1542,10 @@ for (const lesson of lessons) {
 
   for (const [role, label] of [
     ['icon', lesson.icon],
-    ['number', '第 ' + lesson.num + ' 課'],
+    ['number', lesson.num == null ? '' : '第 ' + lesson.num + ' 課'],
     ['title', lesson.title],
   ]) {
+    if (!label) continue;
     const element = document.createElement('span');
     element.className = role;
     if (role === 'icon') element.setAttribute('aria-hidden', 'true');
@@ -1558,7 +1569,7 @@ async function toggleFullscreen() {
 document.addEventListener('dblclick', event => event.preventDefault(), { passive: false });
 async function prepareOfflineApp() {
   const status = $('offline-status');
-  if (lessons.every(lesson => lesson.document)) {
+  if (cards.every(card => card.document)) {
     status.dataset.ready = 'true';
     status.textContent = '全套教具可離線使用';
     return;
