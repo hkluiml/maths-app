@@ -113,7 +113,7 @@ main {
 }
 #preview { visibility: hidden; color: #634477; }
 .rolling #preview { visibility: visible; }
-.rolling #number { opacity: 0; }
+.rolling #number { visibility: hidden; animation: none; }
 .number.tick { animation: tick 130ms ease-out both; }
 .number.pop { animation: reveal 400ms cubic-bezier(.2,.8,.25,1) both; }
 @keyframes tick {
@@ -300,6 +300,7 @@ button:active:not(:disabled):not([aria-disabled="true"]) { transform: translateY
       return;
     }
 
+    result.classList.remove("pop");
     display.classList.add("rolling");
     button.setAttribute("aria-disabled", "true");
     caption.textContent = "抽號中";
