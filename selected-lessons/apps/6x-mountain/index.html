@@ -66,3 +66,4 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&active){pa
 function tick(now){motion(now);if(active&&deadline&&!locked){let left=deadline-now;$('timerFill').style.width=Math.max(0,left/(limit()*1000)*100)+'%';$('timerFill').style.background=left<1000?'#e6a078':'#75b6a0';$('timeLabel').textContent=`⏱ ${(Math.max(0,left)/1000).toFixed(1)}`;if(left<=0)fail(true)}requestAnimationFrame(tick)}
 render();modal(`<div class="dialog-icon">⛰️</div><h2>6 × 登山冒險</h2><button class="primary" id="go">${s.steps?'繼續爬！':'出發！'}</button>`);$('go').onclick=()=>{active=true;$('dialog').close();if(s.completed){active=false;showResults();return}if((s.counts[s.n]||0)>=target()){next()}else if(s.steps||s.queue.length){startQuestion()}else next()};requestAnimationFrame(tick);
 </script></html>
+
