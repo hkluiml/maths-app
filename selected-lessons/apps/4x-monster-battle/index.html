@@ -1,0 +1,1910 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>4 的乘法怪獸對戰</title>
+  <style>
+    :root {
+      --bg-deep: #0b0f1d;
+      --bg-panel: #131a2e;
+      --bg-key: #1c2642;
+      --bg-key-hover: #263459;
+      --bg-key-active: #324473;
+      --accent-gold: #fbbf24;
+      --accent-cyan: #38bdf8;
+      --accent-red: #f43f5e;
+      --accent-green: #22c55e;
+      --accent-purple: #a855f7;
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --border-subtle: rgba(148, 163, 184, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: var(--bg-deep);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100dvh;
+      max-width: 960px;
+      margin: 0 auto;
+      background: radial-gradient(circle at 50% 30%, #17203a 0%, #0b0f1d 75%);
+      position: relative;
+    }
+
+    /* TOP HUD */
+    .hud {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px 6px;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .badge-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.4px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-subtle);
+      white-space: nowrap;
+    }
+
+    .pill-lv {
+      color: var(--accent-gold);
+      border-color: rgba(251, 191, 36, 0.35);
+      background: rgba(251, 191, 36, 0.12);
+    }
+
+    .pill-combo {
+      color: #fb923c;
+      border-color: rgba(251, 146, 60, 0.35);
+      background: rgba(251, 146, 60, 0.12);
+      transition: transform 0.15s ease;
+    }
+
+    .pill-combo.pop {
+      transform: scale(1.22);
+    }
+
+    /* BOSS HP BAR */
+    .hp-wrap {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hp-bar-outer {
+      position: relative;
+      width: 100%;
+      height: 22px;
+      background: #090d18;
+      border-radius: 999px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      overflow: hidden;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.7), 0 0 14px rgba(244, 63, 94, 0.22);
+    }
+
+    .hp-trail {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      background: linear-gradient(90deg, #fde047, #ffffff);
+      transition: width 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+      border-radius: 999px;
+    }
+
+    .hp-fill {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      background: linear-gradient(90deg, #e11d48 0%, #f43f5e 50%, #fb7185 100%);
+      transition: width 0.16s ease-out;
+      border-radius: 999px;
+      box-shadow: 0 0 12px rgba(244, 63, 94, 0.65);
+    }
+
+    .hp-segments {
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent calc(10% - 1px),
+        rgba(0, 0, 0, 0.35) calc(10% - 1px),
+        rgba(0, 0, 0, 0.35) 10%
+      );
+      pointer-events: none;
+    }
+
+    .hp-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.6px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
+      pointer-events: none;
+    }
+
+    /* ICON BUTTONS */
+    .icon-btns {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      padding: 0;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .icon-btn:active {
+      transform: scale(0.92);
+    }
+
+    .icon-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ARENA */
+    .arena-wrap {
+      position: relative;
+      flex: 1;
+      min-height: 180px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    #arena {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 10 VFX DOCK */
+    .vfx-dock {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(9, 13, 24, 0.68);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(6px);
+      z-index: 6;
+      pointer-events: none;
+    }
+
+    .vfx-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      background: rgba(255, 255, 255, 0.06);
+      opacity: 0.45;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .vfx-dot.active {
+      opacity: 1;
+      transform: scale(1.32);
+      background: rgba(255, 255, 255, 0.22);
+      box-shadow: 0 0 12px var(--dot-color, #38bdf8);
+    }
+
+    /* SKILL ENERGY BAR */
+    .sp-bar-wrap {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      z-index: 7;
+    }
+
+    .sp-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #38bdf8, #a855f7, #facc15);
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.8);
+      transition: width 0.25s ease-out;
+    }
+
+    .sp-bar-fill.full {
+      animation: spPulse 0.6s infinite alternate;
+    }
+
+    @keyframes spPulse {
+      from { filter: brightness(1); }
+      to { filter: brightness(1.6); }
+    }
+
+    /* VICTORY OVERLAY */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 12, 24, 0.78);
+      backdrop-filter: blur(6px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 20;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .overlay.show {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .victory-crown {
+      font-size: 64px;
+      line-height: 1;
+      filter: drop-shadow(0 0 22px rgba(251, 191, 36, 0.75));
+      animation: bounceCrown 0.9s infinite alternate ease-in-out;
+    }
+
+    @keyframes bounceCrown {
+      from { transform: translateY(0) scale(1); }
+      to { transform: translateY(-10px) scale(1.08); }
+    }
+
+    .victory-stats {
+      display: flex;
+      gap: 14px;
+    }
+
+    .stat-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.09);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .next-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 36px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      color: #fff;
+      font-size: 22px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(239, 68, 68, 0.45);
+      transition: transform 0.12s, filter 0.15s;
+    }
+
+    .next-btn:hover {
+      filter: brightness(1.1);
+    }
+
+    .next-btn:active {
+      transform: scale(0.94);
+    }
+
+    /* BOTTOM CONTROL DECK */
+    .deck {
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border-subtle);
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .equation-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .eq-prompt {
+      font-size: clamp(28px, 6vw, 40px);
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--text-main);
+      text-shadow: 0 2px 10px rgba(56, 189, 248, 0.25);
+    }
+
+    .eq-prompt .mul {
+      color: var(--accent-cyan);
+    }
+
+    .eq-prompt .eq-sign {
+      color: var(--text-dim);
+    }
+
+    .answer-box {
+      min-width: 96px;
+      height: clamp(46px, 8vw, 56px);
+      padding: 0 16px;
+      border-radius: 14px;
+      background: #090e1c;
+      border: 2.5px solid var(--accent-cyan);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(28px, 6vw, 38px);
+      font-weight: 900;
+      color: #fff;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.22);
+      transition: border-color 0.15s, background 0.15s, transform 0.12s;
+    }
+
+    .answer-box.empty::after {
+      content: "";
+      width: 3px;
+      height: 26px;
+      background: var(--accent-cyan);
+      border-radius: 2px;
+      animation: blink 0.9s infinite;
+    }
+
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+
+    .answer-box.wrong {
+      border-color: var(--accent-red);
+      background: rgba(244, 63, 94, 0.2);
+      animation: shakeX 0.32s ease;
+    }
+
+    .answer-box.correct {
+      border-color: var(--accent-green);
+      background: rgba(34, 197, 94, 0.22);
+      transform: scale(1.08);
+    }
+
+    @keyframes shakeX {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+
+    /* NUMPAD */
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      max-width: 640px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .key {
+      height: clamp(46px, 7.5dvh, 58px);
+      border-radius: 13px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 3px solid rgba(0, 0, 0, 0.45);
+      background: var(--bg-key);
+      color: var(--text-main);
+      font-size: clamp(20px, 4.2vw, 26px);
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.1s, transform 0.08s;
+      touch-action: manipulation;
+    }
+
+    .key:hover {
+      background: var(--bg-key-hover);
+    }
+
+    .key:active {
+      background: var(--bg-key-active);
+      transform: translateY(2px);
+      border-bottom-width: 1px;
+    }
+
+    .key-del {
+      background: #2b213a;
+      color: #fda4af;
+    }
+
+    .key-del:hover {
+      background: #3d2c52;
+    }
+
+    .key-atk {
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      color: #fff;
+      border-bottom-color: #312e81;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    }
+
+    .key-atk:hover {
+      filter: brightness(1.12);
+    }
+
+    @media (max-width: 480px) {
+      .numpad {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      .vfx-dock {
+        gap: 3px;
+        padding: 4px 6px;
+      }
+      .vfx-dot {
+        width: 20px;
+        height: 20px;
+        font-size: 11px;
+      }
+      .hud {
+        gap: 6px;
+        padding: 8px 8px 4px;
+      }
+      .pill {
+        padding: 3px 7px;
+        font-size: 12px;
+      }
+    }
+    .ios-blur-fix {
+      position: fixed;
+      width: 1px;
+      height: 1px;
+      opacity: .001;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="ios-blur-fix" aria-hidden="true"></div>
+  <div id="app">
+    <!-- TOP HUD -->
+    <div class="hud">
+      <div class="badge-group">
+        <div class="pill pill-lv" id="lvBadge">LV.1</div>
+        <div class="pill pill-combo" id="comboBadge">🔥 0</div>
+      </div>
+
+      <div class="hp-wrap">
+        <div class="hp-bar-outer">
+          <div class="hp-trail" id="hpTrail" style="width: 100%;"></div>
+          <div class="hp-fill" id="hpFill" style="width: 100%;"></div>
+          <div class="hp-segments"></div>
+          <div class="hp-text" id="hpText">20000 / 20000</div>
+        </div>
+      </div>
+
+      <div class="icon-btns">
+        <button class="icon-btn" id="btnSound" aria-label="Sound" title="Sound">
+          <svg id="soundIconOn" viewBox="0 0 24 24">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <svg id="soundIconOff" viewBox="0 0 24 24" style="display:none;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+        <button class="icon-btn" id="btnReset" aria-label="Reset" title="Reset">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+        </button>
+        <button class="icon-btn" id="btnDownload" aria-label="Download HTML" title="HTML">
+          <svg viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- BATTLE ARENA -->
+    <div class="arena-wrap" id="arenaWrap">
+      <canvas id="arena" width="1920" height="1104"></canvas>
+
+      <!-- 10 VFX INDICATOR DOCK -->
+      <div class="vfx-dock" id="vfxDock"><div class="vfx-dot" style="--dot-color: #38bdf8;">⚔️</div><div class="vfx-dot" style="--dot-color: #f97316;">🔥</div><div class="vfx-dot" style="--dot-color: #facc15;">⚡</div><div class="vfx-dot" style="--dot-color: #67e8f9;">❄️</div><div class="vfx-dot" style="--dot-color: #f43f5e;">💥</div><div class="vfx-dot" style="--dot-color: #34d399;">🌪️</div><div class="vfx-dot" style="--dot-color: #fb923c;">☄️</div><div class="vfx-dot" style="--dot-color: #fde047;">✨</div><div class="vfx-dot active" style="--dot-color: #a855f7;">🟣</div><div class="vfx-dot" style="--dot-color: #f472b6;">🌟</div></div>
+
+      <!-- SKILL GAUGE -->
+      <div class="sp-bar-wrap">
+        <div class="sp-bar-fill" id="spFill" style="width: 0%;"></div>
+      </div>
+
+      <!-- VICTORY OVERLAY -->
+      <div class="overlay" id="victoryOverlay">
+        <div class="victory-crown">👑</div>
+        <div class="victory-stats">
+          <div class="stat-chip">⚔️ <span id="statHits">0</span></div>
+          <div class="stat-chip">💥 <span id="statCrits">0</span></div>
+          <div class="stat-chip">⚡ <span id="statSkills">0</span></div>
+        </div>
+        <button class="next-btn" id="btnNextBoss">▶ LV.2</button>
+      </div>
+    </div>
+
+    <!-- BOTTOM CONTROL DECK -->
+    <div class="deck">
+      <div class="equation-row">
+        <div class="eq-prompt">
+          <span>4</span>
+          <span class="mul">×</span>
+          <span id="factorB">1</span>
+          <span class="eq-sign">=</span>
+        </div>
+        <div class="answer-box empty" id="answerBox"></div>
+      </div>
+
+      <div class="numpad" id="numpad">
+        <button class="key" data-num="1">1</button>
+        <button class="key" data-num="2">2</button>
+        <button class="key" data-num="3">3</button>
+        <button class="key" data-num="4">4</button>
+        <button class="key" data-num="5">5</button>
+        <button class="key key-del" data-action="del">⌫</button>
+        <button class="key" data-num="6">6</button>
+        <button class="key" data-num="7">7</button>
+        <button class="key" data-num="8">8</button>
+        <button class="key" data-num="9">9</button>
+        <button class="key" data-num="0">0</button>
+        <button class="key key-atk" data-action="submit">⚔️</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ================= 10 PLAYER ATTACK VFX CONFIG ================= */
+      const VFX_LIST = [
+        { id: 0, icon: '⚔️', color: '#38bdf8' }, // 1. Twin Slash
+        { id: 1, icon: '🔥', color: '#f97316' }, // 2. Fireball
+        { id: 2, icon: '⚡', color: '#facc15' }, // 3. Lightning
+        { id: 3, icon: '❄️', color: '#67e8f9' }, // 4. Ice Spears
+        { id: 4, icon: '💥', color: '#f43f5e' }, // 5. Plasma Beam
+        { id: 5, icon: '🌪️', color: '#34d399' }, // 6. Wind Tornado
+        { id: 6, icon: '☄️', color: '#fb923c' }, // 7. Magma Meteor
+        { id: 7, icon: '✨', color: '#fde047' }, // 8. Holy Swords
+        { id: 8, icon: '🟣', color: '#a855f7' }, // 9. Void Orb
+        { id: 9, icon: '🌟', color: '#f472b6' }  // 10. Prismatic Starburst
+      ];
+
+      /* ================= BOSS PALETTES PER LEVEL ================= */
+      const BOSS_THEMES = [
+        { body: '#3b1d4a', armor: '#6d28d9', horn: '#f43f5e', eye: '#fbbf24', glow: '#e11d48' },
+        { body: '#13324a', armor: '#0284c7', horn: '#38bdf8', eye: '#fef08a', glow: '#06b6d4' },
+        { body: '#3f161d', armor: '#b91c1c', horn: '#fb923c', eye: '#fde047', glow: '#f97316' },
+        { body: '#123524', armor: '#15803d', horn: '#4ade80', eye: '#facc15', glow: '#22c55e' },
+        { body: '#1e1b4b', armor: '#4338ca', horn: '#e879f9', eye: '#38bdf8', glow: '#c084fc' }
+      ];
+
+      /* ================= WEB AUDIO SYNTH ================= */
+      let audioCtx = null;
+      let soundEnabled = true;
+
+      function ensureAudio() {
+        if (!soundEnabled) return null;
+        if (!audioCtx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (AC) audioCtx = new AC();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      }
+
+      function playTone(freq, type, duration, gainVal, freqEnd, delay = 0) {
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const now = ctx.currentTime + delay;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        if (freqEnd) {
+          osc.frequency.exponentialRampToValueAtTime(Math.max(20, freqEnd), now + duration);
+        }
+        gain.gain.setValueAtTime(gainVal, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+      }
+
+      function playNoise(duration, gainVal, filterFreq, delay = 0) {
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const now = ctx.currentTime + delay;
+        const bufferSize = Math.max(1, Math.floor(ctx.sampleRate * duration));
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+        const src = ctx.createBufferSource();
+        src.buffer = buffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(filterFreq, now);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(gainVal, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        src.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        src.start(now);
+      }
+
+      function playAttackSound(vfxId, isCrit, isSkill) {
+        if (!soundEnabled) return;
+        switch (vfxId) {
+          case 0: // Slash
+            playNoise(0.14, 0.22, 2400);
+            playTone(880, 'sawtooth', 0.14, 0.14, 220);
+            break;
+          case 1: // Fireball
+            playNoise(0.28, 0.28, 520);
+            playTone(180, 'sawtooth', 0.26, 0.2, 60);
+            break;
+          case 2: // Lightning
+            playNoise(0.22, 0.3, 3600);
+            playTone(1400, 'square', 0.12, 0.16, 160);
+            break;
+          case 3: // Ice
+            playTone(1760, 'triangle', 0.16, 0.18, 880);
+            playTone(2340, 'sine', 0.12, 0.14, 1200, 0.05);
+            break;
+          case 4: // Laser
+            playTone(620, 'sawtooth', 0.3, 0.18, 1200);
+            playTone(310, 'square', 0.3, 0.12, 180);
+            break;
+          case 5: // Tornado
+            playNoise(0.32, 0.2, 900);
+            playTone(320, 'sine', 0.28, 0.15, 760);
+            break;
+          case 6: // Meteor
+            playTone(140, 'sawtooth', 0.36, 0.26, 42);
+            playNoise(0.35, 0.3, 320);
+            break;
+          case 7: // Holy Swords
+            playTone(1046, 'triangle', 0.22, 0.16, 1568);
+            playTone(1318, 'sine', 0.24, 0.14, 2093, 0.06);
+            break;
+          case 8: // Void Orb
+            playTone(220, 'sine', 0.32, 0.24, 55);
+            playTone(440, 'triangle', 0.24, 0.12, 90, 0.05);
+            break;
+          case 9: // Starburst
+            playTone(784, 'triangle', 0.18, 0.16, 1568);
+            playTone(1046, 'sine', 0.2, 0.16, 2093, 0.05);
+            playTone(1318, 'sine', 0.22, 0.15, 2637, 0.1);
+            break;
+        }
+        if (isCrit) {
+          playTone(1200, 'square', 0.12, 0.16, 2400, 0.03);
+          playTone(160, 'sawtooth', 0.25, 0.22, 50, 0.02);
+        }
+        if (isSkill) {
+          playTone(523.25, 'triangle', 0.18, 0.18, 523.25, 0);
+          playTone(659.25, 'triangle', 0.18, 0.18, 659.25, 0.07);
+          playTone(783.99, 'triangle', 0.22, 0.2, 1046.5, 0.14);
+        }
+      }
+
+      function playKeySound() {
+        playTone(540, 'sine', 0.045, 0.08, 620);
+      }
+
+      function playWrongSound() {
+        playTone(190, 'sawtooth', 0.18, 0.16, 110);
+      }
+
+      function playVictorySound() {
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((n, i) => playTone(n, 'triangle', 0.28, 0.2, n * 1.02, i * 0.1));
+      }
+
+      /* ================= DOM ELEMENTS ================= */
+      const canvas = document.getElementById('arena');
+      const ctx = canvas.getContext('2d');
+      const arenaWrap = document.getElementById('arenaWrap');
+      const lvBadge = document.getElementById('lvBadge');
+      const comboBadge = document.getElementById('comboBadge');
+      const hpFill = document.getElementById('hpFill');
+      const hpTrail = document.getElementById('hpTrail');
+      const hpText = document.getElementById('hpText');
+      const spFill = document.getElementById('spFill');
+      const factorBEl = document.getElementById('factorB');
+      const answerBox = document.getElementById('answerBox');
+      const numpad = document.getElementById('numpad');
+      const vfxDock = document.getElementById('vfxDock');
+      const victoryOverlay = document.getElementById('victoryOverlay');
+      const statHits = document.getElementById('statHits');
+      const statCrits = document.getElementById('statCrits');
+      const statSkills = document.getElementById('statSkills');
+      const btnNextBoss = document.getElementById('btnNextBoss');
+      const btnSound = document.getElementById('btnSound');
+      const soundIconOn = document.getElementById('soundIconOn');
+      const soundIconOff = document.getElementById('soundIconOff');
+      const btnReset = document.getElementById('btnReset');
+      const btnDownload = document.getElementById('btnDownload');
+
+      /* Build 10 VFX icons dock */
+      vfxDock.innerHTML = '';
+      const vfxDotEls = [];
+      VFX_LIST.forEach((v) => {
+        const el = document.createElement('div');
+        el.className = 'vfx-dot';
+        el.textContent = v.icon;
+        el.style.setProperty('--dot-color', v.color);
+        vfxDock.appendChild(el);
+        vfxDotEls.push(el);
+      });
+
+      /* ================= GAME STATE ================= */
+      const BOSS_HP = 20000;
+      const RANDOM_PHASE_HP = 10000;
+      const DAMAGE_PER_ANSWER = 1000;
+
+      const state = {
+        level: 1,
+        hp: BOSS_HP,
+        sp: 0, // 0..100
+        combo: 0,
+        hits: 0,
+        crits: 0,
+        skills: 0,
+        factorB: 1,
+        questionBag: [],
+        vfxBag: [],
+        input: '',
+        locked: false,
+        victory: false,
+        bossHitFlash: 0,
+        bossRecoilX: 0,
+        bossRecoilY: 0,
+        bossScaleX: 1,
+        bossScaleY: 1,
+        shakeTime: 0,
+        shakeMag: 0,
+        flashAlpha: 0,
+        flashColor: '#ffffff',
+        skillBannerTime: 0,
+        skillSpeedLines: 0,
+        heroRecoil: 0,
+        time: 0
+      };
+
+      const activeEffects = [];
+      const particles = [];
+      const floatTexts = [];
+      const bgStars = [];
+      let round = 0;
+      let rafId = null;
+      let lastTs = 0;
+      let width = 600;
+      let height = 340;
+      let dpr = 1;
+
+      function initBgStars() {
+        bgStars.length = 0;
+        for (let i = 0; i < 42; i++) {
+          bgStars.push({
+            x: Math.random(),
+            y: Math.random() * 0.85,
+            r: 0.8 + Math.random() * 2,
+            speed: 0.008 + Math.random() * 0.02,
+            phase: Math.random() * Math.PI * 2
+          });
+        }
+      }
+
+      function refillQuestionBag() {
+        const arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        if (arr[arr.length - 1] === state.factorB) {
+          [arr[0], arr[arr.length - 1]] = [arr[arr.length - 1], arr[0]];
+        }
+        state.questionBag = arr;
+      }
+
+      function nextQuestion() {
+        if (state.hp > RANDOM_PHASE_HP) {
+          state.factorB = state.hits + 1;
+        } else {
+          if (state.questionBag.length === 0) refillQuestionBag();
+          state.factorB = state.questionBag.pop();
+        }
+        factorBEl.textContent = state.factorB;
+        state.input = '';
+        renderAnswerBox();
+      }
+
+      function nextVfxId() {
+        if (state.vfxBag.length === 0) {
+          const arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+          for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+          }
+          state.vfxBag = arr;
+        }
+        return state.vfxBag.pop();
+      }
+
+      function highlightVfxDot(id) {
+        vfxDotEls.forEach((el, idx) => {
+          el.classList.toggle('active', idx === id);
+        });
+      }
+
+      function getBossTheme() {
+        return BOSS_THEMES[(state.level - 1) % BOSS_THEMES.length];
+      }
+
+      function getBossPos() {
+        return {
+          x: width * 0.64,
+          y: height * 0.46,
+          size: Math.min(width * 0.19, height * 0.27, 118)
+        };
+      }
+
+      function getHeroPos() {
+        return {
+          x: width * 0.18,
+          y: height * 0.66,
+          size: Math.min(width * 0.08, height * 0.12, 46)
+        };
+      }
+
+      function startLevel(lvl) {
+        round += 1;
+        state.level = lvl;
+        state.hp = BOSS_HP;
+        state.questionBag.length = 0;
+        state.vfxBag.length = 0;
+        answerBox.classList.remove('correct', 'wrong');
+        state.sp = 0;
+        state.combo = 0;
+        state.hits = 0;
+        state.crits = 0;
+        state.skills = 0;
+        state.victory = false;
+        state.locked = false;
+        state.input = '';
+        activeEffects.length = 0;
+        particles.length = 0;
+        floatTexts.length = 0;
+        victoryOverlay.classList.remove('show');
+        lvBadge.textContent = 'LV.' + state.level;
+        updateHud();
+        nextQuestion();
+      }
+
+      function updateHud() {
+        const pct = Math.max(0, Math.min(100, (state.hp / BOSS_HP) * 100));
+        hpFill.style.width = pct + '%';
+        hpTrail.style.width = pct + '%';
+        hpText.textContent = Math.max(0, Math.ceil(state.hp)) + ' / ' + BOSS_HP;
+        comboBadge.textContent = '🔥 ' + state.combo;
+        spFill.style.width = Math.min(100, state.sp) + '%';
+        spFill.classList.toggle('full', state.sp >= 100);
+      }
+
+      function renderAnswerBox() {
+        answerBox.textContent = state.input;
+        answerBox.classList.toggle('empty', state.input.length === 0);
+      }
+
+      /* ================= INPUT HANDLING ================= */
+      function appendDigit(d) {
+        if (state.victory || state.locked) return;
+        if (state.input.length >= 2) return;
+        ensureAudio();
+        playKeySound();
+        state.input += d;
+        renderAnswerBox();
+      }
+
+      function deleteDigit() {
+        if (state.victory || state.locked) return;
+        if (!state.input.length) return;
+        ensureAudio();
+        playKeySound();
+        state.input = state.input.slice(0, -1);
+        renderAnswerBox();
+      }
+
+      function submitAnswer() {
+        if (state.victory || state.locked) return;
+        if (!state.input.length) return;
+        ensureAudio();
+        const ans = parseInt(state.input, 10);
+        const expected = 4 * state.factorB;
+
+        if (ans === expected) {
+          answerBox.classList.remove('wrong');
+          answerBox.classList.add('correct');
+          setTimeout(() => answerBox.classList.remove('correct'), 200);
+          triggerPlayerAttack();
+        } else {
+          state.combo = 0;
+          updateHud();
+          playWrongSound();
+          answerBox.classList.remove('wrong');
+          void answerBox.offsetWidth;
+          answerBox.classList.add('wrong');
+          state.input = '';
+          renderAnswerBox();
+          setTimeout(() => answerBox.classList.remove('wrong'), 340);
+        }
+      }
+
+      /* ================= COMBAT & VFX SPAWNING ================= */
+      function triggerPlayerAttack() {
+        state.hits += 1;
+        state.combo += 1;
+        comboBadge.classList.remove('pop');
+        void comboBadge.offsetWidth;
+        comboBadge.classList.add('pop');
+        setTimeout(() => comboBadge.classList.remove('pop'), 180);
+
+        const skillFromGauge = state.sp >= 100;
+        const skillFromProc = !skillFromGauge && Math.random() < 0.16;
+        const isSkill = skillFromGauge || skillFromProc;
+
+        if (isSkill) {
+          state.sp = 0;
+          state.skills += 1;
+          state.skillBannerTime = 0.72;
+          state.skillSpeedLines = 0.65;
+          // Unleash 3 distinct VFX in rapid succession!
+          const v1 = nextVfxId();
+          const v2 = nextVfxId();
+          const v3 = nextVfxId();
+          const attackRound = round;
+          state.locked = true;
+          fireSingleStrike(v1, false, true, 0, DAMAGE_PER_ANSWER / 4);
+          setTimeout(() => {
+            if (round !== attackRound) return;
+            fireSingleStrike(v2, Math.random() < 0.45, true, 1, DAMAGE_PER_ANSWER / 4);
+          }, 130);
+          setTimeout(() => {
+            if (round !== attackRound) return;
+            fireSingleStrike(v3, true, true, 2, DAMAGE_PER_ANSWER / 2);
+            completeAnswer();
+          }, 260);
+        } else {
+          state.sp = Math.min(100, state.sp + 20);
+          const critChance = state.combo >= 5 ? 0.34 : 0.24;
+          const isCrit = Math.random() < critChance;
+          const vfxId = nextVfxId();
+          fireSingleStrike(vfxId, isCrit, false, 0, DAMAGE_PER_ANSWER);
+          completeAnswer();
+        }
+        updateHud();
+      }
+
+      function completeAnswer() {
+        state.locked = false;
+        if (!state.victory) nextQuestion();
+      }
+
+      function fireSingleStrike(vfxId, isCrit, isSkill, hitIndex, dmg) {
+
+        if (isCrit && hitIndex === 0) state.crits += 1;
+        else if (isCrit && isSkill && hitIndex === 2) state.crits += 1;
+
+        state.hp = Math.max(0, state.hp - dmg);
+        state.bossHitFlash = isCrit ? 0.24 : 0.16;
+        state.bossRecoilX = isCrit ? 26 : 16;
+        state.bossRecoilY = isCrit ? -14 : -8;
+        state.bossScaleX = isCrit ? 0.8 : 0.88;
+        state.bossScaleY = isCrit ? 1.22 : 1.12;
+        state.heroRecoil = 18;
+        state.shakeTime = isCrit ? 0.28 : 0.16;
+        state.shakeMag = isCrit ? 12 : 6;
+        state.flashAlpha = isCrit ? 0.28 : 0.1;
+        state.flashColor = isCrit ? '#fef08a' : VFX_LIST[vfxId].color;
+
+        highlightVfxDot(vfxId);
+        playAttackSound(vfxId, isCrit, isSkill && hitIndex === 0);
+
+        const boss = getBossPos();
+        const hero = getHeroPos();
+
+        spawnVfx(vfxId, hero.x, hero.y, boss.x, boss.y, isCrit ? 1.3 : 1.0);
+        spawnHitParticles(boss.x, boss.y, VFX_LIST[vfxId].color, isCrit ? 28 : 16);
+
+        const offsetX = (Math.random() - 0.5) * 68;
+        const offsetY = -boss.size * 0.65 - hitIndex * 24;
+        floatTexts.push({
+          x: boss.x + offsetX,
+          y: boss.y + offsetY,
+          vy: isCrit ? -92 : -68,
+          text: '-' + dmg,
+          tag: isCrit ? '💥 暴擊!' : (isSkill && hitIndex === 0 ? '⚡ 技能!' : ''),
+          color: isCrit ? '#fde047' : (isSkill ? '#e879f9' : '#ffffff'),
+          scale: isCrit ? 1.45 : (isSkill ? 1.2 : 1.0),
+          life: 0.95,
+          maxLife: 0.95
+        });
+
+        updateHud();
+
+        if (state.hp <= 0 && !state.victory) {
+          handleVictory();
+        }
+      }
+
+      function handleVictory() {
+        state.victory = true;
+        const boss = getBossPos();
+        const theme = getBossTheme();
+        state.shakeTime = 0.55;
+        state.shakeMag = 16;
+        state.flashAlpha = 0.65;
+        state.flashColor = '#ffffff';
+        spawnHitParticles(boss.x, boss.y, theme.horn, 55);
+        spawnHitParticles(boss.x, boss.y, '#fde047', 45);
+        playVictorySound();
+
+        const victoryRound = round;
+        setTimeout(() => {
+          if (round !== victoryRound) return;
+          statHits.textContent = state.hits;
+          statCrits.textContent = state.crits;
+          statSkills.textContent = state.skills;
+          btnNextBoss.textContent = '▶ LV.' + (state.level + 1);
+          victoryOverlay.classList.add('show');
+        }, 550);
+      }
+
+      /* ================= 10 DISTINCT CANVAS VFX ================= */
+      function spawnVfx(id, sx, sy, tx, ty, scale) {
+        activeEffects.push({
+          id,
+          sx, sy,
+          tx, ty,
+          scale,
+          t: 0,
+          dur: id === 4 || id === 5 || id === 7 || id === 8 ? 0.56 : 0.46,
+          seed: Math.random() * 100
+        });
+      }
+
+      function spawnHitParticles(x, y, color, count) {
+        for (let i = 0; i < count; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 80 + Math.random() * 260;
+          particles.push({
+            x, y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd - 40,
+            r: 2.5 + Math.random() * 4.5,
+            color: i % 3 === 0 ? '#ffffff' : color,
+            life: 0.35 + Math.random() * 0.4,
+            maxLife: 0.75,
+            gravity: 340
+          });
+        }
+      }
+
+      function drawVfx(e) {
+        const p = Math.min(1, e.t / e.dur);
+        const inv = 1 - p;
+        const sc = e.scale;
+        ctx.save();
+
+        switch (e.id) {
+          case 0: { // 1. Twin Crescent Slash
+            ctx.translate(e.tx, e.ty);
+            ctx.lineCap = 'round';
+            const r = 92 * sc;
+            for (let k = 0; k < 2; k++) {
+              ctx.save();
+              ctx.rotate(k === 0 ? -0.65 : 0.65);
+              ctx.strokeStyle = k === 0 ? `rgba(56, 189, 248, ${inv})` : `rgba(255, 255, 255, ${inv})`;
+              ctx.lineWidth = (18 * inv + 3) * sc;
+              ctx.shadowColor = '#38bdf8';
+              ctx.shadowBlur = 18;
+              ctx.beginPath();
+              ctx.arc(0, 0, r * (0.65 + p * 0.5), -1.1 + p * 0.7, 1.1 + p * 0.3);
+              ctx.stroke();
+              ctx.restore();
+            }
+            break;
+          }
+
+          case 1: { // 2. Blazing Fireball
+            const travel = Math.min(1, p / 0.42);
+            if (travel < 1) {
+              const cx = e.sx + (e.tx - e.sx) * travel;
+              const cy = e.sy + (e.ty - e.sy) * travel - Math.sin(travel * Math.PI) * 50;
+              const grad = ctx.createRadialGradient(cx, cy, 4, cx, cy, 34 * sc);
+              grad.addColorStop(0, '#fff7ed');
+              grad.addColorStop(0.4, '#fb923c');
+              grad.addColorStop(1, 'rgba(239,68,68,0)');
+              ctx.fillStyle = grad;
+              ctx.beginPath();
+              ctx.arc(cx, cy, 34 * sc, 0, Math.PI * 2);
+              ctx.fill();
+            } else {
+              const ep = (p - 0.42) / 0.58;
+              const rad = (24 + ep * 105) * sc;
+              const grad = ctx.createRadialGradient(e.tx, e.ty, 6, e.tx, e.ty, rad);
+              grad.addColorStop(0, `rgba(255, 251, 235, ${1 - ep})`);
+              grad.addColorStop(0.45, `rgba(249, 115, 22, ${(1 - ep) * 0.9})`);
+              grad.addColorStop(0.8, `rgba(220, 38, 38, ${(1 - ep) * 0.55})`);
+              grad.addColorStop(1, 'rgba(220, 38, 38, 0)');
+              ctx.fillStyle = grad;
+              ctx.beginPath();
+              ctx.arc(e.tx, e.ty, rad, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            break;
+          }
+
+          case 2: { // 3. Sky Thunder Lightning
+            ctx.strokeStyle = `rgba(254, 240, 138, ${inv})`;
+            ctx.shadowColor = '#facc15';
+            ctx.shadowBlur = 24;
+            for (let b = 0; b < 2; b++) {
+              ctx.lineWidth = (b === 0 ? 9 : 4) * inv * sc;
+              ctx.beginPath();
+              ctx.moveTo(e.tx + (b === 0 ? -15 : 22), 0);
+              const segs = 7;
+              for (let i = 1; i <= segs; i++) {
+                const frac = i / segs;
+                const jx = i === segs ? 0 : Math.sin(e.seed + i * 9 + b * 4 + p * 20) * 34;
+                ctx.lineTo(e.tx + jx, e.ty * frac);
+              }
+              ctx.stroke();
+            }
+            ctx.strokeStyle = `rgba(250, 204, 21, ${inv * 0.85})`;
+            ctx.lineWidth = 4 * inv;
+            ctx.beginPath();
+            ctx.arc(e.tx, e.ty, (25 + p * 90) * sc, 0, Math.PI * 2);
+            ctx.stroke();
+            break;
+          }
+
+          case 3: { // 4. Frost Lance Barrage
+            const count = 5;
+            for (let i = 0; i < count; i++) {
+              const ang = -0.5 + (i / (count - 1)) * 1.0;
+              const dist = Math.max(0, (1 - p * 1.65) * 180);
+              const px = e.tx - Math.cos(ang) * dist;
+              const py = e.ty - Math.sin(ang) * dist;
+              ctx.save();
+              ctx.translate(px, py);
+              ctx.rotate(ang);
+              ctx.fillStyle = `rgba(103, 232, 249, ${inv})`;
+              ctx.shadowColor = '#22d3ee';
+              ctx.shadowBlur = 14;
+              ctx.beginPath();
+              ctx.moveTo(26 * sc, 0);
+              ctx.lineTo(-18 * sc, -7 * sc);
+              ctx.lineTo(-10 * sc, 0);
+              ctx.lineTo(-18 * sc, 7 * sc);
+              ctx.closePath();
+              ctx.fill();
+              ctx.restore();
+            }
+            ctx.strokeStyle = `rgba(207, 250, 254, ${inv})`;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(e.tx, e.ty, (18 + p * 75) * sc, 0, Math.PI * 2);
+            ctx.stroke();
+            break;
+          }
+
+          case 4: { // 5. Plasma Laser Beam
+            const beamW = Math.sin(p * Math.PI) * 38 * sc;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = `rgba(244, 63, 94, ${inv * 0.85})`;
+            ctx.lineWidth = beamW * 1.6;
+            ctx.shadowColor = '#f43f5e';
+            ctx.shadowBlur = 28;
+            ctx.beginPath();
+            ctx.moveTo(e.sx, e.sy);
+            ctx.lineTo(e.tx + (e.tx - e.sx) * 0.45, e.ty + (e.ty - e.sy) * 0.45);
+            ctx.stroke();
+
+            ctx.strokeStyle = `rgba(255, 255, 255, ${inv})`;
+            ctx.lineWidth = beamW * 0.55;
+            ctx.beginPath();
+            ctx.moveTo(e.sx, e.sy);
+            ctx.lineTo(e.tx + (e.tx - e.sx) * 0.45, e.ty + (e.ty - e.sy) * 0.45);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(e.tx, e.ty, (20 + p * 85) * sc, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(251, 113, 133, ${inv})`;
+            ctx.lineWidth = 5 * inv;
+            ctx.stroke();
+            break;
+          }
+
+          case 5: { // 6. Emerald Cyclone Tornado
+            ctx.translate(e.tx, e.ty + 55);
+            ctx.shadowColor = '#10b981';
+            ctx.shadowBlur = 16;
+            for (let i = 0; i < 8; i++) {
+              const frac = i / 7;
+              const yOff = -frac * 155 * sc;
+              const rx = (22 + frac * 66) * sc;
+              const ry = (8 + frac * 14) * sc;
+              const wobble = Math.sin(p * 18 + i * 1.3) * 16;
+              ctx.strokeStyle = `rgba(52, 211, 153, ${inv * (0.4 + frac * 0.6)})`;
+              ctx.lineWidth = (4 + frac * 4) * inv;
+              ctx.beginPath();
+              ctx.ellipse(wobble, yOff, rx, ry, 0, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+            break;
+          }
+
+          case 6: { // 7. Magma Meteor
+            const fall = Math.min(1, p / 0.46);
+            const mx = e.tx - 150 * (1 - fall);
+            const my = e.ty - 210 * (1 - fall);
+            if (fall < 1) {
+              ctx.fillStyle = '#ea580c';
+              ctx.shadowColor = '#f97316';
+              ctx.shadowBlur = 26;
+              ctx.beginPath();
+              ctx.arc(mx, my, 32 * sc, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#fef08a';
+              ctx.beginPath();
+              ctx.arc(mx + 6, my + 6, 16 * sc, 0, Math.PI * 2);
+              ctx.fill();
+            } else {
+              const ep = (p - 0.46) / 0.54;
+              ctx.strokeStyle = `rgba(251, 146, 60, ${1 - ep})`;
+              ctx.lineWidth = 10 * (1 - ep) * sc;
+              ctx.beginPath();
+              ctx.ellipse(e.tx, e.ty + 25, (25 + ep * 125) * sc, (12 + ep * 42) * sc, 0, 0, Math.PI * 2);
+              ctx.stroke();
+
+              const g = ctx.createRadialGradient(e.tx, e.ty, 5, e.tx, e.ty, (30 + ep * 95) * sc);
+              g.addColorStop(0, `rgba(254, 240, 138, ${1 - ep})`);
+              g.addColorStop(0.6, `rgba(234, 88, 12, ${(1 - ep) * 0.7})`);
+              g.addColorStop(1, 'rgba(234, 88, 12, 0)');
+              ctx.fillStyle = g;
+              ctx.beginPath();
+              ctx.arc(e.tx, e.ty, (30 + ep * 95) * sc, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            break;
+          }
+
+          case 7: { // 8. Holy Sword Rain
+            ctx.strokeStyle = `rgba(253, 224, 71, ${inv})`;
+            ctx.lineWidth = 3;
+            ctx.shadowColor = '#facc15';
+            ctx.shadowBlur = 18;
+            ctx.beginPath();
+            ctx.ellipse(e.tx, e.ty - 110 * sc, 78 * sc, 20 * sc, 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            for (let i = 0; i < 6; i++) {
+              const sx = e.tx + (i - 2.5) * 26 * sc;
+              const drop = Math.min(1, Math.max(0, (p - i * 0.05) / 0.5));
+              const sy = (e.ty - 120 * sc) + drop * 155 * sc;
+              ctx.strokeStyle = `rgba(255, 251, 235, ${inv})`;
+              ctx.lineWidth = 5 * sc;
+              ctx.beginPath();
+              ctx.moveTo(sx, sy - 32 * sc);
+              ctx.lineTo(sx, sy + 18 * sc);
+              ctx.stroke();
+              ctx.lineWidth = 3 * sc;
+              ctx.beginPath();
+              ctx.moveTo(sx - 10 * sc, sy - 16 * sc);
+              ctx.lineTo(sx + 10 * sc, sy - 16 * sc);
+              ctx.stroke();
+            }
+            break;
+          }
+
+          case 8: { // 9. Void Gravity Orb
+            const grow = p < 0.55 ? p / 0.55 : (1 - p) / 0.45;
+            const rad = (18 + grow * 62) * sc;
+            ctx.shadowColor = '#a855f7';
+            ctx.shadowBlur = 30;
+            ctx.fillStyle = `rgba(15, 6, 30, ${0.85 * inv + 0.1})`;
+            ctx.beginPath();
+            ctx.arc(e.tx, e.ty, rad, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = `rgba(192, 132, 252, ${inv})`;
+            ctx.lineWidth = 6 * sc;
+            ctx.stroke();
+
+            for (let i = 0; i < 3; i++) {
+              ctx.save();
+              ctx.translate(e.tx, e.ty);
+              ctx.rotate(p * 6 + i * 1.05);
+              ctx.strokeStyle = `rgba(216, 180, 254, ${inv * 0.75})`;
+              ctx.lineWidth = 2.5;
+              ctx.beginPath();
+              ctx.ellipse(0, 0, rad * 1.45, rad * 0.42, 0, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.restore();
+            }
+            break;
+          }
+
+          case 9: { // 10. Prismatic Starburst
+            const colors = ['#f43f5e', '#fb923c', '#facc15', '#34d399', '#38bdf8', '#c084fc'];
+            ctx.translate(e.tx, e.ty);
+            ctx.rotate(p * 2.2);
+            for (let i = 0; i < 6; i++) {
+              ctx.save();
+              ctx.rotate((i * Math.PI) / 3);
+              ctx.strokeStyle = colors[i];
+              ctx.globalAlpha = inv;
+              ctx.lineWidth = 8 * inv * sc;
+              ctx.shadowColor = colors[i];
+              ctx.shadowBlur = 16;
+              ctx.beginPath();
+              ctx.moveTo(14 * sc, 0);
+              ctx.lineTo((35 + p * 105) * sc, 0);
+              ctx.stroke();
+              ctx.restore();
+            }
+            // Central 5-point star
+            ctx.fillStyle = `rgba(255, 255, 255, ${inv})`;
+            ctx.beginPath();
+            const spikes = 5;
+            const outerR = (28 + p * 48) * sc;
+            const innerR = outerR * 0.45;
+            for (let i = 0; i < spikes * 2; i++) {
+              const r = i % 2 === 0 ? outerR : innerR;
+              const a = (i * Math.PI) / spikes;
+              if (i === 0) ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+              else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+            }
+            ctx.closePath();
+            ctx.fill();
+            break;
+          }
+        }
+        ctx.restore();
+      }
+
+      /* ================= DRAW HERO & BOSS ================= */
+      function drawHero() {
+        const hero = getHeroPos();
+        const bob = Math.sin(state.time * 4.2) * 5;
+        const hx = hero.x - state.heroRecoil;
+        const hy = hero.y + bob;
+        const s = hero.size;
+
+        ctx.save();
+        // Ground shadow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(hero.x, hero.y + s * 0.95, s * 0.85, s * 0.22, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Glowing aura when SP full
+        if (state.sp >= 100) {
+          const g = ctx.createRadialGradient(hx, hy, s * 0.2, hx, hy, s * 1.6);
+          g.addColorStop(0, 'rgba(250, 204, 21, 0.55)');
+          g.addColorStop(1, 'rgba(168, 85, 247, 0)');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(hx, hy, s * 1.6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Stylized Knight / Mage Crystal Avatar
+        ctx.translate(hx, hy);
+        // Cape
+        ctx.fillStyle = '#0284c7';
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.2, -s * 0.2);
+        ctx.lineTo(-s * 0.9, s * 0.72);
+        ctx.lineTo(s * 0.1, s * 0.65);
+        ctx.closePath();
+        ctx.fill();
+
+        // Body
+        ctx.fillStyle = '#e2e8f0';
+        ctx.beginPath();
+        ctx.roundRect(-s * 0.36, -s * 0.18, s * 0.72, s * 0.85, 10);
+        ctx.fill();
+
+        // Visor / Head
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.arc(0, -s * 0.48, s * 0.42, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Glowing eyes
+        ctx.fillStyle = '#38bdf8';
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.ellipse(s * 0.15, -s * 0.5, s * 0.12, s * 0.08, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Floating energy sword
+        ctx.rotate(-0.35 + Math.sin(state.time * 5) * 0.08);
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.moveTo(s * 0.5, -s * 0.1);
+        ctx.lineTo(s * 1.25, -s * 0.65);
+        ctx.lineTo(s * 0.72, s * 0.08);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      function drawBoss() {
+        if (state.victory) return;
+        const boss = getBossPos();
+        const theme = getBossTheme();
+        const hpRatio = state.hp / BOSS_HP;
+        const enraged = hpRatio < 0.4;
+        const breathSpeed = enraged ? 6.5 : 3.2;
+        const bob = Math.sin(state.time * breathSpeed) * (enraged ? 9 : 6);
+        const rageJitter = enraged ? (Math.random() - 0.5) * 3 : 0;
+
+        const bx = boss.x + state.bossRecoilX + rageJitter;
+        const by = boss.y + state.bossRecoilY + bob;
+        const s = boss.size;
+
+        ctx.save();
+
+        // Ground shadow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.52)';
+        ctx.beginPath();
+        ctx.ellipse(boss.x, boss.y + s * 1.05, s * 1.05, s * 0.24, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Boss Aura
+        const aura = ctx.createRadialGradient(bx, by, s * 0.2, bx, by, s * (enraged ? 1.65 : 1.35));
+        aura.addColorStop(0, enraged ? 'rgba(244, 63, 94, 0.45)' : theme.glow + '44');
+        aura.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = aura;
+        ctx.beginPath();
+        ctx.arc(bx, by, s * 1.65, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.translate(bx, by);
+        ctx.scale(state.bossScaleX, state.bossScaleY);
+
+        // Wings / Shoulder Spikes
+        const wingFlap = Math.sin(state.time * (enraged ? 8 : 3.8)) * 0.14;
+        for (let side of [-1, 1]) {
+          ctx.save();
+          ctx.scale(side, 1);
+          ctx.rotate(wingFlap);
+          ctx.fillStyle = theme.armor;
+          ctx.beginPath();
+          ctx.moveTo(s * 0.45, -s * 0.2);
+          ctx.lineTo(s * 1.28, -s * 0.78);
+          ctx.lineTo(s * 1.12, -s * 0.05);
+          ctx.lineTo(s * 1.32, s * 0.25);
+          ctx.lineTo(s * 0.55, s * 0.35);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // Horns
+        ctx.fillStyle = theme.horn;
+        for (let side of [-1, 1]) {
+          ctx.beginPath();
+          ctx.moveTo(side * s * 0.35, -s * 0.65);
+          ctx.quadraticCurveTo(side * s * 0.78, -s * 1.15, side * s * 0.52, -s * 1.22);
+          ctx.quadraticCurveTo(side * s * 0.45, -s * 0.85, side * s * 0.16, -s * 0.74);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        // Main Tanky Armored Body
+        ctx.fillStyle = theme.body;
+        ctx.beginPath();
+        ctx.roundRect(-s * 0.72, -s * 0.72, s * 1.44, s * 1.48, s * 0.38);
+        ctx.fill();
+
+        // Chest Armor Plate
+        ctx.fillStyle = theme.armor;
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.56, -s * 0.05);
+        ctx.lineTo(s * 0.56, -s * 0.05);
+        ctx.lineTo(s * 0.42, s * 0.62);
+        ctx.lineTo(0, s * 0.74);
+        ctx.lineTo(-s * 0.42, s * 0.62);
+        ctx.closePath();
+        ctx.fill();
+
+        // Core Crystal
+        ctx.fillStyle = enraged ? '#f43f5e' : theme.eye;
+        ctx.shadowColor = enraged ? '#f43f5e' : theme.eye;
+        ctx.shadowBlur = 16;
+        ctx.beginPath();
+        ctx.moveTo(0, s * 0.08);
+        ctx.lineTo(s * 0.16, s * 0.3);
+        ctx.lineTo(0, s * 0.52);
+        ctx.lineTo(-s * 0.16, s * 0.3);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Glowing Menacing Eyes
+        ctx.fillStyle = enraged ? '#ff1e56' : theme.eye;
+        ctx.shadowColor = enraged ? '#ff1e56' : theme.eye;
+        ctx.shadowBlur = 14;
+        for (let side of [-1, 1]) {
+          ctx.beginPath();
+          ctx.moveTo(side * s * 0.12, -s * 0.25);
+          ctx.lineTo(side * s * 0.44, -s * 0.38);
+          ctx.lineTo(side * s * 0.38, -s * 0.16);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.shadowBlur = 0;
+
+        // Jagged Fangs Mouth
+        ctx.fillStyle = '#090d18';
+        ctx.beginPath();
+        ctx.roundRect(-s * 0.34, -s * 0.05, s * 0.68, s * 0.18, 6);
+        ctx.fill();
+        ctx.fillStyle = '#f8fafc';
+        for (let i = -2; i <= 2; i++) {
+          ctx.beginPath();
+          ctx.moveTo(i * s * 0.12 - s * 0.04, -s * 0.05);
+          ctx.lineTo(i * s * 0.12 + s * 0.04, -s * 0.05);
+          ctx.lineTo(i * s * 0.12, s * 0.06);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        // Battle Damage Cracks (< 70% & < 40% HP)
+        if (hpRatio < 0.72) {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(-s * 0.45, -s * 0.55);
+          ctx.lineTo(-s * 0.25, -s * 0.35);
+          ctx.lineTo(-s * 0.35, -s * 0.15);
+          ctx.stroke();
+        }
+        if (hpRatio < 0.4) {
+          ctx.strokeStyle = 'rgba(254, 240, 138, 0.8)';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(s * 0.48, s * 0.1);
+          ctx.lineTo(s * 0.2, s * 0.28);
+          ctx.lineTo(s * 0.34, s * 0.52);
+          ctx.stroke();
+        }
+
+        // White Hit Flash Overlay
+        if (state.bossHitFlash > 0) {
+          ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(0.85, state.bossHitFlash * 4.5)})`;
+          ctx.beginPath();
+          ctx.roundRect(-s * 0.74, -s * 0.74, s * 1.48, s * 1.52, s * 0.38);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+
+      /* ================= MAIN RENDER LOOP ================= */
+      function resizeCanvas() {
+        const rect = arenaWrap.getBoundingClientRect();
+        width = Math.max(200, rect.width);
+        height = Math.max(160, rect.height);
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function tick(ts) {
+        const dt = Math.min(0.05, lastTs ? (ts - lastTs) / 1000 : 0.016);
+        lastTs = ts;
+        state.time += dt;
+
+        // Decay physics
+        if (state.bossHitFlash > 0) state.bossHitFlash = Math.max(0, state.bossHitFlash - dt);
+        state.bossRecoilX *= Math.pow(0.001, dt);
+        state.bossRecoilY *= Math.pow(0.001, dt);
+        state.heroRecoil *= Math.pow(0.001, dt);
+        state.bossScaleX += (1 - state.bossScaleX) * Math.min(1, dt * 16);
+        state.bossScaleY += (1 - state.bossScaleY) * Math.min(1, dt * 16);
+        if (state.shakeTime > 0) state.shakeTime = Math.max(0, state.shakeTime - dt);
+        if (state.flashAlpha > 0) state.flashAlpha = Math.max(0, state.flashAlpha - dt * 1.8);
+        if (state.skillBannerTime > 0) state.skillBannerTime = Math.max(0, state.skillBannerTime - dt);
+        if (state.skillSpeedLines > 0) state.skillSpeedLines = Math.max(0, state.skillSpeedLines - dt);
+
+        // Clear & Background
+        ctx.save();
+        if (state.shakeTime > 0) {
+          const mag = state.shakeMag * (state.shakeTime / 0.28);
+          ctx.translate((Math.random() - 0.5) * mag * 2, (Math.random() - 0.5) * mag * 2);
+        }
+
+        ctx.clearRect(-20, -20, width + 40, height + 40);
+
+        // Ambient Stars / Embers
+        bgStars.forEach((st) => {
+          const sx = st.x * width;
+          const sy = ((st.y - state.time * st.speed) % 1 + 1) % 1 * height * 0.85;
+          const alpha = 0.25 + 0.45 * Math.abs(Math.sin(state.time * 2 + st.phase));
+          ctx.fillStyle = `rgba(148, 163, 184, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(sx, sy, st.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Arena Floor Horizon Glow
+        const floorY = height * 0.78;
+        const floorGrad = ctx.createLinearGradient(0, floorY - 30, 0, height);
+        floorGrad.addColorStop(0, 'rgba(56, 189, 248, 0)');
+        floorGrad.addColorStop(0.45, 'rgba(56, 189, 248, 0.11)');
+        floorGrad.addColorStop(1, 'rgba(15, 23, 42, 0.85)');
+        ctx.fillStyle = floorGrad;
+        ctx.fillRect(0, floorY - 30, width, height - floorY + 30);
+
+        // Anime Speed Lines during Skill
+        if (state.skillSpeedLines > 0) {
+          ctx.save();
+          ctx.translate(width * 0.5, height * 0.5);
+          ctx.strokeStyle = `rgba(250, 204, 21, ${state.skillSpeedLines * 0.55})`;
+          ctx.lineWidth = 2.5;
+          for (let i = 0; i < 24; i++) {
+            const ang = (i / 24) * Math.PI * 2 + state.time * 3;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(ang) * 90, Math.sin(ang) * 90);
+            ctx.lineTo(Math.cos(ang) * width, Math.sin(ang) * width);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        // Entities
+        drawHero();
+        drawBoss();
+
+        // Active 10 VFX
+        for (let i = activeEffects.length - 1; i >= 0; i--) {
+          const ef = activeEffects[i];
+          ef.t += dt;
+          if (ef.t >= ef.dur) {
+            activeEffects.splice(i, 1);
+          } else {
+            drawVfx(ef);
+          }
+        }
+
+        // Particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const pt = particles[i];
+          pt.life -= dt;
+          if (pt.life <= 0) {
+            particles.splice(i, 1);
+            continue;
+          }
+          pt.vy += pt.gravity * dt;
+          pt.x += pt.vx * dt;
+          pt.y += pt.vy * dt;
+          const alpha = Math.max(0, pt.life / pt.maxLife);
+          ctx.fillStyle = pt.color;
+          ctx.globalAlpha = alpha;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, pt.r * alpha + 0.8, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+
+        // Floating Damage Numbers
+        for (let i = floatTexts.length - 1; i >= 0; i--) {
+          const ft = floatTexts[i];
+          ft.life -= dt;
+          if (ft.life <= 0) {
+            floatTexts.splice(i, 1);
+            continue;
+          }
+          ft.y += ft.vy * dt;
+          ft.vy *= Math.pow(0.18, dt);
+          const alpha = Math.min(1, (ft.life / ft.maxLife) * 1.6);
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          ctx.textAlign = 'center';
+          ctx.font = `900 ${Math.round(30 * ft.scale)}px -apple-system, BlinkMacSystemFont, sans-serif`;
+          ctx.lineWidth = 6;
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.85)';
+          ctx.strokeText(ft.text, ft.x, ft.y);
+          ctx.fillStyle = ft.color;
+          ctx.fillText(ft.text, ft.x, ft.y);
+
+          if (ft.tag) {
+            ctx.font = `900 ${Math.round(16 * ft.scale)}px -apple-system, BlinkMacSystemFont, sans-serif`;
+            ctx.strokeText(ft.tag, ft.x, ft.y - 30 * ft.scale);
+            ctx.fillStyle = '#fde047';
+            ctx.fillText(ft.tag, ft.x, ft.y - 30 * ft.scale);
+          }
+          ctx.restore();
+        }
+
+        // Screen Impact Flash
+        if (state.flashAlpha > 0) {
+          ctx.fillStyle = state.flashColor;
+          ctx.globalAlpha = state.flashAlpha;
+          ctx.fillRect(0, 0, width, height);
+          ctx.globalAlpha = 1;
+        }
+
+        ctx.restore();
+        rafId = requestAnimationFrame(tick);
+      }
+
+      /* ================= EVENT LISTENERS ================= */
+      numpad.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('.key');
+        if (!btn) return;
+        const num = btn.getAttribute('data-num');
+        const action = btn.getAttribute('data-action');
+        if (num !== null) appendDigit(num);
+        else if (action === 'del') deleteDigit();
+        else if (action === 'submit') submitAnswer();
+      });
+
+      window.addEventListener('keydown', (ev) => {
+        if (ev.key >= '0' && ev.key <= '9') {
+          ev.preventDefault();
+          appendDigit(ev.key);
+        } else if (ev.key === 'Backspace' || ev.key === 'Delete') {
+          ev.preventDefault();
+          deleteDigit();
+        } else if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          if (state.victory) startLevel(state.level + 1);
+          else submitAnswer();
+        }
+      });
+
+      btnSound.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        soundIconOn.style.display = soundEnabled ? '' : 'none';
+        soundIconOff.style.display = soundEnabled ? 'none' : '';
+        if (soundEnabled) {
+          ensureAudio();
+          playKeySound();
+        }
+      });
+
+      btnReset.addEventListener('click', () => {
+        ensureAudio();
+        playKeySound();
+        startLevel(1);
+      });
+
+      btnNextBoss.addEventListener('click', () => {
+        ensureAudio();
+        playKeySound();
+        startLevel(state.level + 1);
+      });
+
+      btnDownload.addEventListener('click', () => {
+        const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '4x_monster_battle.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+
+      document.addEventListener('dblclick', (event) => event.preventDefault(), { passive: false });
+      window.addEventListener('resize', resizeCanvas);
+      window.addEventListener('load', () => {
+        initBgStars();
+        resizeCanvas();
+        startLevel(1);
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(tick);
+      });
+    })();
+  </script>
+
+</body></html>
