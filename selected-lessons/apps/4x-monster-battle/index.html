@@ -829,7 +829,6 @@
       /* ================= GAME STATE ================= */
       const BOSS_HP = 20000;
       const RANDOM_PHASE_HP = 10000;
-      const DAMAGE_PER_ANSWER = 1000;
 
       const state = {
         level: 1,
@@ -898,7 +897,7 @@
 
       function nextQuestion() {
         if (state.hp > RANDOM_PHASE_HP) {
-          state.factorB = state.hits + 1;
+          state.factorB = (state.hits % 10) + 1;
         } else {
           if (state.questionBag.length === 0) refillQuestionBag();
           state.factorB = state.questionBag.pop();
@@ -1053,14 +1052,14 @@
           const v3 = nextVfxId();
           const attackRound = round;
           state.locked = true;
-          fireSingleStrike(v1, false, true, 0, DAMAGE_PER_ANSWER / 4);
+          fireSingleStrike(v1, false, true, 0);
           setTimeout(() => {
-            if (round !== attackRound) return;
-            fireSingleStrike(v2, Math.random() < 0.45, true, 1, DAMAGE_PER_ANSWER / 4);
+            if (round !== attackRound || state.victory) return;
+            fireSingleStrike(v2, Math.random() < 0.45, true, 1);
           }, 130);
           setTimeout(() => {
             if (round !== attackRound) return;
-            fireSingleStrike(v3, true, true, 2, DAMAGE_PER_ANSWER / 2);
+            if (!state.victory) fireSingleStrike(v3, true, true, 2);
             completeAnswer();
           }, 260);
         } else {
@@ -1068,7 +1067,7 @@
           const critChance = state.combo >= 5 ? 0.34 : 0.24;
           const isCrit = Math.random() < critChance;
           const vfxId = nextVfxId();
-          fireSingleStrike(vfxId, isCrit, false, 0, DAMAGE_PER_ANSWER);
+          fireSingleStrike(vfxId, isCrit, false, 0);
           completeAnswer();
         }
         updateHud();
@@ -1079,7 +1078,11 @@
         if (!state.victory) nextQuestion();
       }
 
-      function fireSingleStrike(vfxId, isCrit, isSkill, hitIndex, dmg) {
+      function fireSingleStrike(vfxId, isCrit, isSkill, hitIndex) {
+        const baseDmg = 95 + Math.floor(Math.random() * 26) + Math.min(state.combo * 3, 45);
+        const mult = isCrit ? 2.25 : 1;
+        const skillBonus = isSkill ? 1.15 : 1;
+        const dmg = Math.round(baseDmg * mult * skillBonus);
 
         if (isCrit && hitIndex === 0) state.crits += 1;
         else if (isCrit && isSkill && hitIndex === 2) state.crits += 1;
