@@ -44,6 +44,12 @@ try { renderer = new THREE.WebGLRenderer({antialias:true}); }
 catch { $('error').hidden = false; return; }
 const T = THREE;
 const scene = new T.Scene();
+const detailScene=new T.Scene();
+detailScene.background=new T.Color(0xc4e1d8);
+detailScene.add(new T.HemisphereLight(0xfff8df,0xb3b9c9,2.1));
+const detailLight=new T.DirectionalLight(0xffecd3,2.05);
+detailLight.position.set(-12,28,13);
+detailScene.add(detailLight);
 scene.background = new T.Color(0xc4e1d8);
 scene.fog = new T.Fog(0xc4e1d8,34,74);
 const camera = new T.PerspectiveCamera(46,1,.1,110);
@@ -285,14 +291,14 @@ const rowColors=[0xf9d890,0xb5e1ce,0xf6c4b7,0xded0fa,0xc4dbf0];
 const facts = [
   null,
   {label:'鞋',groups:'2 格鞋',each:'每格 8 隻',count:'隻鞋',kind:'shoe',cols:2,x:-7.6,y:1.14,z:6.8,w:1.58,d:2.47},
-  {label:'鈕扣',groups:'3 個咕𠱸',each:'每個 8 粒',count:'粒鈕扣',kind:'button',cols:3,x:-.8,y:.95,z:7.92,w:3.65,d:1.22},
+  {label:'鈕扣',groups:'3 個咕𠱸',each:'每個 8 粒',count:'粒鈕扣',kind:'button',cols:3,x:-.8,y:1.16,z:7.92,w:3.65,d:1.22},
   {label:'發光方塊',groups:'4 個屏幕',each:'每個 8 格',count:'格發光方塊',kind:'pixel',cols:2,x:-.7,y:1.04,z:2.81,w:3.44,d:1.73},
   {label:'魚蛋',groups:'5 碟魚蛋',each:'每碟 8 粒',count:'粒魚蛋',kind:'fish',cols:3,x:10.75,y:1.31,z:5.6,w:3.72,d:2.31},
-  {label:'雞蛋',groups:'6 盒雞蛋',each:'每盒 8 隻',count:'隻雞蛋',kind:'egg',cols:2,x:14.2,y:1.04,z:4.0,w:2.71,d:2.54},
-  {label:'番梘',groups:'7 個皂碟',each:'每碟 8 塊',count:'塊番梘',kind:'soap',cols:3,x:-11.8,y:1.16,z:-8.40,w:3.21,d:2.54},
+  {label:'雞蛋',groups:'6 盒雞蛋',each:'每盒 8 隻',count:'隻雞蛋',kind:'egg',cols:2,x:14.2,y:1.04,z:4.51,w:2.71,d:2.54},
+  {label:'番梘',groups:'7 個皂碟',each:'每碟 8 塊',count:'塊番梘',kind:'soap',cols:3,x:-11.8,y:1.16,z:-8.02,w:3.21,d:2.54},
   {label:'棋盤格',groups:'8 行棋盤格',each:'每行 8 格',count:'格棋盤格',kind:'chess',cols:1,x:.15,y:1.32,z:-9.92,w:2.49,d:2.49},
   {label:'麵包',groups:'9 籃麵包',each:'每籃 8 個',count:'個麵包',kind:'bun',cols:3,x:9.6,y:1.06,z:-7.42,w:2.8,d:2.81},
-  {label:'襪子',groups:'10 格襪',each:'每格 8 隻',count:'隻襪',kind:'sock',cols:2,x:14.1,y:1.35,z:-7.68,w:2.77,d:3.43}
+  {label:'襪子',groups:'10 格襪',each:'每格 8 隻',count:'隻襪',kind:'sock',cols:2,x:14.1,y:1.35,z:-7.00,w:2.77,d:3.43}
 ];
 function modelFact(fact,total) {
   const main=group(fact.x,fact.y,fact.z);
@@ -394,7 +400,13 @@ for(let i=1;i<facts.length;i++){
     stations[i].ax=f.x;
     stations[i].az=f.z+f.d/2+.47;
   }
-  stations[i].exhibit=modelFact(f,i+1);
+  const exhibit=modelFact(f,i+1);
+  stations[i].exhibit=exhibit;
+  const detailModel=exhibit.clone();
+  detailModel.visible=false;
+  detailScene.add(detailModel);
+  box(0,-.056,0,f.w+.16,.10,f.d+.16,0xe5b78a,detailModel);
+  stations[i].detailModel=detailModel;
 }
 
 const player=group(-9.3,0,8.42);
@@ -466,6 +478,7 @@ function openStation(station){
   if(!station)return;
   clearControls();
   detail=station;
+  if(station.detailModel)station.detailModel.visible=true;
   const f=station.fact;
   const count=station.number;
   $('detailTitle').textContent=station.name+' · 8 × '+count+' ＝ '+8*count;
@@ -477,6 +490,7 @@ function openStation(station){
   focusButton('closeDetail');
 }
 function closeStation(){
+  if(detail?.detailModel)detail.detailModel.visible=false;
   detail=null;
   document.body.classList.remove('detail');
   $('detailPanel').hidden=true;
@@ -664,7 +678,7 @@ function tick(now){
   }
   if(!detail&&doorDistance<10)showMarker(lesson,new T.Vector3(-12.15,2.65,10.08));
   else lesson.hidden=true;
-  renderer.render(scene,numberCamera);
+  renderer.render(detail?.detailModel?detailScene:scene,numberCamera);
   requestAnimationFrame(tick);
 }
 requestAnimationFrame(tick);
