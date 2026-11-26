@@ -915,7 +915,7 @@ function tick(now){
     const aspect=width/height;
     const half=Math.max((f?.d??4.1)*.68,(f?.w??4.2)*.61/aspect,1.7);
     detailCamera.left=-half*aspect;detailCamera.right=half*aspect;
-    detailCamera.top=half*1.15;detailCamera.bottom=-half*.85;
+    detailCamera.top=f?.view?half*.93:half*1.15;detailCamera.bottom=f?.view?-half*1.07:-half*.85;
     const [eyeX,eyeY,eyeZ]=f?.view??[0,10,f?1.28:-.75];
     const focusY=py+(f?.focus??0);
     detailCamera.position.set(px+eyeX,focusY+eyeY,pz+eyeZ);
