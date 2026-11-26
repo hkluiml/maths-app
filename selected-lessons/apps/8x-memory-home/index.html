@@ -19,7 +19,7 @@
 <body>
 <div class="ios-blur-fix" aria-hidden="true"></div>
 <div id="world" aria-label="八的乘法立體記憶之家"></div>
-<div class="hud"><div class="plate"><div class="mark">8</div><div><h1>八的乘法・記憶之家</h1><div id="progress">已探索 1／10 站</div></div></div><div class="guide" id="guide">沿金色小路探索</div></div>
+<div class="hud"><div class="plate"><div class="mark">8</div><div><h1>八的乘法・記憶之家</h1><div id="progress">已探索 1／10 站</div></div></div><div class="guide" id="guide">自由探索大廳</div></div>
 <div class="top"><button class="icon" id="mapButton" aria-label="站點地圖" title="站點地圖">地圖</button><button class="icon" id="resetCamera" aria-label="復原視角" title="復原視角">↺</button><button class="icon" id="full" aria-label="全螢幕" title="全螢幕">⛶</button></div>
 <div class="help"><span class="desktopHelp">WASD／方向鍵移動 · 拖曳轉視角 · E 查看</span><span class="touchHelp">左下搖桿移動 · 拖畫面轉視角</span></div>
 <div id="stick" aria-label="移動搖桿"><div id="knob"></div></div>
@@ -48,7 +48,7 @@ const detailLight=new T.DirectionalLight(0xffecd3,2.05);
 detailLight.position.set(-12,28,13);
 detailScene.add(detailLight);
 scene.background = new T.Color(0xc4e1d8);
-scene.fog = new T.Fog(0xc4e1d8,23,46);
+scene.fog = new T.Fog(0xc4e1d8,32,61);
 const camera = new T.PerspectiveCamera(46,1,.1,110);
 renderer.setPixelRatio(Math.min(devicePixelRatio,1.65));
 renderer.shadowMap.enabled = true;
@@ -92,16 +92,16 @@ const cream=0xffedce, wood=0xb77b53, pale=0xe6a877, leaf=0x689269, teal=0x448b83
 function solid(x,z,w,d){obstacles.push({x,z,w,d});}
 // The rooms follow one winding route, with an approach space in front of each exhibit.
 const places=[
- {x:0,z:0, floor:0x86afa0, rim:0xdac194, theme:'大門'},
- {x:24,z:0, floor:0xe9aab0, rim:0xffdabb, theme:'鞋架'},
- {x:49,z:-2, floor:0x99c4a4, rim:0xddebba, theme:'梳化'},
- {x:67,z:-22, floor:0x54577e, rim:0x867ea6, theme:'電視'},
- {x:47,z:-42, floor:0xe7ab6c, rim:0xffd992, theme:'飯桌'},
- {x:22,z:-40, floor:0x9dd4dc, rim:0xe6f2ee, theme:'雪櫃'},
- {x:-3,z:-43, floor:0x77b9ab, rim:0xbce4c9, theme:'洗手盆'},
- {x:-26,z:-31, floor:0x6d789d, rim:0xcac2f4, theme:'書桌'},
- {x:-26,z:-6, floor:0x6b699c, rim:0xb9a9cc, theme:'睡床'},
- {x:-23,z:19, floor:0xe3a7be, rim:0xf5dcaf, theme:'衣櫃'}
+ {x:0,z:8.0, floor:0x86afa0, rim:0xdac194, theme:'大門'},
+ {x:8.4,z:6.25, floor:0xe9aab0, rim:0xffdabb, theme:'鞋架'},
+ {x:13.65,z:0.7, floor:0x99c4a4, rim:0xddebba, theme:'梳化'},
+ {x:13.25,z:-7.7, floor:0x54577e, rim:0x867ea6, theme:'電視'},
+ {x:6.65,z:-12.5, floor:0xe7ab6c, rim:0xffd992, theme:'飯桌'},
+ {x:-1.45,z:-13.35, floor:0x9dd4dc, rim:0xe6f2ee, theme:'雪櫃'},
+ {x:-9.25,z:-11.25, floor:0x77b9ab, rim:0xbce4c9, theme:'洗手盆'},
+ {x:-14.55,z:-5, floor:0x6d789d, rim:0xcac2f4, theme:'書桌'},
+ {x:-13.8,z:3.35, floor:0x6b699c, rim:0xb9a9cc, theme:'睡床'},
+ {x:-7.35,z:7.75, floor:0xe3a7be, rim:0xf5dcaf, theme:'衣櫃'}
 ];
 const stations = [
  {name:'大門',x:-12,z:10.8,ax:-12,az:9.25},
@@ -119,36 +119,59 @@ const roomGroups=places.map((p,i)=>{
   p.dx=p.x-stations[i].x;p.dz=p.z-stations[i].z;
   return group(p.dx,0,p.dz);
 });
-const walkPads=[],pathSegments=[];
-const ground=box(20,-.43,-13,150,.3,124,0x96b9a2);
+const ground=box(0,-.43,-3,150,.3,124,0x96b9a2);
 ground.castShadow=false;
+// One continuous floor with a curved perimeter and a shared central area.
+const outline=[
+ [-17,8],[-13,13],[-4,14],[5,13],[12,11],[18,5.5],[19,-1.5],
+ [17.5,-10.5],[13,-15.6],[4,-17.6],[-4.5,-18.6],[-12,-15.6],
+ [-18.5,-10],[-20,-3],[-19.3,3.8]
+].map(([x,z])=>new T.Vector3(x,0,z));
+const hallOutline=new T.CatmullRomCurve3(outline,true).getPoints(104);
+function hallFloor(shapePoints,y,color){
+  const shape=new T.Shape();
+  shapePoints.forEach((p,i)=>{
+    if(i===0)shape.moveTo(p.x,-p.z);
+    else shape.lineTo(p.x,-p.z);
+  });
+  shape.closePath();
+  const floor=mesh(new T.ShapeGeometry(shape),0,y,0,1,1,1,color);
+  floor.rotation.x=-Math.PI/2;
+  floor.castShadow=false;
+}
+hallFloor(hallOutline.map(p=>new T.Vector3(p.x*1.036,0,(p.z+2)*1.036-2)),-.046,0xbd9774);
+hallFloor(hallOutline,-.024,0xe8cfaa);
+const hub=cyl(0,-.004,-2,12.4,.046,9.2,0xf3dfbd);
+hub.castShadow=false;
+const hubTrim=new T.Mesh(new T.RingGeometry(.47,.5,64),material(0xcaa885));
+hubTrim.rotation.x=-Math.PI/2;
+hubTrim.position.set(0,.023,-2);
+hubTrim.scale.set(11.2,8.2,1);
+scene.add(hubTrim);
+for(let i=0;i<8;i++){
+  const a=i*Math.PI/4;
+  const tile=box(Math.cos(a)*2.9,.025,-2+Math.sin(a)*2.25,.56,.012,.56,0xd6b78b);
+  tile.rotation.y=Math.PI/4;
+  tile.castShadow=false;
+}
+const sceneryScale=.61;
+const sceneryGroups=places.map((p,i)=>{
+  const base=stations[i];
+  const g=group(p.x-base.x*sceneryScale,0,p.z-base.z*sceneryScale);
+  g.scale.set(sceneryScale,1,sceneryScale);
+  return g;
+});
+let insetLayer=0;
 function ellipse(x,z,w,d,color,rim,parent){
-  const outer=cyl(x,-.18,z,w+.60,.26,d+.60,rim,parent);
-  const floor=cyl(x,-.080,z,w,.18,d,color,parent);
+  const y=insetLayer++*.0013;
+  const outer=cyl(x,-.061+y,z,w+.45,.105,d+.45,rim,parent);
+  const floor=cyl(x,-.031+y,z,w,.113,d,color,parent);
   outer.castShadow=floor.castShadow=false;
-  const t=parent.position;
-  walkPads.push({x:x+t.x,z:z+t.z,rx:w*.5,rz:d*.5});
 }
-function pathStrip(a,b){
-  const dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz);
-  const angle=Math.atan2(-dz,dx);
-  const x=(a[0]+b[0])/2,z=(a[1]+b[1])/2;
-  box(x,-.092,z,l+.9,.15,4.64,0xc0a382).rotation.y=angle;
-  box(x,-.021,z,l+.75,.055,3.95,0xead3a6).rotation.y=angle;
-  pathSegments.push({ax:a[0],az:a[1],dx,dz,d2:dx*dx+dz*dz});
-}
-const route=[
- [0,3],[10,5],[15,0],[24,3],[34,3],[39,-5],[49,1],[59,-3],[61,-14],
- [67,-19],[70,-32],[58,-37],[47,-39],[36,-45],[30,-38],[22,-37],
- [12,-34],[6,-42],[-3,-40],[-13,-39],[-18,-33],[-26,-28],[-31,-19],
- [-26,-3],[-30,9],[-23,22]
-];
-for(let i=1;i<route.length;i++)pathStrip(route[i-1],route[i]);
-for(const [x,z] of route)cyl(x,-.015,z,4.02,.06,4.02,0xead3a6).castShadow=false;
 function tree(x,z,c,p,scale=1){
   cyl(x,1.13*scale,z,.44*scale,2.26*scale,.44*scale,wood,p);
   ball(x,2.52*scale,z,2.19*scale,2.72*scale,2.17*scale,c,p);
-  solid(x+p.position.x,z+p.position.z,.55*scale,.55*scale);
+  solid(x*p.scale.x+p.position.x,z*p.scale.z+p.position.z,.55*scale*p.scale.x,.55*scale*p.scale.z);
 }
 function lamp(x,z,globe,p){
   cyl(x,.09,z,.55,.18,.55,0x7d6d6a,p);
@@ -176,14 +199,14 @@ function tileLine(p,x,z,count,color){
   for(let i=0;i<count;i++)box(x+(i-(count-1)/2)*.63,.022,z,.52,.038,.52,color,p).castShadow=false;
 }
 function roomBase(i){
-  const p=roomGroups[i], {x,z}=stations[i], {floor,rim}=places[i];
+  const p=sceneryGroups[i], {x,z}=stations[i], {floor,rim}=places[i];
   const plate=(dx,dz,w,d,c=floor)=>ellipse(x+dx,z+dz,w,d,c,rim,p);
   const b=(dx,y,dz,w,h,d,c)=>{
-    if(h>.45&&y-h/2<.2)solid(x+dx+p.position.x,z+dz+p.position.z,w,d);
+    if(h>.45&&y-h/2<.2)solid((x+dx)*p.scale.x+p.position.x,(z+dz)*p.scale.z+p.position.z,w*p.scale.x,d*p.scale.z);
     return box(x+dx,y,z+dz,w,h,d,c,p);
   };
   const o=(dx,y,dz,w,h,d,c)=>{
-    if(h>.50&&y-h/2<.2)solid(x+dx+p.position.x,z+dz+p.position.z,w*.69,d*.69);
+    if(h>.50&&y-h/2<.2)solid((x+dx)*p.scale.x+p.position.x,(z+dz)*p.scale.z+p.position.z,w*.69*p.scale.x,d*.69*p.scale.z);
     return ball(x+dx,y,z+dz,w,h,d,c,p);
   };
   const c=(dx,y,dz,w,h,d,color)=>cyl(x+dx,y,z+dz,w,h,d,color,p);
@@ -305,9 +328,9 @@ function roomBase(i){
   }
 }
 places.forEach((_,i)=>roomBase(i));
-// Trees mark turns without closing off the walkways.
-for(const [x,z] of [[12,8],[37,1],[59,-8],[64,-33],[37,-49],[13,-29],[-15,-45],[-36,-24],[-35,7],[-13,14]]){
-  tree(x,z,0x78a587,scene,1.20);
+// A few perimeter trees frame the hall without separating its exhibits.
+for(const [x,z] of [[-18,11],[3,14],[18,9],[20,-8],[13,-17],[-2,-19],[-17,-14],[-21,-4]]){
+  tree(x,z,0x78a587,scene,1.12);
 }
 function furniture(i){
   const s=stations[i];
@@ -667,7 +690,7 @@ function trackAngle(next,old){return Math.atan2(Math.sin(next-old),Math.cos(next
 function focusButton(id){$(id).focus({preventScroll:true});}
 function setGuide(){
   $('progress').textContent='已探索 '+visited.size+'／10 站';
-  $('guide').textContent=visited.size===stations.length?'十站完成！可開地圖重溫。':'沿金色小路探索';
+  $('guide').textContent=visited.size===stations.length?'十站完成！可開地圖重溫。':'自由探索大廳';
 }
 function clearControls(){
   keys.clear();joyX=joyY=0;pointerStick=null;drag=null;
@@ -772,12 +795,12 @@ const cameraTarget=new T.Vector3();
 const follow=player.position.clone();
 let introFraming=1;
 function canWalk(x,z){
-  const onRoom=walkPads.some(p=>((x-p.x)/p.rx)**2+((z-p.z)/p.rz)**2<1);
-  const onPath=pathSegments.some(p=>{
-    const t=T.MathUtils.clamp(((x-p.ax)*p.dx+(z-p.az)*p.dz)/p.d2,0,1);
-    return (x-p.ax-t*p.dx)**2+(z-p.az-t*p.dz)**2<1.93**2;
-  });
-  return (onRoom||onPath)&&!obstacles.some(o=>Math.abs(x-o.x)<o.w/2+.22&&Math.abs(z-o.z)<o.d/2+.22);
+  let inside=false;
+  for(let i=0,j=hallOutline.length-1;i<hallOutline.length;j=i++){
+    const a=hallOutline[i],b=hallOutline[j];
+    if((a.z>z)!==(b.z>z)&&x<(b.x-a.x)*(z-a.z)/(b.z-a.z)+a.x)inside=!inside;
+  }
+  return inside&&!obstacles.some(o=>Math.abs(x-o.x)<o.w/2+.22&&Math.abs(z-o.z)<o.d/2+.22);
 }
 let last=performance.now(), gait=0;
 function tick(now){
@@ -789,7 +812,7 @@ function tick(now){
     const norm=Math.max(1,Math.hypot(x,z));
     const dx=(x*Math.cos(yaw)+z*Math.sin(yaw))/norm;
     const dz=(-x*Math.sin(yaw)+z*Math.cos(yaw))/norm;
-    const nx=player.position.x+dx*4.85*dt,nz=player.position.z+dz*4.85*dt;
+    const nx=player.position.x+dx*5.35*dt,nz=player.position.z+dz*5.35*dt;
     if(canWalk(nx,player.position.z))player.position.x=nx;
     if(canWalk(player.position.x,nz))player.position.z=nz;
     player.rotation.y+=trackAngle(Math.atan2(dx,dz),player.rotation.y)*Math.min(1,dt*13);
@@ -817,7 +840,8 @@ function tick(now){
   const region=detail?.number===1?places[0]:target;
   roomGroups.forEach((g,i)=>{
     const p=places[i];
-    g.visible=(region.x-p.x)**2+(region.z-p.z)**2<27**2;
+    g.visible=(region.x-p.x)**2+(region.z-p.z)**2<32**2;
+    sceneryGroups[i].visible=g.visible;
   });
   let best=1.85,newNear=null;
   for(const s of stations){
