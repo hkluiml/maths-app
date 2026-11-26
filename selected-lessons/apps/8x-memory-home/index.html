@@ -9,24 +9,22 @@
 .hud{position:absolute;top:max(14px,env(safe-area-inset-top));left:max(14px,env(safe-area-inset-left));pointer-events:none}.plate,.icon,.help{background:#fffaf1f5;box-shadow:0 4px 20px #274c4428;border:1px solid #fff;border-radius:17px}
 .plate{padding:10px 15px;display:flex;align-items:center;gap:13px}.mark{background:#2b5d55;color:#fff2bd;display:grid;place-items:center;border-radius:13px;width:42px;height:42px;font-weight:900;font-size:29px}.hud h1{font-size:clamp(15px,2.6vw,23px);margin:0}#progress{color:#497269;font-weight:750;font-size:13px}.guide{display:inline-block;background:#254c46ed;color:white;font-weight:750;font-size:14px;border-radius:14px;padding:8px 12px;margin-top:9px;max-width:72vw}
 .top{position:absolute;right:max(14px,env(safe-area-inset-right));top:max(14px,env(safe-area-inset-top));display:flex;gap:7px}.icon{min-width:43px;height:43px;padding:0 11px;font-size:17px}.help{position:absolute;bottom:15px;left:50%;transform:translateX(-50%);padding:8px 13px;font-size:13px;font-weight:700;white-space:nowrap;pointer-events:none}.touchHelp{display:none}
-#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}.tag{position:absolute;transform:translate(-50%,-50%);background:#fffaf1ea;border:1px solid #fff9;color:#294841;border-radius:99px;padding:3px 9px 4px;font-weight:850;font-size:clamp(10px,1.4vw,15px);white-space:nowrap;box-shadow:0 3px 6px #17392b30}.tag.done{color:#245d44}.tag.near{background:#ffe193;color:#3d4b30;z-index:2}
 #inspect{position:absolute;bottom:64px;left:50%;transform:translateX(-50%);padding:10px 16px;background:#ffe193;border-radius:15px;box-shadow:0 4px 15px #19362850;white-space:nowrap;font-size:clamp(13px,2.3vw,18px);z-index:3}
 #stick{position:absolute;bottom:max(18px,env(safe-area-inset-bottom));left:max(18px,env(safe-area-inset-left));width:97px;height:97px;border:2px solid white;background:#f9fff26b;border-radius:50%;touch-action:none;display:none;z-index:4;box-shadow:0 2px 12px #254e3535}#knob{pointer-events:none;position:absolute;top:26px;left:26px;width:41px;height:41px;border-radius:50%;background:#fff8df;box-shadow:0 2px 7px #2f4a4355}
 .overlay{position:absolute;inset:0;display:grid;place-items:center;padding:12px;background:#223f485c;z-index:8}.card{width:min(540px,96vw);max-height:95dvh;overflow:auto;background:#fff8e9;border:2px solid white;border-radius:25px;padding:clamp(15px,4vmin,27px);box-shadow:0 18px 70px #172b4165;text-align:center;position:relative}.card h2{margin:1px 33px 8px;font-size:clamp(17px,4vw,26px);color:#316058}.close{position:absolute;right:9px;top:9px;width:34px;height:34px;border-radius:11px;background:#e7eddf;font-size:22px}.formula{font-size:clamp(40px,12vmin,100px);font-weight:950;line-height:1.08;color:#203e55;margin:12px 0;font-variant-numeric:tabular-nums}.callout{font-weight:750;margin:10px auto 15px;line-height:1.55;max-width:440px;font-size:clamp(14px,3.3vw,18px)}.primary{background:#2f6458;color:white;padding:11px 22px;border-radius:13px;margin:2px}.secondary{background:#e3ede0;padding:10px 15px;border-radius:13px;margin:2px}.mnemonic{margin:8px auto;color:#335c56;font-size:clamp(17px,4.4vmin,28px);font-weight:850}#propIcon{font-size:clamp(33px,10vmin,73px);line-height:1.07}#mapGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:12px 0}#mapGrid button{padding:6px 9px;text-align:left}.sub{margin:4px;font-size:14px}.mode{padding:5px 11px}
 @media(pointer:coarse){#stick{display:block}.desktopHelp{display:none}.touchHelp{display:inline}.help{left:auto;right:12px;transform:none;font-size:11px}#inspect{left:auto;right:14px;bottom:46px;transform:none}}@media(max-height:480px){.card{padding:8px 13px}.formula{margin:4px}.callout{margin:4px auto}.plate{padding:5px 9px}.guide{margin-top:5px}.mark{width:33px;height:33px}#stick{width:83px;height:83px}#knob{top:19px;left:19px}.help{bottom:7px}}
-#detailPanel{position:absolute;inset:0;z-index:6;pointer-events:none}#detailCaption{position:absolute;top:max(12px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);max-width:95vw;white-space:nowrap;background:#fff8eaf7;padding:8px 18px;border-radius:16px;box-shadow:0 4px 15px #36422c36;text-align:center}#detailCaption h2{margin:0;font-size:clamp(17px,4vmin,32px)}#closeDetail{pointer-events:auto;position:absolute;bottom:max(13px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%)}.detail .hud,.detail .top,.detail .help,.detail #stick{display:none}
+#detailPanel{position:absolute;inset:0;z-index:6;pointer-events:none}#closeDetail{pointer-events:auto;position:absolute;bottom:max(13px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%)}.detail .hud,.detail .top,.detail .help,.detail #stick{display:none}
 </style>
 </head>
 <body>
 <div class="ios-blur-fix" aria-hidden="true"></div>
-<div id="world" aria-label="八的乘法立體記憶之家"></div><div id="labels"></div>
-<div class="hud"><div class="plate"><div class="mark">8</div><div><h1>八的乘法・記憶之家</h1><div id="progress">已探索 1／10 站</div></div></div><div class="guide" id="guide">大門 · 數數八爪魚的腳</div></div>
+<div id="world" aria-label="八的乘法立體記憶之家"></div>
+<div class="hud"><div class="plate"><div class="mark">8</div><div><h1>八的乘法・記憶之家</h1><div id="progress">已探索 1／10 站</div></div></div><div class="guide" id="guide">從大門開始探索</div></div>
 <div class="top"><button class="icon" id="mapButton" aria-label="站點地圖" title="站點地圖">地圖</button><button class="icon" id="resetCamera" aria-label="復原視角" title="復原視角">↺</button><button class="icon" id="full" aria-label="全螢幕" title="全螢幕">⛶</button></div>
 <div class="help"><span class="desktopHelp">WASD／方向鍵移動 · 拖曳轉視角 · E 查看</span><span class="touchHelp">左下搖桿移動 · 拖畫面轉視角</span></div>
 <div id="stick" aria-label="移動搖桿"><div id="knob"></div></div>
 <button id="inspect" hidden>查看</button>
 <section id="detailPanel" aria-label="模型特寫" hidden>
-<div id="detailCaption"><h2 id="detailTitle"></h2></div>
 <button id="closeDetail" class="icon">返回屋內</button>
 </section>
 <div class="overlay" id="mapPanel" hidden><section class="card" role="dialog" aria-modal="true" aria-labelledby="mapTitle">
@@ -282,15 +280,15 @@ solid(14.1,-9.55,2.85,1.46);
 // Each room links its product to one distinctive object.
 const facts=[
   null,
-  {title:'生日蛋糕',kind:'cake',x:-7.6,y:1.15,z:6.8,w:1.78,d:2.12},
-  {title:'大鐘',kind:'clock',x:-.8,y:1.05,z:7.88,w:2.75,d:1.52},
-  {title:'球衣',kind:'shirt',x:-.7,y:1.04,z:2.81,w:3.15,d:1.90},
-  {title:'魚蛋',kind:'fishball',x:10.75,y:1.32,z:5.6,w:3.12,d:1.85},
-  {title:'雪櫃巴士',kind:'bus',x:14.2,y:1.04,z:4.51,w:2.59,d:2.35},
-  {title:'巨型泡泡',kind:'bubble',x:-11.8,y:1.16,z:-8.02,w:2.16,d:2.12},
-  {title:'遊戲機',kind:'console',x:.15,y:1.32,z:-9.92,w:2.65,d:2.12},
-  {title:'星星',kind:'stars',x:9.6,y:1.00,z:-7.42,w:2.64,d:2.50},
-  {title:'巨型氣球',kind:'balloon',x:14.1,y:1.35,z:-7,w:2.43,d:2.63}
+  {kind:'cake',x:-7.6,y:1.15,z:6.8,w:1.78,d:2.12},
+  {kind:'clock',x:-.8,y:1.05,z:7.88,w:2.75,d:1.52},
+  {kind:'shirt',x:-.7,y:1.04,z:2.81,w:3.15,d:1.90},
+  {kind:'fishball',x:10.75,y:1.32,z:5.6,w:3.12,d:1.85},
+  {kind:'bus',x:14.2,y:1.04,z:4.51,w:2.59,d:2.35},
+  {kind:'bubble',x:-11.8,y:1.16,z:-8.02,w:2.16,d:2.12},
+  {kind:'console',x:.15,y:1.32,z:-9.92,w:2.65,d:2.12},
+  {kind:'stars',x:9.6,y:1.00,z:-7.42,w:2.64,d:2.50},
+  {kind:'balloon',x:14.1,y:1.35,z:-7,w:2.43,d:2.63}
 ];
 function digitTexture(text,foreground,background,sub=''){
   const image=document.createElement('canvas');
@@ -493,12 +491,8 @@ function ring(x,z,color,radius){
 }
 stations.forEach((s,i)=>{
   s.number=i+1;
-  s.label=document.createElement('span');
-  s.label.className='tag';
-  $('labels').append(s.label);
   s.ring=ring(s.ax,s.az,0xffffb8,.64);
   s.spark=ball(s.ax,.32,s.az,.13,.23,.13,0xffcf70);
-  s.marker=new T.Vector3(s.fact?.x??s.x,(s.fact?.y??1.9)+.55,s.fact?.z??s.z);
 });
 const arrow=mesh(new T.ConeGeometry(.19,.47,4),0,.12,0,1,1,1,0xffdf7b);
 arrow.material= new T.MeshBasicMaterial({color:0xffdf7b});
@@ -516,8 +510,7 @@ function trackAngle(next,old){return Math.atan2(Math.sin(next-old),Math.cos(next
 function focusButton(id){$(id).focus({preventScroll:true});}
 function setGuide(){
   $('progress').textContent='已探索 '+visited.size+'／10 站';
-  $('guide').textContent=selected===null?'十站完成！可開地圖重溫。':(selected===0?'大門 · 數數八爪魚的腳':'前往第 '+(selected+1)+' 站 · '+stations[selected].name);
-  stations.forEach((s,i)=>{s.label.textContent=s.name;s.label.classList.toggle('done',visited.has(i));});
+  $('guide').textContent=selected===null?'十站完成！可開地圖重溫。':(selected===0?'從大門開始探索':'前往第 '+(selected+1)+' 站 · '+stations[selected].name);
 }
 function clearControls(){
   keys.clear();joyX=joyY=0;pointerStick=null;drag=null;
@@ -528,9 +521,7 @@ function openStation(station){
   clearControls();
   detail=station;
   if(station.detailModel)station.detailModel.visible=true;
-  const f=station.fact;
   const count=station.number;
-  $('detailTitle').textContent=station.name+' · '+(f?.title??'八爪魚');
   document.body.classList.add('detail');
   $('detailPanel').hidden=false;
   visited.add(count-1);
@@ -620,7 +611,7 @@ function resize(){
   renderer.setSize(width,height);
 }
 window.addEventListener('resize',resize);resize();setGuide();
-const cameraTarget=new T.Vector3(), point=new T.Vector3();
+const cameraTarget=new T.Vector3();
 const follow=player.position.clone();
 let introFraming=1;
 function canWalk(x,z){
@@ -669,17 +660,9 @@ function tick(now){
     s.ring.scale.setScalar(active?1.12+.10*Math.sin(now/240):1);
     s.ring.visible=s.spark.visible=detail===null;
     s.spark.position.y=.34+Math.sin(now/290+s.number)*.08;
-    point.copy(s.marker).project(camera);
-    const show=s.number!==1&&point.z<1&&point.z>-1&&Math.abs(point.x)<1.12&&Math.abs(point.y)<1.06&&distance<(active?24:16);
-    s.label.hidden=!show||detail!==null;
-    if(show){
-      s.label.style.left=((point.x+1)*.5*width)+'px';
-      s.label.style.top=((1-point.y)*.5*height)+'px';
-      s.label.classList.toggle('near',active);
-    }
   }
   octopusHead.position.y=.038*Math.sin(now/470);
-  if(near!==newNear){near=newNear;if(near)$('inspect').textContent='查看 · '+near.name;}
+  near=newNear;
   $('inspect').hidden=!near||visibleOverlay();
   arrow.visible=selected!==null;
   if(selected!==null){
