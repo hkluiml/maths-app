@@ -14,7 +14,8 @@
 .overlay{position:absolute;inset:0;display:grid;place-items:center;padding:12px;background:#223f485c;z-index:8}.card{width:min(540px,96vw);max-height:95dvh;overflow:auto;background:#fff8e9;border:2px solid white;border-radius:25px;padding:clamp(15px,4vmin,27px);box-shadow:0 18px 70px #172b4165;text-align:center;position:relative}.card h2{margin:1px 33px 8px;font-size:clamp(17px,4vw,26px);color:#316058}.close{position:absolute;right:9px;top:9px;width:34px;height:34px;border-radius:11px;background:#e7eddf;font-size:22px}.formula{font-size:clamp(40px,12vmin,100px);font-weight:950;line-height:1.08;color:#203e55;margin:12px 0;font-variant-numeric:tabular-nums}.callout{font-weight:750;margin:10px auto 15px;line-height:1.55;max-width:440px;font-size:clamp(14px,3.3vw,18px)}.primary{background:#2f6458;color:white;padding:11px 22px;border-radius:13px;margin:2px}.secondary{background:#e3ede0;padding:10px 15px;border-radius:13px;margin:2px}.mnemonic{margin:8px auto;color:#335c56;font-size:clamp(17px,4.4vmin,28px);font-weight:850}#propIcon{font-size:clamp(33px,10vmin,73px);line-height:1.07}#mapGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:12px 0}#mapGrid button{padding:6px 9px;text-align:left}.sub{margin:4px;font-size:14px}.mode{padding:5px 11px}
 @media(pointer:coarse){#stick{display:block}.desktopHelp{display:none}.touchHelp{display:inline}.help{left:auto;right:12px;transform:none;font-size:11px}#inspect{left:auto;right:14px;bottom:46px;transform:none}}@media(max-height:480px){.card{padding:8px 13px}.formula{margin:4px}.callout{margin:4px auto}.plate{padding:5px 9px}.guide{margin-top:5px}.mark{width:33px;height:33px}#stick{width:83px;height:83px}#knob{top:19px;left:19px}.help{bottom:7px}}
 #detailPanel{position:absolute;inset:0;z-index:6;pointer-events:none}#closeDetail{pointer-events:auto;position:absolute;bottom:max(13px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%)}.detail .hud,.detail .top,.detail .help,.detail #stick{display:none}
-body.outside .hud,body.outside .top,body.outside .help,body.outside #stick{display:none}
+body.outside .hud,body.outside .top,body.entering #stick,body.entering .help{display:none}
+.outside #insideHelp,body:not(.outside) #outsideHelp{display:none}
 #entryActions{position:absolute;z-index:5;bottom:max(37px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);pointer-events:none}
 #enterHouse{pointer-events:auto;min-width:130px;border:2px solid #fff1c6;padding:11px 35px;border-radius:17px;background:#315f55;color:#fff3d0;font-size:clamp(22px,4vw,28px);box-shadow:0 5px 17px #293e3f59}
 #entryFade{position:absolute;inset:0;z-index:7;background:#273d3c;opacity:0;transition:opacity 250ms ease;pointer-events:none}#entryFade.covered{opacity:1}
@@ -28,7 +29,8 @@ body.outside .hud,body.outside .top,body.outside .help,body.outside #stick{displ
 <div id="world" aria-label="八的乘法立體記憶之家"></div>
 <div class="hud"><div class="plate"><div class="mark">8</div><div><h1>八的乘法・記憶之家</h1><div id="progress">已探索 1／10 站</div></div></div><div class="guide" id="guide">自由探索大廳</div></div>
 <div class="top"><button class="icon" id="numbersToggle" aria-pressed="false">隱藏數字</button><button class="icon" id="mapButton" aria-label="站點地圖" title="站點地圖">地圖</button><button class="icon" id="resetCamera" aria-label="復原視角" title="復原視角">↺</button><button class="icon" id="full" aria-label="全螢幕" title="全螢幕">⛶</button></div>
-<div class="help"><span class="desktopHelp">WASD／方向鍵移動 · 拖曳轉視角 · E 查看</span><span class="touchHelp">左下搖桿移動 · 拖畫面轉視角</span></div>
+<div class="help" id="insideHelp"><span class="desktopHelp">WASD／方向鍵移動 · 拖曳轉視角 · E 查看</span><span class="touchHelp">左下搖桿移動 · 拖畫面轉視角</span></div>
+<div class="help" id="outsideHelp"><span class="desktopHelp">WASD／方向鍵移動</span><span class="touchHelp">左下搖桿移動</span></div>
 <div id="stick" aria-label="移動搖桿"><div id="knob"></div></div>
 <button id="inspect" hidden>查看</button>
 <section id="detailPanel" aria-label="模型特寫" hidden>
@@ -808,40 +810,53 @@ entryScene.add(player);
 player.position.set(0,0,4.7);
 player.rotation.y=Math.PI;
 let entryState='outside', entryStarted=0;
+const entryOrigin=new T.Vector3();
+function canWalkOutside(x,z){return Math.abs(x)<=5&&z>=2.9&&z<=8.8;}
 function easeEntry(t){return t*t*(3-2*t);}
 $('enterHouse').onclick=()=>{
   if(entryState!=='outside')return;
+  entryOrigin.copy(player.position);
   entryState='entering';
   entryStarted=performance.now();
+  document.body.classList.add('entering');
   $('entryActions').hidden=true;
   clearControls();
 };
-function renderEntrance(now){
+function renderEntrance(now,dt){
   const t=entryState==='entering'?(now-entryStarted)/1000:0;
+  if(entryState==='outside')walkPlayer(now,dt,0,3.8,canWalkOutside);
+  else{
+    const startX=player.position.x,startZ=player.position.z;
+    const straight=Math.abs(entryOrigin.x)<.15;
+    const approach=easeEntry(T.MathUtils.clamp(t/.98,0,1));
+    const walk=easeEntry(T.MathUtils.clamp((t-(straight ? .38 : .98))/(straight ? 1.83 : 1.23),0,1));
+    player.position.x=T.MathUtils.lerp(entryOrigin.x,0,approach);
+    player.position.z=straight?T.MathUtils.lerp(entryOrigin.z,-.36,walk):
+      T.MathUtils.lerp(T.MathUtils.lerp(entryOrigin.z,3.25,approach),-.36,walk);
+    const dx=player.position.x-startX,dz=player.position.z-startZ;
+    const moving=Math.hypot(dx,dz)>.001;
+    if(moving)player.rotation.y+=trackAngle(Math.atan2(dx,dz),player.rotation.y)*Math.min(1,dt*15);
+    animateWalk(now,dt,moving);
+  }
   const doorProgress=T.MathUtils.clamp((t-.10)/.93,0,1);
   entryDoor.rotation.y=easeEntry(doorProgress)*Math.PI*.56;
-  const walk=T.MathUtils.clamp((t-.58)/1.63,0,1);
-  player.position.z=T.MathUtils.lerp(4.7,-.36,easeEntry(walk));
-  const stride=walk>0&&walk<1?Math.sin(t*17)*.59:0;
-  for(let i=0;i<2;i++){
-    legs[i].rotation.x=i?stride:-stride;
-    arms[i].rotation.x=i?-stride*.70:stride*.70;
-  }
-  body.position.y=.045*Math.abs(stride);
   if(t>=1.94)$('entryFade').classList.add('covered');
   if(t>=2.24){
     scene.add(player);
     player.position.copy(indoorStart);
     player.rotation.y=indoorHeading;
     entryState='inside';
-    document.body.classList.remove('outside');
+    document.body.classList.remove('outside','entering');
     $('entryFade').classList.remove('covered');
     return false;
   }
   const push=easeEntry(T.MathUtils.clamp(t/2.0,0,1));
   const tall=height>width?1.35:1;
-  entryCamera.position.set(2.48-push*1.82,3.78+push*.25,(11.8-push*3.70)*tall);
-  entryCamera.lookAt(0,2.22-push*.50,1.25);
+  const framing=entryState==='outside'?player.position:entryOrigin;
+  const side=framing.x*(height>width ? .82 : .52)*(1-push);
+  const depth=(framing.z-4.7)*.70*(1-push);
+  entryCamera.position.set(2.48-push*1.82+side,3.78+push*.25,(11.8-push*3.70)*tall+depth);
+  entryCamera.lookAt(side,2.22-push*.50,1.25+depth*.45);
   renderer.render(entryScene,entryCamera);
   return true;
 }
@@ -880,7 +895,7 @@ function setHiddenNumbers(hidden){
   }
 }
 for(const button of numberButtons)button.onclick=()=>setHiddenNumbers(!hideNumbers);
-function visibleOverlay(){return entryState!=='inside' || detail!==null || !$('mapPanel').hidden;}
+function visibleOverlay(){return entryState==='entering' || detail!==null || !$('mapPanel').hidden;}
 function trackAngle(next,old){return Math.atan2(Math.sin(next-old),Math.cos(next-old));}
 function focusButton(id){$(id).focus({preventScroll:true});}
 function setGuide(){
@@ -915,7 +930,7 @@ $('inspect').onclick=()=>openStation(near);
 $('closeDetail').onclick=closeStation;
 $('closeMap').onclick=closeMap;
 $('mapButton').onclick=()=>{
-  if(visibleOverlay())return;
+  if(entryState!=='inside'||visibleOverlay())return;
   clearControls();
   $('mapGrid').replaceChildren(...stations.map((s,i)=>{
     const b=document.createElement('button');
@@ -942,14 +957,14 @@ window.addEventListener('keydown',e=>{
     return;
   }
   if(visibleOverlay()) return;
-  if(e.code==='KeyE'&&!e.repeat){openStation(near);return;}
+  if(e.code==='KeyE'&&!e.repeat&&entryState==='inside'){openStation(near);return;}
   if(/^(Arrow|Key[WASD]$)/.test(e.code)){e.preventDefault();keys.add(e.code);}
 });
 window.addEventListener('keyup',e=>keys.delete(e.code));
 window.addEventListener('blur',clearControls);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)clearControls();});
 canvas.onpointerdown=e=>{
-  if(visibleOverlay()||drag||e.button!==0)return;
+  if(entryState!=='inside'||visibleOverlay()||drag||e.button!==0)return;
   canvas.setPointerCapture(e.pointerId);drag={id:e.pointerId,x:e.clientX,y:e.clientY};
 };
 canvas.onpointermove=e=>{
@@ -1000,25 +1015,23 @@ function canWalk(x,z){
   return inside&&!obstacles.some(o=>Math.abs(x-o.x)<o.w/2+.22&&Math.abs(z-o.z)<o.d/2+.22);
 }
 let last=performance.now(), gait=0;
-function tick(now){
-  const dt=Math.min(.045,(now-last)/1000);last=now;
-  if(entryState!=='inside'&&renderEntrance(now)){
-    requestAnimationFrame(tick);
-    return;
-  }
+function walkPlayer(now,dt,heading,speed,canMove){
   const x=joyX+Number(keys.has('KeyD')||keys.has('ArrowRight'))-Number(keys.has('KeyA')||keys.has('ArrowLeft'));
   const z=joyY+Number(keys.has('KeyS')||keys.has('ArrowDown'))-Number(keys.has('KeyW')||keys.has('ArrowUp'));
   const moving=!visibleOverlay()&&Math.hypot(x,z)>.08;
   if(moving){
     const norm=Math.max(1,Math.hypot(x,z));
-    const dx=(x*Math.cos(yaw)+z*Math.sin(yaw))/norm;
-    const dz=(-x*Math.sin(yaw)+z*Math.cos(yaw))/norm;
-    const nx=player.position.x+dx*5.35*dt,nz=player.position.z+dz*5.35*dt;
-    if(canWalk(nx,player.position.z))player.position.x=nx;
-    if(canWalk(player.position.x,nz))player.position.z=nz;
+    const dx=(x*Math.cos(heading)+z*Math.sin(heading))/norm;
+    const dz=(-x*Math.sin(heading)+z*Math.cos(heading))/norm;
+    const nx=player.position.x+dx*speed*dt,nz=player.position.z+dz*speed*dt;
+    if(canMove(nx,player.position.z))player.position.x=nx;
+    if(canMove(player.position.x,nz))player.position.z=nz;
     player.rotation.y+=trackAngle(Math.atan2(dx,dz),player.rotation.y)*Math.min(1,dt*13);
-    gait+=dt*12;
   }
+  animateWalk(now,dt,moving);
+}
+function animateWalk(now,dt,moving){
+  if(moving)gait+=dt*12;
   const swing=moving?Math.sin(gait)*.64:0;
   for(let i=0;i<2;i++){
     const amount=swing*(i===0?1:-1);
@@ -1026,6 +1039,14 @@ function tick(now){
     arms[i].rotation.x=T.MathUtils.lerp(arms[i].rotation.x,-amount*.7,.23);
   }
   body.position.y=moving?.065*Math.abs(Math.sin(gait)):.02*Math.sin(now/320);
+}
+function tick(now){
+  const dt=Math.min(.045,(now-last)/1000);last=now;
+  if(entryState!=='inside'&&renderEntrance(now,dt)){
+    requestAnimationFrame(tick);
+    return;
+  }
+  walkPlayer(now,dt,yaw,5.35,canWalk);
   const target=player.position;
   const doorDistance=Math.hypot(target.x-octopus.position.x,target.z-octopus.position.z);
   introFraming=T.MathUtils.lerp(introFraming,doorDistance<4.4?1:0,1-Math.exp(-dt*4));
