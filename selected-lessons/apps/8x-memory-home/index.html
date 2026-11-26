@@ -29,6 +29,7 @@ body.outside .hud,body.outside .top,body.entering #stick,body.entering .help{dis
 #progress{color:#705c88}.guide{background:#f4e9ff}.help{background:#fffcf5ed}
 #inspect{background:#ffebad;color:#57446d;border:1px solid #fff7d9;border-radius:14px}
 #stick{border:1px solid #fff;background:#bda8e680}#knob{background:#fff4d4}
+#returnOutside{display:grid;place-items:center}
 .icon.is-hidden-mode{color:#56416f;background:#ffe7a5}
 #mapPanel{background:#49426888}#mapPanel .card{color:#4d426a;background:#fff9ef;border:2px solid #fff;border-radius:23px}
 #mapPanel h2{color:#564270}#mapPanel .secondary,#mapPanel .close{background:#eee2fa;color:#4e3c6e;border:1px solid #e3cdf1}
@@ -38,7 +39,7 @@ body.outside .hud,body.outside .top,body.entering #stick,body.entering .help{dis
 <div class="ios-blur-fix" aria-hidden="true"></div>
 <div id="world" aria-label="八的乘法立體記憶之家"></div>
 <div class="hud"><div class="plate"><div class="mark">8</div><div><h1>八的乘法・記憶之家</h1><div id="progress">已探索 1／10 站</div></div></div><div class="guide" id="guide">自由探索大廳</div></div>
-<div class="top"><button class="icon" id="numbersToggle" aria-pressed="false">隱藏數字</button><button class="icon" id="mapButton" aria-label="站點地圖" title="站點地圖">地圖</button><button class="icon" id="resetCamera" aria-label="復原視角" title="復原視角">↺</button><button class="icon" id="full" aria-label="全螢幕" title="全螢幕">⛶</button></div>
+<div class="top"><button class="icon" id="numbersToggle" aria-pressed="false">隱藏數字</button><button class="icon" id="mapButton" aria-label="站點地圖" title="站點地圖">地圖</button><button class="icon" id="returnOutside" aria-label="回到門外" title="回到門外"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7M5.5 9v11h13V9M10 20v-6h4v6"/></svg></button><button class="icon" id="full" aria-label="全螢幕" title="全螢幕">⛶</button></div>
 <div class="help" id="insideHelp"><span class="desktopHelp">WASD／方向鍵移動 · 拖曳轉視角 · E 查看</span><span class="touchHelp">左下搖桿移動 · 拖畫面轉視角</span></div>
 <div class="help" id="outsideHelp"><span class="desktopHelp">WASD／方向鍵移動</span><span class="touchHelp">左下搖桿移動</span></div>
 <div id="stick" aria-label="移動搖桿"><div id="knob"></div></div>
@@ -1119,9 +1120,12 @@ for(let i=0;i<hallOutline.length-1;i+=3){
 
 const indoorStart=player.position.clone();
 const indoorHeading=player.rotation.y;
-entryScene.add(player);
-player.position.set(0,0,4.7);
-player.rotation.y=Math.PI;
+function putPlayerOutside(){
+  entryScene.add(player);
+  player.position.set(0,0,4.7);
+  player.rotation.y=Math.PI;
+}
+putPlayerOutside();
 let entryState='outside', entryStarted=0;
 const entryOrigin=new T.Vector3();
 function canWalkOutside(x,z){return Math.abs(x)<=5&&z>=2.9&&z<=8.8;}
@@ -1262,7 +1266,22 @@ $('mapButton').onclick=()=>{
   $('mapPanel').hidden=false;
   focusButton('closeMap');
 };
-$('resetCamera').onclick=()=>{yaw=initialYaw;pitch=.98;};
+$('returnOutside').onclick=()=>{
+  if(entryState!=='inside'||visibleOverlay())return;
+  clearControls();
+  putPlayerOutside();
+  entryDoor.rotation.y=0;
+  entryState='outside';
+  near=null;
+  yaw=initialYaw;
+  pitch=.98;
+  follow.copy(indoorStart);
+  introFraming=1;
+  $('inspect').hidden=true;
+  document.body.classList.add('outside');
+  $('entryActions').hidden=false;
+  focusButton('enterHouse');
+};
 $('full').onclick=async()=>{
   try{
     if(document.fullscreenElement)await document.exitFullscreen();
