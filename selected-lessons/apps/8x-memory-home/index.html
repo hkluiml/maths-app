@@ -418,7 +418,7 @@ function modelFact(fact,total){
     case 'bubble':
       o(0,.679,0,1.43,1.30,1.43,0x77cecf);
       o(-.36,1.045,-.34,.46,.34,.29,0xb1e6e4);
-      sign('56',0,1.318,0,.73,.41,'#275970','#94dddb');
+      sign('56',0,1.355,0,.73,.41,'#275970','#94dddb');
       break;
     case 'console':
       b(0,.16,0,2.15,.29,1.47,0x7ea99c);
@@ -721,7 +721,7 @@ function tick(now){
     const half=Math.max((f?.d??4.1)*.68,(f?.w??4.2)*.61/aspect,1.7);
     detailCamera.left=-half*aspect;detailCamera.right=half*aspect;
     detailCamera.top=half*1.15;detailCamera.bottom=-half*.85;
-    detailCamera.position.set(px,py+10,pz-.75);
+    detailCamera.position.set(px,py+10,pz+(f?1.28:-.75));
     detailCamera.lookAt(px,py,pz);
     detailCamera.updateProjectionMatrix();
     detailCamera.updateMatrixWorld();
