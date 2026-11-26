@@ -286,108 +286,164 @@ for(const x of [-.71,.71])box(x,1.5,.69,1.34,2.73,.13,0xdcac87,wardrobe);
 for(const x of [-.19,.19])ball(x,1.55,.80,.14,.16,.13,cream,wardrobe);
 solid(14.1,-9.55,2.85,1.46);
 
-// Each tray is one group. The two rows of four are actual 3D objects.
-const rowColors=[0xf9d890,0xb5e1ce,0xf6c4b7,0xded0fa,0xc4dbf0];
-const facts = [
+// Each room links its product to one distinctive object.
+const facts=[
   null,
-  {label:'鞋',groups:'2 格鞋',each:'每格 8 隻',count:'隻鞋',kind:'shoe',cols:2,x:-7.6,y:1.14,z:6.8,w:1.58,d:2.47},
-  {label:'鈕扣',groups:'3 個咕𠱸',each:'每個 8 粒',count:'粒鈕扣',kind:'button',cols:3,x:-.8,y:1.16,z:7.92,w:3.65,d:1.22},
-  {label:'發光方塊',groups:'4 個屏幕',each:'每個 8 格',count:'格發光方塊',kind:'pixel',cols:2,x:-.7,y:1.04,z:2.81,w:3.44,d:1.73},
-  {label:'魚蛋',groups:'5 碟魚蛋',each:'每碟 8 粒',count:'粒魚蛋',kind:'fish',cols:3,x:10.75,y:1.31,z:5.6,w:3.72,d:2.31},
-  {label:'雞蛋',groups:'6 盒雞蛋',each:'每盒 8 隻',count:'隻雞蛋',kind:'egg',cols:2,x:14.2,y:1.04,z:4.51,w:2.71,d:2.54},
-  {label:'番梘',groups:'7 個皂碟',each:'每碟 8 塊',count:'塊番梘',kind:'soap',cols:3,x:-11.8,y:1.16,z:-8.02,w:3.21,d:2.54},
-  {label:'棋盤格',groups:'8 行棋盤格',each:'每行 8 格',count:'格棋盤格',kind:'chess',cols:1,x:.15,y:1.32,z:-9.92,w:2.49,d:2.49},
-  {label:'麵包',groups:'9 籃麵包',each:'每籃 8 個',count:'個麵包',kind:'bun',cols:3,x:9.6,y:1.06,z:-7.42,w:2.8,d:2.81},
-  {label:'襪子',groups:'10 格襪',each:'每格 8 隻',count:'隻襪',kind:'sock',cols:2,x:14.1,y:1.35,z:-7.00,w:2.77,d:3.43}
+  {title:'16 歲生日蛋糕',kind:'cake',x:-7.6,y:1.15,z:6.8,w:1.78,d:2.12},
+  {title:'24 小時大鐘',kind:'clock',x:-.8,y:1.05,z:7.88,w:2.75,d:1.52},
+  {title:'32 號球衣',kind:'shirt',x:-.7,y:1.04,z:2.81,w:3.15,d:1.90},
+  {title:'40 元魚蛋',kind:'fishball',x:10.75,y:1.32,z:5.6,w:3.12,d:1.85},
+  {title:'48 號雪櫃巴士',kind:'bus',x:14.2,y:1.04,z:4.51,w:2.59,d:2.35},
+  {title:'56 號泡泡',kind:'bubble',x:-11.8,y:1.16,z:-8.02,w:2.16,d:2.12},
+  {title:'遊戲機最高分 64',kind:'console',x:.15,y:1.32,z:-9.92,w:2.65,d:2.12},
+  {title:'72 顆星星',kind:'stars',x:9.6,y:1.00,z:-7.42,w:2.64,d:2.50},
+  {title:'80 號氣球',kind:'balloon',x:14.1,y:1.35,z:-7,w:2.43,d:2.63}
 ];
-function modelFact(fact,total) {
-  const main=group(fact.x,fact.y,fact.z);
-  main.name=fact.kind+'-display';
-  main.userData={groups:total,perGroup:8,items:0};
-  const rows=Math.ceil(total/fact.cols);
-  const stepX=fact.w/fact.cols;
-  const stepZ=fact.d/rows;
-  const batches=new Map();
-  const transform=new T.Object3D();
-  function item(geometry,color,x,y,z,w,h,d){
-    const key=geometry.uuid+':'+color;
-    if(!batches.has(key))batches.set(key,{geometry,color,matrices:[]});
-    transform.position.set(x,y,z);
-    transform.scale.set(w,h,d);
-    transform.updateMatrix();
-    batches.get(key).matrices.push(transform.matrix.clone());
+function digitTexture(text,foreground,background,sub=''){
+  const image=document.createElement('canvas');
+  image.width=512;image.height=256;
+  const ctx=image.getContext('2d');
+  ctx.fillStyle=background;
+  ctx.fillRect(0,0,512,256);
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=foreground;
+  ctx.font='950 '+(sub?'166':'207')+'px system-ui,sans-serif';
+  ctx.fillText(text,256,sub?109:128,476);
+  if(sub){
+    ctx.font='850 42px system-ui,sans-serif';
+    ctx.fillText(sub,256,220,466);
   }
-  const block=(c,x,y,z,w,h,d)=>item(boxes,c,x,y,z,w,h,d);
-  const oval=(c,x,y,z,w,h,d)=>item(balls,c,x,y,z,w,h,d);
-  function makeObject(x,z,dx,dz,alt){
-    const unit=Math.min(dx,dz);
-    const m=unit*.59;
-    switch(fact.kind){
-      case 'shoe':
-        oval(alt?0xc05f78:0x317b81,x,.13,z,dx*.68,m*.82,dz*.66);
-        oval(0xfff0d0,x,.164,z-dz*.10,dx*.32,m*.34,dz*.21);
-        break;
-      case 'button':
-        item(cylinders,0x9f4e6f,x,.10,z,m*1.18,.068,m*1.18);
-        for(const side of [-1,1])oval(0xffd8d9,x+side*m*.20,.136,z,m*.19,.012,m*.20);
-        break;
-      case 'pixel':
-        block(alt?0x6ed8df:0x23a594,x,.12,z,dx*.70,.073,dz*.68);
-        block(0xecffd4,x-dx*.17,.159,z-dz*.17,dx*.13,.007,dz*.125);
-        break;
-      case 'fish':
-        oval(0xd68532,x,.13,z,m*1.18,m*.87,m*1.18);
-        break;
-      case 'egg':
-        oval(alt?0xfff7df:0xf1ca98,x,.145,z,dx*.54,m*1.04,dz*.66);
-        break;
-      case 'soap':
-        block(alt?0x8372b7:0x537f97,x,.13,z,dx*.64,.099,dz*.64);
-        break;
-      case 'bun':
-        oval(0xd78a43,x,.126,z,dx*.65,m*.75,dz*.65);
-        block(0xf5c678,x,.126+m*.38,z,dx*.32,.013,dz*.085);
-        break;
-      case 'sock':
-        block(alt?0xbe657f:0x46888a,x-dx*.086,.116,z-dz*.069,dx*.32,.071,dz*.51);
-        block(alt?0xbe657f:0x46888a,x+dx*.07,.116,z+dz*.13,dx*.43,.071,dz*.25);
-        break;
+  const texture=new T.CanvasTexture(image);
+  texture.colorSpace=T.SRGBColorSpace;
+  texture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+  return texture;
+}
+function numberPlate(parent, text, x,y,z,w,d,fg,bg,sub=''){
+  const panel=new T.Mesh(new T.PlaneGeometry(w,d),new T.MeshBasicMaterial({map:digitTexture(text,fg,bg,sub)}));
+  panel.rotation.x=-Math.PI/2;
+  panel.position.set(x,y,z);
+  parent.add(panel);
+  return panel;
+}
+function makeStarGeometry(){
+  const outline=new T.Shape();
+  for(let i=0;i<10;i++){
+    const a=Math.PI/2+i*Math.PI/5,r=i%2?.23:.5;
+    if(i===0)outline.moveTo(Math.cos(a)*r,Math.sin(a)*r);
+    else outline.lineTo(Math.cos(a)*r,Math.sin(a)*r);
+  }
+  outline.closePath();
+  return new T.ExtrudeGeometry(outline,{depth:.13,steps:1,bevelEnabled:false});
+}
+function starConstellation(parent){
+  box(0,.018,0,2.58,.06,2.28,0x253960,parent);
+  // Eight strokes of nine stars trace “72” with clear spaces at the joints.
+  const strokes=[
+    [-1.13,-.79,-.24,-.79],[-.24,-.79,-.24,0],[-.24,0,-.24,.79],
+    [.22,-.79,1.11,-.79],[1.11,-.79,1.11,0],[1.11,0,.22,0],
+    [.22,0,.22,.79],[.22,.79,1.11,.79]
+  ];
+  const stars=new T.InstancedMesh(makeStarGeometry(),material(0xffd66c),72);
+  const item=new T.Object3D();
+  item.rotation.x=-Math.PI/2;
+  item.scale.setScalar(.088);
+  strokes.forEach(([x1,z1,x2,z2],row)=>{
+    for(let i=0;i<9;i++){
+      const t=(i+1)/10;
+      item.position.set(x1+(x2-x1)*t,.17,z1+(z2-z1)*t);
+      item.updateMatrix();
+      stars.setMatrixAt(row*9+i,item.matrix);
     }
-  }
-  for(let i=0;i<total;i++){
-    const row=Math.floor(i/fact.cols);
-    const columnsInRow=Math.min(fact.cols,total-row*fact.cols);
-    const x=(i%fact.cols-(columnsInRow-1)/2)*stepX;
-    const z=(row-(rows-1)/2)*stepZ;
-    const pad=rowColors[i%rowColors.length];
-    if(fact.kind==='chess'){
-      for(let c=0;c<8;c++){
-        main.userData.items++;
-        const size=stepX/8;
-        block((i+c)%2?0x435975:0xfcebca,(c-3.5)*size,.024,z,size*.94,.046,stepZ*.91);
+  });
+  parent.add(stars);
+}
+function modelFact(fact,total){
+  const m=group(fact.x,fact.y,fact.z);
+  m.name=fact.kind+'-display';
+  m.userData={product:8*total,stars:fact.kind==='stars'?72:0};
+  const b=(x,y,z,w,h,d,c)=>box(x,y,z,w,h,d,c,m);
+  const c=(x,y,z,w,h,d,color)=>cyl(x,y,z,w,h,d,color,m);
+  const o=(x,y,z,w,h,d,color)=>ball(x,y,z,w,h,d,color,m);
+  const sign=(text,x,y,z,w,d,fg,bg,sub)=>numberPlate(m,text,x,y,z,w,d,fg,bg,sub);
+  switch(fact.kind){
+    case 'cake':
+      c(0,.055,0,1.54,.11,1.54,0xddd7f5);
+      c(0,.26,0,1.36,.38,1.36,0xe7a474);
+      c(0,.47,0,1.38,.15,1.38,0xf2a6ba);
+      for(let a=0;a<12;a++){
+        const angle=a*Math.PI/6;
+        o(.58*Math.sin(angle),.55,.58*Math.cos(angle),.125,.13,.125,0xffeee0);
       }
-      continue;
-    }
-    if(fact.kind==='fish'){
-      item(cylinders,0xfff0d3,x,.039,z,stepX*.94,.075,stepZ*.92);
-      item(cylinders,pad,x,.077,z,stepX*.84,.013,stepZ*.82);
-    }else{
-      block(0x745d53,x,.033,z,stepX*.94,.064,stepZ*.90);
-      block(pad,x,.074,z,stepX*.86,.024,stepZ*.80);
-    }
-    for(let n=0;n<8;n++){
-      main.userData.items++;
-      makeObject(x+(n%4-1.5)*stepX*.19,z+(Math.floor(n/4)-.5)*stepZ*.31,stepX*.19,stepZ*.31,n%2);
+      for(const x of [-.24,.24]){
+        b(x,.64,.07,.35,.23,.48,0xfff4d6);
+        o(x,.88,-.09,.105,.22,.14,0xffaa46);
+      }
+      sign('16',0,.759,.07,.69,.40,'#a03965','#fff4d6');
+      break;
+    case 'clock':
+      c(0,.085,0,1.49,.17,1.49,0x477c76);
+      c(0,.174,0,1.35,.025,1.35,0xffe9c0);
+      for(let a=0;a<12;a++){
+        const angle=a*Math.PI/6;
+        o(.554*Math.sin(angle),.203,.554*Math.cos(angle),.061,.039,.061,0x477c76);
+      }
+      sign('24',0,.204,0,.81,.54,'#254c54','#ffe9c0','小時');
+      break;
+    case 'shirt':
+      b(0,.14,-.20,1.28,.23,1.19,0x3e7cb2);
+      for(const x of [-.78,.78]) {
+        const sleeve=b(x,.135,-.48,.53,.21,.57,0x3e7cb2);
+        sleeve.rotation.y=x>0?.38:-.38;
+        b(x,.252,-.43,.39,.022,.105,0xe9e9d9);
+      }
+      c(0,.267,-.727,.34,.035,.23,0x244e73);
+      sign('32',0,.261,-.065,.91,.59,'#fff4cd','#3e7cb2');
+      break;
+    case 'fishball':
+      c(-.39,.06,.04,1.34,.11,1.34,0xffe7c6);
+      c(-.39,.114,.04,1.13,.035,1.13,0xfff8e7);
+      o(-.39,.36,.04,.76,.64,.76,0xd7883b);
+      b(.53,.35,.05,1.16,.20,.69,0xfad25e);
+      sign('$40',.53,.452,.05,1.08,.63,'#684334','#fad25e');
+      break;
+    case 'bus':
+      b(0,.32,0,1.08,.63,1.87,0xf0ae56);
+      b(0,.646,0,1.13,.065,1.88,0xf6c66d);
+      b(0,.36,.974,.85,.35,.031,0x487388);
+      for(const x of [-.565,.565]) {
+        for(const z of [-.58,0,.58])b(x,.46,z,.065,.31,.42,0x5a96af);
+        for(const z of [-.64,.64])o(x,.17,z,.28,.30,.34,0x354358);
+      }
+      sign('48',0,.681,0,.91,1.17,'#394e5d','#f6c66d');
+      break;
+    case 'bubble':
+      o(0,.679,0,1.43,1.30,1.43,0x77cecf);
+      o(-.36,1.045,-.34,.46,.34,.29,0xb1e6e4);
+      sign('56',0,1.318,0,.73,.41,'#275970','#94dddb');
+      break;
+    case 'console':
+      b(0,.16,0,2.15,.29,1.47,0x7ea99c);
+      b(0,.321,-.175,1.62,.035,.73,0x223b4d);
+      sign('64',0,.344,-.175,1.51,.64,'#b6f0a4','#223b4d','最高分');
+      c(.68,.356,.414,.19,.095,.19,0xf28991);
+      c(.40,.356,.414,.19,.095,.19,0xf0c376);
+      b(-.54,.353,.41,.31,.051,.113,0x426074);
+      b(-.54,.354,.41,.113,.051,.31,0x426074);
+      break;
+    case 'stars':
+      starConstellation(m);
+      break;
+    case 'balloon': {
+      const balloon=o(0,.83,-.12,1.64,1.33,1.88,0xd779ab);
+      balloon.rotation.y=.12;
+      o(-.43,1.125,-.43,.50,.34,.34,0xeb9bc6);
+      o(0,.47,.89,.23,.24,.23,0xd779ab);
+      const string=new T.CatmullRomCurve3([new T.Vector3(0,.46,.93),new T.Vector3(.14,.26,1.04),new T.Vector3(.28,.15,1.17)]);
+      mesh(new T.TubeGeometry(string,12,.016,6),0,0,0,1,1,1,0x8f587b,m);
+      sign('80',0,1.509,-.09,.91,.56,'#592f62','#e88fbd');
+      break;
     }
   }
-  for(const {geometry,color,matrices} of batches.values()){
-    const instances=new T.InstancedMesh(geometry,material(color),matrices.length);
-    matrices.forEach((matrix,i)=>instances.setMatrixAt(i,matrix));
-    instances.castShadow=true;
-    instances.receiveShadow=true;
-    main.add(instances);
-  }
-  return main;
+  return m;
 }
 for(let i=1;i<facts.length;i++){
   const f=facts[i];
@@ -405,7 +461,7 @@ for(let i=1;i<facts.length;i++){
   const detailModel=exhibit.clone();
   detailModel.visible=false;
   detailScene.add(detailModel);
-  box(0,-.056,0,f.w+.16,.10,f.d+.16,0xe5b78a,detailModel);
+  
   stations[i].detailModel=detailModel;
 }
 
@@ -482,7 +538,7 @@ function openStation(station){
   const f=station.fact;
   const count=station.number;
   $('detailTitle').textContent=station.name+' · 8 × '+count+' ＝ '+8*count;
-  $('detailLine').textContent=f?f.groups+'，'+f.each+'，共 '+8*count+' '+f.count:'1 隻八爪魚有 8 條腳';
+  $('detailLine').textContent=f?f.title:'1 隻八爪魚有 8 條腳';
   document.body.classList.add('detail');
   $('detailPanel').hidden=false;
   visited.add(count-1);
