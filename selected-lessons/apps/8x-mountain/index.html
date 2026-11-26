@@ -67,3 +67,4 @@ function tick(now){motion(now);if(active&&deadline&&!locked){let left=deadline-n
 render();modal(`<div class="dialog-icon">⛰️</div><h2>8 × 登山冒險</h2><button class="primary" id="go">${s.steps?'繼續爬！':'出發！'}</button>`);$('go').onclick=()=>{active=true;$('dialog').close();if(s.completed){active=false;showResults();return}if((s.counts[s.n]||0)>=target()){next()}else if(s.steps||s.queue.length){startQuestion()}else next()};requestAnimationFrame(tick);
 </script></html>
 
+
