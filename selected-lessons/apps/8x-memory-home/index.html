@@ -19,7 +19,7 @@
 <body>
 <div class="ios-blur-fix" aria-hidden="true"></div>
 <div id="world" aria-label="八的乘法立體記憶之家"></div>
-<div class="hud"><div class="plate"><div class="mark">8</div><div><h1>八的乘法・記憶之家</h1><div id="progress">已探索 1／10 站</div></div></div><div class="guide" id="guide">從大門開始探索</div></div>
+<div class="hud"><div class="plate"><div class="mark">8</div><div><h1>八的乘法・記憶之家</h1><div id="progress">已探索 1／10 站</div></div></div><div class="guide" id="guide">沿金色小路探索</div></div>
 <div class="top"><button class="icon" id="mapButton" aria-label="站點地圖" title="站點地圖">地圖</button><button class="icon" id="resetCamera" aria-label="復原視角" title="復原視角">↺</button><button class="icon" id="full" aria-label="全螢幕" title="全螢幕">⛶</button></div>
 <div class="help"><span class="desktopHelp">WASD／方向鍵移動 · 拖曳轉視角 · E 查看</span><span class="touchHelp">左下搖桿移動 · 拖畫面轉視角</span></div>
 <div id="stick" aria-label="移動搖桿"><div id="knob"></div></div>
@@ -48,7 +48,7 @@ const detailLight=new T.DirectionalLight(0xffecd3,2.05);
 detailLight.position.set(-12,28,13);
 detailScene.add(detailLight);
 scene.background = new T.Color(0xc4e1d8);
-scene.fog = new T.Fog(0xc4e1d8,34,74);
+scene.fog = new T.Fog(0xc4e1d8,23,46);
 const camera = new T.PerspectiveCamera(46,1,.1,110);
 renderer.setPixelRatio(Math.min(devicePixelRatio,1.65));
 renderer.shadowMap.enabled = true;
@@ -63,7 +63,7 @@ sun.castShadow = true;
 sun.shadow.mapSize.set(1024,1024);
 Object.assign(sun.shadow.camera,{left:-22,right:22,top:21,bottom:-21,near:1,far:65});
 sun.shadow.normalBias=.045;
-scene.add(sun);
+scene.add(sun,sun.target);
 const boxes = new T.BoxGeometry(1,1,1);
 const balls = new T.SphereGeometry(.5,16,12);
 const cylinders = new T.CylinderGeometry(.5,.5,1,20);
@@ -90,63 +90,19 @@ function group(x,y,z,parent=scene) {
 }
 const cream=0xffedce, wood=0xb77b53, pale=0xe6a877, leaf=0x689269, teal=0x448b83, navy=0x344e66, rose=0xd8878f;
 function solid(x,z,w,d){obstacles.push({x,z,w,d});}
-function rug(x,z,w,d,color){
-  box(x,.028,z,w,.045,d,color).castShadow=false;
-  box(x,.054,z,w-.35,.012,d-.35,color).castShadow=false;
-}
-function plant(x,z,scale=1){
-  const g=group(x,0,z);g.scale.setScalar(scale);
-  cyl(0,.27,0,.81,.54,.81,0xbd8069,g);
-  cyl(0,.55,0,.84,.10,.84,0xd79e7f,g);
-  for(let i=0;i<6;i++){
-    const a=i*1.047;
-    const l=ball(Math.cos(a)*.24,.8+i%3*.16,Math.sin(a)*.24,.26,.76,.28,i%2?leaf:0x85a874,g);
-    l.rotation.z=Math.sin(a)*.65;
-    l.rotation.x=Math.cos(a)*.65;
-  }
-}
-box(0,-.36,0,140,.18,140,0xa7cbbc);
-box(0,-.19,0,33.8,.34,25.8,0xb88869);
-const roomColors=[0xe7b989,0xdab793,0xddbdab,0xe3c39b,0xbccfc6,0xd6c8e1];
-for(let j=0;j<2;j++) for(let i=0;i<3;i++){
-  const x=-11+i*11,z=6-j*12;
-  const base=roomColors[j*3+i];
-  box(x,-.015,z,10.97,.035,11.97,base).castShadow=false;
-  for(let k=0;k<11;k++){
-    const rz=z-5.5+k;
-    const stripe=new T.Color(base).multiplyScalar(k%3===0?.985:1.035).getHex();
-    box(x,.007,rz,10.9,.009,.97,stripe).castShadow=false;
-  }
-}
-function boundary(x,z,w,d,h){
-  box(x,h/2,z,w,h,d,0xf3dabd);
-  box(x,h,z,w+.12,.13,d+.12,0xffedcf);
-}
-boundary(0,-12,33,.34,2.9);
-boundary(-16.5,0,.30,24,1.15);
-boundary(16.5,0,.30,24,1.15);
-for(const [x,z,w,d] of [[-5.5,9,.21,6],[-5.5,-8,.21,8],[5.5,8,.21,8],[5.5,-8,.21,8],[-13,0,7,.22],[11.5,0,10,.22]]){
-  boundary(x,z,w,d,.69);solid(x,z,w,d);
-}
-for(const x of [-12,-4,4,12]){
-  box(x,1.83,-11.80,3.62,1.66,.16,0xf9eacf);
-  box(x,1.83,-11.69,3.36,1.41,.09,0x9fcfc5);
-  box(x,1.83,-11.61,.07,1.45,.08,0xffe9c7);
-  box(x,1.83,-11.61,3.39,.065,.08,0xffe9c7);
-  box(x,1,-11.58,3.75,.12,.30,0xfbe6c1);
-}
-for(const [x,z,s] of [[-15,10,1],[-7,10.7,.9],[14.9,9.8,1.1],[-15,-10.6,.9],[-1.2,-10.8,.92],[15.3,-10.4,1],[7.7,10.5,.9],[2,10.8,.85],[-8,-1.7,.9],[8.4,1.65,.88]]) plant(x,z,s);
-for(let i=0;i<16;i++){
-  const x=-27+i*3.65,z=-17-Math.sin(i)*4;
-  cyl(x,1.05,z,.37,2.1,.37,wood);
-  ball(x,2.5,z,2.5,3.35,2.6,i%3?0x8fb5a0:0x9ac6a2);
-}
-rug(-11,8,4.3,3.1,0x76a99a);
-rug(-.5,4.7,8.9,5.9,0xdb9d88);
-rug(11,6.1,7.3,6.5,0xa8b49c);
-rug(-10,-7.5,7.8,5.8,0xc5a3b1);
-rug(.4,-7,7.9,6.1,0x91b5ab);
-rug(10.8,-7.4,8.1,6.3,0xb4a7cc);
+// The rooms follow one winding route, with an approach space in front of each exhibit.
+const places=[
+ {x:0,z:0, floor:0x86afa0, rim:0xdac194, theme:'大門'},
+ {x:24,z:0, floor:0xe9aab0, rim:0xffdabb, theme:'鞋架'},
+ {x:49,z:-2, floor:0x99c4a4, rim:0xddebba, theme:'梳化'},
+ {x:67,z:-22, floor:0x54577e, rim:0x867ea6, theme:'電視'},
+ {x:47,z:-42, floor:0xe7ab6c, rim:0xffd992, theme:'飯桌'},
+ {x:22,z:-40, floor:0x9dd4dc, rim:0xe6f2ee, theme:'雪櫃'},
+ {x:-3,z:-43, floor:0x77b9ab, rim:0xbce4c9, theme:'洗手盆'},
+ {x:-26,z:-31, floor:0x6d789d, rim:0xcac2f4, theme:'書桌'},
+ {x:-26,z:-6, floor:0x6b699c, rim:0xb9a9cc, theme:'睡床'},
+ {x:-23,z:19, floor:0xe3a7be, rim:0xf5dcaf, theme:'衣櫃'}
+];
 const stations = [
  {name:'大門',x:-12,z:10.8,ax:-12,az:9.25},
  {name:'鞋架',x:-7.6,z:6.8,ax:-9.3,az:6.8},
@@ -159,10 +115,206 @@ const stations = [
  {name:'睡床',x:9.6,z:-7.8,ax:9.6,az:-5.25},
  {name:'衣櫃',x:14.1,z:-9.55,ax:14.1,az:-7.85}
 ];
+const roomGroups=places.map((p,i)=>{
+  p.dx=p.x-stations[i].x;p.dz=p.z-stations[i].z;
+  return group(p.dx,0,p.dz);
+});
+const walkPads=[],pathSegments=[];
+const ground=box(20,-.43,-13,150,.3,124,0x96b9a2);
+ground.castShadow=false;
+function ellipse(x,z,w,d,color,rim,parent){
+  const outer=cyl(x,-.18,z,w+.60,.26,d+.60,rim,parent);
+  const floor=cyl(x,-.080,z,w,.18,d,color,parent);
+  outer.castShadow=floor.castShadow=false;
+  const t=parent.position;
+  walkPads.push({x:x+t.x,z:z+t.z,rx:w*.5,rz:d*.5});
+}
+function pathStrip(a,b){
+  const dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz);
+  const angle=Math.atan2(-dz,dx);
+  const x=(a[0]+b[0])/2,z=(a[1]+b[1])/2;
+  box(x,-.092,z,l+.9,.15,4.64,0xc0a382).rotation.y=angle;
+  box(x,-.021,z,l+.75,.055,3.95,0xead3a6).rotation.y=angle;
+  pathSegments.push({ax:a[0],az:a[1],dx,dz,d2:dx*dx+dz*dz});
+}
+const route=[
+ [0,3],[10,5],[15,0],[24,3],[34,3],[39,-5],[49,1],[59,-3],[61,-14],
+ [67,-19],[70,-32],[58,-37],[47,-39],[36,-45],[30,-38],[22,-37],
+ [12,-34],[6,-42],[-3,-40],[-13,-39],[-18,-33],[-26,-28],[-31,-19],
+ [-26,-3],[-30,9],[-23,22]
+];
+for(let i=1;i<route.length;i++)pathStrip(route[i-1],route[i]);
+for(const [x,z] of route)cyl(x,-.015,z,4.02,.06,4.02,0xead3a6).castShadow=false;
+function tree(x,z,c,p,scale=1){
+  cyl(x,1.13*scale,z,.44*scale,2.26*scale,.44*scale,wood,p);
+  ball(x,2.52*scale,z,2.19*scale,2.72*scale,2.17*scale,c,p);
+  solid(x+p.position.x,z+p.position.z,.55*scale,.55*scale);
+}
+function lamp(x,z,globe,p){
+  cyl(x,.09,z,.55,.18,.55,0x7d6d6a,p);
+  cyl(x,.97,z,.12,1.80,.12,0x7d6d6a,p);
+  ball(x,2.02,z,.45,.50,.45,globe,p);
+}
+function rail(x,z,w,d,color,p){
+  box(x,.43,z,w,.79,d,color,p);
+  box(x,.86,z,w+.13,.14,d+.13,0xffe3b1,p);
+}
+function arch(x,z,w,h,color,p,turn=0){
+  const g=group(x,0,z,p);
+  g.rotation.y=turn;
+  const r=w/2;
+  const postHeight=h-r;
+  for(const side of [-1,1])box(side*r,postHeight/2,0,.42,postHeight,.43,color,g);
+  const points=[];
+  for(let i=0;i<=16;i++){
+    const a=i*Math.PI/16;
+    points.push(new T.Vector3(Math.cos(a)*r,postHeight+Math.sin(a)*r,0));
+  }
+  mesh(new T.TubeGeometry(new T.CatmullRomCurve3(points),24,.23,7,false),0,0,0,1,1,1,color,g);
+}
+function tileLine(p,x,z,count,color){
+  for(let i=0;i<count;i++)box(x+(i-(count-1)/2)*.63,.022,z,.52,.038,.52,color,p).castShadow=false;
+}
+function roomBase(i){
+  const p=roomGroups[i], {x,z}=stations[i], {floor,rim}=places[i];
+  const plate=(dx,dz,w,d,c=floor)=>ellipse(x+dx,z+dz,w,d,c,rim,p);
+  const b=(dx,y,dz,w,h,d,c)=>{
+    if(h>.45&&y-h/2<.2)solid(x+dx+p.position.x,z+dz+p.position.z,w,d);
+    return box(x+dx,y,z+dz,w,h,d,c,p);
+  };
+  const o=(dx,y,dz,w,h,d,c)=>{
+    if(h>.50&&y-h/2<.2)solid(x+dx+p.position.x,z+dz+p.position.z,w*.69,d*.69);
+    return ball(x+dx,y,z+dz,w,h,d,c,p);
+  };
+  const c=(dx,y,dz,w,h,d,color)=>cyl(x+dx,y,z+dz,w,h,d,color,p);
+  switch(i){
+    case 0:
+      // Shell-shaped entrance courtyard with palms and a golden arch.
+      plate(0,0,13.4,12.4);plate(0,-3.5,8.8,8.1,0xa0c2ac);
+      arch(0+x,z+1.4,4.2,4.3,0xd8ab72,p);
+      for(const side of [-1,1]){
+        tree(x+side*4.5,z-2.9,0x689377,p,1.15);
+        lamp(x+side*3.2,z-.2,0xffd48d,p);
+      }
+      for(let j=0;j<7;j++)tileLine(p,x,z-5.8+j*.68,5,j%2?0xcbe5ca:0xe5e5c6);
+      break;
+    case 1:
+      // Round bakery rotunda.
+      plate(0,0,12.8,12.8);
+      c(0,.04,0,8.0,.06,8.0,0xf6cbd0);c(0,.075,0,5.2,.045,5.2,0xffdfbf);
+      for(let j=0;j<6;j++){
+        const a=j*Math.PI/3;
+        if(j!==0&&j!==3){
+          const dx=5.1*Math.cos(a),dz=5.1*Math.sin(a);
+          c(dx,1.45,dz,.48,2.9,.48,0xf9dfc8);
+          o(dx,3.03,dz,.82,.53,.82,j%2?0xeec97b:0xda879d);
+        }
+      }
+      for(let j=0;j<7;j++)b((j-3)*.55,2.82,-3.9,.52,.14,1.25,j%2?0xe88e9a:cream);
+      arch(x,z-3.5,3.6,3.55,0xfadbb0,p);
+      break;
+    case 2:
+      // Garden lounge with a crescent hedge and a curved bench.
+      plate(0,0,13.1,11.2);plate(-3.4,1.5,8,8,0xa7cfac);
+      for(let j=0;j<8;j++){
+        const a=(.73+j*.43)*Math.PI/2;
+        o(Math.cos(a)*5,.72,Math.sin(a)*4.5,2.2,1.55,2.0,j%2?0x699a76:0x84ac7a);
+      }
+      for(const dx of [-4.2,4.2])tree(x+dx,z-3.25,0x719571,p,1.25);
+      for(const dx of [-4,-2,2,4])o(dx,.35,2.5,.66,.64,.66,0xf0ca7c);
+      break;
+    case 3:
+      // Cinema fan, with rows of red seats widening away from the screen.
+      plate(0,.75,13.1,10.1);plate(0,-3.3,8.9,6.4,0x67668f);
+      for(let row=0;row<3;row++)for(const side of [-1,1]){
+        for(let seat=0;seat<=row+1;seat++){
+          const dx=side*(2.4+seat*.83),dz=-2.2+row*1.7;
+          b(dx,.42,dz,.66,.77,.56,0xb7788e);
+          b(dx,.85,dz+.21,.68,.64,.18,0x935a7b);
+        }
+      }
+      rail(x,z-4.4,5.18,.22,0x756996,p);
+      for(const dx of [-3.9,3.9])lamp(x+dx,z+3.65,0xf2a98e,p);
+      break;
+    case 4:
+      // Long banquet hall, with a central runner and a colonnade.
+      plate(0,0,12.4,13.9);plate(0,-3,8.0,10.2,0xf0bf7c);
+      b(0,.019,-2,2.15,.033,8.7,0xd68b80);
+      for(const dx of [-3.55,3.55])for(const dz of [-4.15,-.6,3.1]){
+        c(dx,1.68,dz,.52,3.35,.52,0xf8d7aa);
+        c(dx,3.38,dz,.75,.20,.75,0xe5a477);
+        lamp(x+dx,z+dz+.85,0xffdc89,p);
+      }
+      arch(x,z-5.2,4.25,4.2,0xefce9c,p);
+      break;
+    case 5:
+      // Ice gallery. Angular crystals and radial pale-blue flooring.
+      plate(0,0,12.6,12.2);plate(0,3.4,8.9,8.1,0xc6e8eb);
+      for(let j=0;j<10;j++){
+        const a=j*Math.PI/5;
+        const shard=mesh(new T.ConeGeometry(.58,2.22,5),x+5*Math.cos(a),1,z+4.1*Math.sin(a),1,1+(j%3)*.32,1,j%2?0xa2d7e3:0xd1edf0,p);
+        shard.rotation.z=Math.sin(a)*.24;
+      }
+      for(let j=0;j<5;j++)tileLine(p,x,z-3.9+j*.73,7,j%2?0xd6f0eb:0xb4e0e0);
+      break;
+    case 6:
+      // Wavy bathhouse with two overlapping pools and stepping stones.
+      plate(-2.45,.5,9.9,10.4);plate(2.7,-.7,10.3,11.1,0x8ecab8);
+      c(-3.8,.04,1.7,4.3,.07,3.64,0x529caa);
+      c(3.45,.04,-2.3,4.8,.07,3.80,0x63abb0);
+      for(let j=0;j<6;j++)c(-3.6+j*1.33,.069,Math.sin(j)*.45+.65,.79,.11,.64,j%2?0xd2e9ca:0xe9edd0);
+      arch(x+3.8,z+2.65,2.9,3.35,0xb9e2c5,p);
+      for(const dx of [-4.8,4.7])o(dx,.76,2.6,.69,1.19,.69,0xb1e1dc);
+      break;
+    case 7:
+      // Arcade half-hall, lined with cabinets and light bars.
+      plate(0,0,12.7,12.4);plate(-3.2,0,9.15,7.9,0x8585ad);
+      for(const dx of [-4.2,4.2])for(const dz of [-3.1,-1.05,1.05]){
+        b(dx,1.12,dz,1.15,2.25,1.13,dz>0?0xc28abb:0x496981);
+        b(dx,1.68,dz+.59,.80,.78,.055,0x9fc5c5);
+        b(dx,.89,dz+.60,.83,.11,.24,0xe9b38c);
+      }
+      for(let j=0;j<8;j++)tileLine(p,x,z-3.8+j*.8,5,j%2?0xc4b0de:0xada4d0);
+      break;
+    case 8:
+      // Moon-shaped bedroom with a dark crescent and hanging lights.
+      plate(0,0,13.3,13.3);plate(-2.7,1.3,9.3,10.0,0x7775a7);
+      c(-2.6,.04,-.8,7.2,.06,7.2,0x8881b6);
+      c(-1.05,.076,-.8,6.38,.035,6.38,0x6b699c);
+      for(let j=0;j<8;j++){
+        const a=-2.8+j*.48;
+        const dx=5.1*Math.cos(a),dz=5.1*Math.sin(a);
+        c(dx,.95,dz,.12,1.7,.12,0x9b8fb4);
+        o(dx,1.98+(j%3)*.15,dz,.51,.51,.51,j%2?0xfad284:0xe8bad1);
+      }
+      break;
+    case 9:
+      // Balloon pavilion, with lobed floor and ribbon-pink display arch.
+      plate(0,0,10.8,11.8);plate(-3.4,0,7.4,7.9);plate(3.4,0,7.4,7.9);
+      arch(x,z-3.8,4.6,4.6,0xdf8eb2,p);
+      arch(x,z-3.6,3.75,4.13,0xf4c9ce,p);
+      for(let j=0;j<6;j++){
+        const dx=(j%3)*.92+2.65,dz=j<3?-1.6:1.3;
+        for(const side of [-1,1]){
+          const h=1.80+(j%3)*.39;
+          c(side*dx,h*.5,dz,.032,h,.032,0xb07c97);
+          o(side*dx,h,dz,.65,.86,.65,[0xf5c47f,0xd794bd,0x9dc6be][j%3]);
+        }
+      }
+      break;
+  }
+}
+places.forEach((_,i)=>roomBase(i));
+// Trees mark turns without closing off the walkways.
+for(const [x,z] of [[12,8],[37,1],[59,-8],[64,-33],[37,-49],[13,-29],[-15,-45],[-36,-24],[-35,7],[-13,14]]){
+  tree(x,z,0x78a587,scene,1.20);
+}
 function furniture(i){
   const s=stations[i];
-  return group(s.x,0,s.z);
+  return group(s.x,0,s.z,roomGroups[i]);
 }
+
+const furnitureObstacleStart=obstacles.length;
 const door=furniture(0);
 box(0,1.65,0,2.75,3.32,.27,0xe3ae80,door);
 box(0,1.49,-.18,2.19,2.92,.18,0x458782,door);
@@ -171,7 +323,7 @@ ball(.73,1.38,-.35,.22,.22,.14,0xffd481,door);
 solid(-12,10.8,2.8,.47);
 
 // Eight separately modelled arms spread around the octopus on the front mat.
-const octopus=group(-12.15,0,8.64);
+const octopus=group(-12.15+places[0].dx,0,8.64+places[0].dz);
 const octopusHead=group(0,0,0,octopus);
 const coral=0xe16966, lightCoral=0xf39883;
 ball(0,.48,0,1.47,.77,1.34,coral,octopus);
@@ -278,6 +430,12 @@ for(const x of [-.19,.19])ball(x,1.55,.80,.14,.16,.13,cream,wardrobe);
 solid(14.1,-9.55,2.85,1.46);
 
 // Each room links its product to one distinctive object.
+// The original furniture collision boxes move with their rooms.
+const furnitureRooms=[0,0,1,2,3,4,4,4,5,6,7,8,9];
+obstacles.slice(furnitureObstacleStart).forEach((o,i)=>{
+  const {dx,dz}=places[furnitureRooms[i]];
+  o.x+=dx;o.z+=dz;
+});
 const facts=[
   null,
   {kind:'cake',x:-7.6,y:1.15,z:6.8,w:1.78,d:2.12},
@@ -348,7 +506,7 @@ function starConstellation(parent){
   parent.add(stars);
 }
 function modelFact(fact,total){
-  const m=group(fact.x,fact.y,fact.z);
+  const m=group(fact.x,fact.y,fact.z,roomGroups[total-1]);
   m.name=fact.kind+'-display';
   m.userData={product:8*total,stars:fact.kind==='stars'?72:0};
   const b=(x,y,z,w,h,d,c)=>box(x,y,z,w,h,d,c,m);
@@ -440,23 +598,25 @@ for(let i=1;i<facts.length;i++){
   const f=facts[i];
   stations[i].fact=f;
   if([3,5,6,9].includes(i)){
-    const support=group(f.x,f.y,f.z);
+    const support=group(f.x,f.y,f.z,roomGroups[i]);
     box(0,-.09,0,f.w+.16,.16,f.d+.15,pale,support);
     box(0,-f.y*.51,0,f.w*.80,f.y*.83,f.d*.8,wood,support);
-    solid(f.x,f.z,f.w+.16,f.d+.15);
+    solid(f.x+places[i].dx,f.z+places[i].dz,f.w+.16,f.d+.15);
     stations[i].ax=f.x;
     stations[i].az=f.z+f.d/2+.47;
   }
   const exhibit=modelFact(f,i+1);
   stations[i].exhibit=exhibit;
   const detailModel=exhibit.clone();
+  exhibit.rotation.y=Math.PI;
   detailModel.visible=false;
   detailScene.add(detailModel);
+  detailModel.position.x+=places[i].dx;detailModel.position.z+=places[i].dz;
   
   stations[i].detailModel=detailModel;
 }
 
-const player=group(-9.3,0,8.42);
+const player=group(-9.3+places[0].dx,0,8.42+places[0].dz);
 player.rotation.y=-1.25;
 const body=group(0,0,0,player);
 const avatarGold=0xf3c884, avatarMint=0x437f77, skin=0xf5ccaa, hair=0x37475b;
@@ -491,17 +651,14 @@ function ring(x,z,color,radius){
 }
 stations.forEach((s,i)=>{
   s.number=i+1;
+  s.ax+=places[i].dx;s.az+=places[i].dz;
   s.ring=ring(s.ax,s.az,0xffffb8,.64);
   s.spark=ball(s.ax,.32,s.az,.13,.23,.13,0xffcf70);
 });
-const arrow=mesh(new T.ConeGeometry(.19,.47,4),0,.12,0,1,1,1,0xffdf7b);
-arrow.material= new T.MeshBasicMaterial({color:0xffdf7b});
-arrow.rotation.order='YXZ';
-arrow.rotation.x=Math.PI/2;
 const initialYaw=Math.PI;
 const detailCamera=new T.OrthographicCamera(-1,1,1,-1,.1,90);
 let detail=null;
-let selected=0, near=null, yaw=initialYaw, pitch=.98, drag=null, pointerStick=null;
+let near=null, yaw=initialYaw, pitch=.98, drag=null, pointerStick=null;
 const visited=new Set([0]);
 const keys=new Set();
 let joyX=0,joyY=0;
@@ -510,7 +667,7 @@ function trackAngle(next,old){return Math.atan2(Math.sin(next-old),Math.cos(next
 function focusButton(id){$(id).focus({preventScroll:true});}
 function setGuide(){
   $('progress').textContent='已探索 '+visited.size+'／10 站';
-  $('guide').textContent=selected===null?'十站完成！可開地圖重溫。':(selected===0?'從大門開始探索':'前往第 '+(selected+1)+' 站 · '+stations[selected].name);
+  $('guide').textContent=visited.size===stations.length?'十站完成！可開地圖重溫。':'沿金色小路探索';
 }
 function clearControls(){
   keys.clear();joyX=joyY=0;pointerStick=null;drag=null;
@@ -615,8 +772,12 @@ const cameraTarget=new T.Vector3();
 const follow=player.position.clone();
 let introFraming=1;
 function canWalk(x,z){
-  return Math.abs(x)<16 && Math.abs(z)<11.65 &&
-    !obstacles.some(o=>Math.abs(x-o.x)<o.w/2+.22&&Math.abs(z-o.z)<o.d/2+.22);
+  const onRoom=walkPads.some(p=>((x-p.x)/p.rx)**2+((z-p.z)/p.rz)**2<1);
+  const onPath=pathSegments.some(p=>{
+    const t=T.MathUtils.clamp(((x-p.ax)*p.dx+(z-p.az)*p.dz)/p.d2,0,1);
+    return (x-p.ax-t*p.dx)**2+(z-p.az-t*p.dz)**2<1.93**2;
+  });
+  return (onRoom||onPath)&&!obstacles.some(o=>Math.abs(x-o.x)<o.w/2+.22&&Math.abs(z-o.z)<o.d/2+.22);
 }
 let last=performance.now(), gait=0;
 function tick(now){
@@ -628,7 +789,7 @@ function tick(now){
     const norm=Math.max(1,Math.hypot(x,z));
     const dx=(x*Math.cos(yaw)+z*Math.sin(yaw))/norm;
     const dz=(-x*Math.sin(yaw)+z*Math.cos(yaw))/norm;
-    const nx=player.position.x+dx*5.35*dt,nz=player.position.z+dz*5.35*dt;
+    const nx=player.position.x+dx*4.85*dt,nz=player.position.z+dz*4.85*dt;
     if(canWalk(nx,player.position.z))player.position.x=nx;
     if(canWalk(player.position.x,nz))player.position.z=nz;
     player.rotation.y+=trackAngle(Math.atan2(dx,dz),player.rotation.y)*Math.min(1,dt*13);
@@ -651,36 +812,36 @@ function tick(now){
   cameraTarget.set(follow.x,1.1,follow.z);
   camera.lookAt(cameraTarget);
   camera.updateMatrixWorld();
-  let best=1.47,newNear=null;
+  sun.target.position.set(follow.x,0,follow.z);
+  sun.position.set(follow.x-12,28,follow.z+13);
+  const region=detail?.number===1?places[0]:target;
+  roomGroups.forEach((g,i)=>{
+    const p=places[i];
+    g.visible=(region.x-p.x)**2+(region.z-p.z)**2<27**2;
+  });
+  let best=1.85,newNear=null;
   for(const s of stations){
     const distance=Math.hypot(target.x-s.ax,target.z-s.az);
     if(distance<best){best=distance;newNear=s;}
-    const active=s.number-1===selected;
+    const active=distance<1.85;
     s.ring.material.color.set(active?0xffd263:visited.has(s.number-1)?0x8bbeab:0xffffd4);
     s.ring.scale.setScalar(active?1.12+.10*Math.sin(now/240):1);
     s.ring.visible=s.spark.visible=detail===null;
     s.spark.position.y=.34+Math.sin(now/290+s.number)*.08;
   }
   octopusHead.position.y=.038*Math.sin(now/470);
+  if(newNear&&!visited.has(newNear.number-1)){
+    visited.add(newNear.number-1);
+    setGuide();
+  }
   near=newNear;
   $('inspect').hidden=!near||visibleOverlay();
-  arrow.visible=selected!==null;
-  if(selected!==null){
-    const goal=stations[selected];
-    const ax=goal.ax-target.x,az=goal.az-target.z;
-    const n=Math.hypot(ax,az);
-    arrow.visible=detail===null && n>1.55 && !(selected===0 && doorDistance<4.4);
-    if(n>1.55){
-      arrow.position.set(target.x+ax*.88/n,.13,target.z+az*.88/n);
-      arrow.rotation.y=Math.atan2(ax,az);
-    }
-  }
   let viewCamera=camera;
   if(detail){
     const f=detail.fact;
-    const px=f?.x??octopus.position.x;
+    const px=detail.detailModel?.position.x??octopus.position.x;
     const py=f?.y??.4;
-    const pz=f?.z??octopus.position.z;
+    const pz=detail.detailModel?.position.z??octopus.position.z;
     const aspect=width/height;
     const half=Math.max((f?.d??4.1)*.68,(f?.w??4.2)*.61/aspect,1.7);
     detailCamera.left=-half*aspect;detailCamera.right=half*aspect;
