@@ -471,8 +471,8 @@ obstacles.slice(furnitureObstacleStart).forEach((o,i)=>{
 const facts=[
   null,
   {kind:'cake',x:-7.6,y:1.15,z:6.8,w:1.78,d:2.12},
-  {kind:'clock',x:-.8,y:1.20,z:7.88,w:2.30,d:1.52,view:[.5,3.0,6],focus:1.08},
-  {kind:'tv',x:-.7,y:.68,z:1.65,w:3.7,d:1.80,view:[.45,1.65,6],focus:1.12},
+  {kind:'clock',x:-.8,y:1.05,z:7.88,w:2.75,d:1.52},
+  {kind:'tv',x:-.7,y:.68,z:1.65,w:3.7,d:1.80,view:[0,1.3,6],focus:.82},
   {kind:'fishball',x:10.75,y:1.28,z:5.6,w:3.12,d:1.85,view:[.55,4.45,5.5],focus:.48},
   {kind:'bus',x:14.2,y:1.04,z:4.51,w:2.73,d:3.19,view:[4.6,3.6,6.1],focus:.87},
   {kind:'scale',x:-11.8,y:1.16,z:-8.02,w:2.21,d:2.36,view:[.9,5.4,5.0],focus:.83},
@@ -618,42 +618,41 @@ function modelFact(fact,total){
       }
       sign('16',0,.759,.07,.69,.40,'#a03965','#fff4d6');
       break;
-    case 'clock': {
-      const center=1.34;
-      const faceDisc=(x,y,z,diameter,depth,color)=>{
-        const disc=c(x,y,z,diameter,depth,diameter,color);
-        disc.rotation.x=Math.PI/2;
-      };
-      b(0,.085,0,1.56,.17,.74,0x537f77);
-      b(0,.32,-.09,1.05,.45,.34,0x397770);
-      faceDisc(0,center,0,1.91,.21,0x397770);
-      faceDisc(0,center,.116,1.70,.035,0xfff1d4);
+    case 'clock':
+      c(0,.085,0,1.49,.17,1.49,0x477c76);
+      c(0,.174,0,1.35,.025,1.35,0xffe9c0);
       for(let i=0;i<60;i++){
-        const a=i*Math.PI/30, hour=i%5===0;
-        const tick=b(.756*Math.sin(a),center+.756*Math.cos(a),.142,hour ? .044 : .018,hour ? .125 : .046,.012,0x365851);
-        tick.rotation.z=-a;
+        const angle=i*Math.PI/30;
+        const hour=i%5===0;
+        const radius=hour ? .551 : .596;
+        const tick=b(radius*Math.sin(angle),.197,-radius*Math.cos(angle),
+          hour ? .040 : .017,.018,hour ? .11 : .042,0x345d56);
+        tick.rotation.y=-angle;
       }
-      for(const [angle,length,width,depth,color] of [[-1.04,.49,.088,.165,0x254c54],[1.07,.68,.057,.187,0x254c54],[2.67,.67,.021,.203,0xca5950]]){
-        const hand=b(Math.sin(angle)*length*.40,center+Math.cos(angle)*length*.40,depth,width,length,.024,color);
-        hand.rotation.z=-angle;
-      }
-      faceDisc(0,center,.225,.135,.039,0xca5950);
-      o(-.67,2.195,-.02,.61,.32,.45,0xeaad61).rotation.z=.62;
-      o(.67,2.195,-.02,.61,.32,.45,0xeaad61).rotation.z=-.62;
-      b(0,2.355,0,.12,.17,.18,0x397770);
-      b(0,.225,.19,1.26,.26,.26,0x397770);
-      sign('24 小時',0,.225,.325,1.16,.23,'#254c54','#ffe9c0').rotation.x=0;
+      sign('24',0,.204,0,.81,.54,'#254c54','#ffe9c0','小時');
       break;
-    }
     case 'tv': {
-      b(0,1.20,0,3.62,2.06,.24,0x273747);
-      b(0,.18,0,.28,.36,.24,0x273747);
-      b(0,.05,0,1.58,.10,.59,0x273747);
-      const screen=new T.Mesh(new T.PlaneGeometry(3.38,1.78),new T.MeshBasicMaterial({map:footballTexture}));
-      screen.position.set(0,1.28,.128);
+      b(-.64,.94,0,2.28,1.31,.18,0x273747);
+      b(-.64,.16,0,.23,.32,.19,0x273747);
+      b(-.64,.045,0,.89,.09,.48,0x273747);
+      const screen=new T.Mesh(new T.PlaneGeometry(2.12,1.12),new T.MeshBasicMaterial({map:footballTexture}));
+      screen.position.set(-.64,.97,.097);
       m.add(screen);
-      sign('32 吋',0,.283,.13,.79,.21,'#fff6dd','#273747').rotation.x=0;
-      o(1.59,.288,.141,.07,.048,.026,0x71dbc2);
+      o(.40,.332,.101,.041,.027,.015,0x71dbc2);
+      c(1.13,.046,-.07,.93,.092,.52,0x536674);
+      c(1.13,.80,-.17,.073,1.50,.073,0x536674);
+      const shirt=group(1.13,.90,.115,m);
+      shirt.name='football-shirt';
+      shirt.rotation.x=Math.PI/2;
+      shirt.scale.setScalar(.80);
+      box(0,.14,-.20,1.28,.23,1.19,0x3e7cb2,shirt);
+      for(const x of [-.78,.78]){
+        const sleeve=box(x,.135,-.48,.53,.21,.57,0x3e7cb2,shirt);
+        sleeve.rotation.y=x>0 ? .38 : -.38;
+        box(x,.252,-.43,.39,.022,.105,0xe9e9d9,shirt);
+      }
+      cyl(0,.267,-.727,.34,.035,.23,0x244e73,shirt);
+      numberPlate(shirt,'32',0,.261,-.065,.91,.59,'#fff4cd','#3e7cb2');
       break;
     }
     case 'fishball': {
