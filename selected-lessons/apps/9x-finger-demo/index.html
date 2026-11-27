@@ -15,16 +15,16 @@ button{font-family:inherit;font-weight:750;font-size:clamp(13px,1.8vw,18px);padd
 button[aria-pressed=true]{background:#514594;color:#fff}button:focus-visible{outline:3px solid #8067c7;outline-offset:3px}
 figure{margin:10px 0 0;border-radius:23px;background:linear-gradient(145deg,#faf6ff,#f3fbf8)}
 svg{display:block;width:min(100%,920px);height:auto;margin:auto;max-height:53dvh;touch-action:manipulation}
-figure{background:radial-gradient(ellipse at center,#fffcf7 22%,#f1ecfc 100%)}
-.palm{fill:url(#skin)}
-.rim,.crease{fill:none;stroke:#9d635f;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
-.crease{stroke:#c38a79;stroke-width:2;opacity:.68}
-.cuff{fill:#b9a5ec;stroke:#7c67ad;stroke-width:2.6}
+figure{background:radial-gradient(ellipse at 50% 44%,#fff9df 5%,#f4eaff 66%,#eae2fc 100%)}
+.palm{fill:url(#glove)}
+.rim,.crease{fill:none;stroke:#393052;stroke-width:4.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.crease{stroke:#8171ac;stroke-width:3.3;opacity:.83}
+.cuff{fill:#a48be6;stroke:#393052;stroke-width:4.8;stroke-linejoin:round}
 .cuff-edge{stroke:#eee4ff;stroke-width:3;stroke-linecap:round}
 .finger{cursor:pointer;outline:none}
 .extended{transition:transform .24s ease,opacity .21s ease;transform-box:fill-box;transform-origin:center bottom}
-.shaft{fill:url(#skin);pointer-events:visiblePainted}
-.curled{opacity:0;pointer-events:none;transition:opacity .2s ease;fill:url(#foldSkin);stroke:#a66965;stroke-width:2.3}
+.shaft{fill:url(#glove);pointer-events:visiblePainted}
+.curled{opacity:0;pointer-events:none;transition:opacity .2s ease;fill:url(#foldGlove);stroke:#393052;stroke-width:3.6}
 .finger.fold .extended{transform:scaleY(.31);opacity:0;pointer-events:none}
 .finger.fold .shaft{pointer-events:none}
 .finger.fold .curled{opacity:1;pointer-events:visiblePainted}
@@ -50,18 +50,19 @@ body.hiding .answer{visibility:hidden}
 <figure>
 <svg id="hands" viewBox="0 0 840 347" role="group" aria-label="由左至右的十隻手指">
 <defs>
-<linearGradient id="skin" x1="0" y1="0" x2=".75" y2="1" gradientUnits="objectBoundingBox">
-  <stop stop-color="#ffe5cf"/><stop offset=".58" stop-color="#fbd2b6"/><stop offset="1" stop-color="#efb29c"/>
+<linearGradient id="glove" x1="0" y1="65" x2="105" y2="315" gradientUnits="userSpaceOnUse">
+  <stop stop-color="#ffffff"/><stop offset=".64" stop-color="#fffdfb"/><stop offset="1" stop-color="#e3dafa"/>
 </linearGradient>
-<linearGradient id="foldSkin" x1="0" y1="0" x2="1" y2="1">
-  <stop stop-color="#fedaC1"/><stop offset="1" stop-color="#e7a58f"/>
+<linearGradient id="foldGlove" x2="0" y2="1">
+  <stop stop-color="#fff9fc"/><stop offset="1" stop-color="#d4c3f5"/>
 </linearGradient>
 <g id="palm">
-<path class="palm" d="M124 171 Q141 164 152 171 Q157 163 171 164 L190 167 Q194 160 206 160 L226 168 Q241 164 262 170 L272 178 Q296 181 306 202 Q327 212 319 236 Q310 258 284 276 Q268 290 266 313 L168 313 Q167 287 155 271 Q132 240 128 217Z"/>
-<path class="rim" d="M124 171 Q129 199 129 216 Q131 241 155 271 Q167 287 168 313 M319 236 Q310 258 284 276 Q268 290 266 313"/>
-<path class="crease" d="M155 226 Q181 209 213 215 M251 203 Q229 229 232 255 M211 287 Q225 292 244 286"/>
-<path class="cuff" d="M166 303 Q216 317 270 302 L271 328 Q218 341 164 328Z"/>
-<path class="cuff-edge" d="M175 311 Q219 322 261 311"/>
+<ellipse cx="221" cy="332" rx="105" ry="8" fill="#756198" opacity=".13"/>
+<path class="palm" d="M118 173 Q142 166 155 173 Q158 164 174 165 L192 171 Q198 161 211 161 L227 170 Q251 167 268 175 L283 190 Q303 189 312 213 Q332 225 313 252 Q304 272 277 283 Q262 294 263 314 L167 314 Q169 293 151 277 Q124 254 120 226 Q116 201 118 173Z"/>
+<path class="rim" d="M118 173 Q116 201 120 226 Q124 254 151 277 Q169 293 167 314 M320 233 Q318 260 277 283 Q262 294 263 314"/>
+<path class="crease" d="M164 213 Q173 208 183 211 M165 232 Q176 227 187 230 M171 251 Q181 246 191 249"/>
+<path class="cuff" d="M166 297 Q210 310 265 296 Q271 296 272 303 L274 322 Q273 330 263 332 Q218 344 166 330 Q159 327 160 320 L160 305 Q160 299 166 297Z"/>
+<path class="cuff-edge" d="M172 306 Q211 317 262 305"/>
 </g></defs>
 <use href="#palm"/><use href="#palm" transform="translate(840 0) scale(-1 1)"/>
 <g id="fingers"></g>
@@ -80,11 +81,11 @@ const tens=document.getElementById('tens');
 const units=document.getElementById('units');
 const equation=document.getElementById('equation');
 const leftHand=[
-  {base:136,tip:117,y:109,w:29,bottom:183},
-  {base:171,tip:157,y:74,w:33,bottom:178},
-  {base:209,tip:205,y:59,w:36,bottom:175},
-  {base:250,tip:252,y:76,w:34,bottom:183},
-  {base:294,tip:334,y:151,w:34,bottom:230}
+  {base:136,tip:112,y:105,w:36,bottom:174},
+  {base:174,tip:157,y:71,w:40,bottom:174},
+  {base:211,tip:205,y:54,w:43,bottom:173},
+  {base:252,tip:254,y:72,w:40,bottom:176},
+  {base:300,tip:334,y:147,w:42,bottom:233}
 ];
 const controls=[];
 let folded=0,showing=false;
@@ -109,7 +110,7 @@ for(let i=0;i<10;i++){
   const mirror=right?'transform="translate(840 0) scale(-1 1)"':'';
   g.innerHTML=`<g ${mirror}>
     <g class="extended"><path class="shaft" d="${outline} Q${base} ${bottom+7} ${base-half} ${bottom}Z"/><path class="rim" d="${outline}"/>
-    <path class="crease" d="M${tip-5} ${y+36} q5 -3 10 0"/></g>
+    </g>
     <path class="curled" d="${curled}"/></g>
     <g class="number"><circle cx="${x}" cy="${labelY}" r="17"/><text x="${x}" y="${labelY+8}">${number}</text></g>`;
   g.addEventListener('click',()=>choose(number));
