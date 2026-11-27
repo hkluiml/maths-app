@@ -56,15 +56,15 @@ body.hiding .answer{visibility:hidden}
 <linearGradient id="foldGlove" x2="0" y2="1">
   <stop stop-color="#fff9fc"/><stop offset="1" stop-color="#d4c3f5"/>
 </linearGradient>
-<g id="palm">
+<g id="glove-back">
 <ellipse cx="221" cy="332" rx="105" ry="8" fill="#756198" opacity=".13"/>
 <path class="palm" d="M118 173 Q142 166 155 173 Q158 164 174 165 L192 171 Q198 161 211 161 L227 170 Q251 167 268 175 L283 190 Q303 189 312 213 Q332 225 313 252 Q304 272 277 283 Q262 294 263 314 L167 314 Q169 293 151 277 Q124 254 120 226 Q116 201 118 173Z"/>
 <path class="rim" d="M118 173 Q116 201 120 226 Q124 254 151 277 Q169 293 167 314 M320 233 Q318 260 277 283 Q262 294 263 314"/>
-<path class="crease" d="M164 213 Q173 208 183 211 M165 232 Q176 227 187 230 M171 251 Q181 246 191 249"/>
+<path class="crease" d="M172 247 Q170 226 159 208 M195 245 Q196 222 192 200 M217 243 Q224 223 227 204"/>
 <path class="cuff" d="M166 297 Q210 310 265 296 Q271 296 272 303 L274 322 Q273 330 263 332 Q218 344 166 330 Q159 327 160 320 L160 305 Q160 299 166 297Z"/>
 <path class="cuff-edge" d="M172 306 Q211 317 262 305"/>
 </g></defs>
-<use href="#palm"/><use href="#palm" transform="translate(840 0) scale(-1 1)"/>
+<use href="#glove-back" transform="translate(440 0) scale(-1 1)"/><use href="#glove-back" transform="translate(400 0)"/>
 <g id="fingers"></g>
 </svg>
 </figure>
@@ -91,12 +91,12 @@ const controls=[];
 let folded=0,showing=false;
 for(let i=0;i<10;i++){
   const right=i>=5;
-  const {base,tip,y,w,bottom}=leftHand[right?9-i:i];
+  const {base,tip,y,w,bottom}=leftHand[right?i-5:4-i];
   const number=i+1;
-  const x=right?840-tip:tip;
+  const x=right?400+tip:440-tip;
   const labelY=y-25;
   const half=w/2;
-  const thumb=i===4||i===5;
+  const thumb=i===0||i===9;
   const palmDepth=thumb?32:34;
   const outline=`M${base-half} ${bottom} C${base-half} ${bottom-20} ${tip-half} ${y+39} ${tip-half} ${y+17}
     C${tip-half} ${y-5} ${tip+half} ${y-5} ${tip+half} ${y+17}
@@ -107,8 +107,8 @@ for(let i=0;i<10;i++){
   const g=document.createElementNS('http://www.w3.org/2000/svg','g');
   g.classList.add('finger');g.setAttribute('role','button');g.setAttribute('tabindex','0');
   g.setAttribute('aria-label','第 '+number+' 隻手指');
-  const mirror=right?'transform="translate(840 0) scale(-1 1)"':'';
-  g.innerHTML=`<g ${mirror}>
+  const handTransform=right?'translate(400 0)':'translate(440 0) scale(-1 1)';
+  g.innerHTML=`<g transform="${handTransform}">
     <g class="extended"><path class="shaft" d="${outline} Q${base} ${bottom+7} ${base-half} ${bottom}Z"/><path class="rim" d="${outline}"/>
     </g>
     <path class="curled" d="${curled}"/></g>
