@@ -38,6 +38,7 @@ body.outside .hud,body.outside .top,body.entering #stick,body.entering .help{dis
 #creatorCredit{position:fixed;right:max(14px,calc(env(safe-area-inset-right) + 10px));bottom:max(12px,calc(env(safe-area-inset-bottom) + 8px));z-index:5;color:#62636d;font-size:clamp(11px,1.35vw,14px);font-weight:500;letter-spacing:.035em;line-height:1.4;white-space:nowrap;pointer-events:none;user-select:none;text-shadow:0 1px 3px #ffffffd9,0 0 5px #ffffffa6}
 body:not(.outside) #creatorCredit,body.entering #creatorCredit{display:none}
 @media(pointer:coarse){#creatorCredit{bottom:max(46px,calc(env(safe-area-inset-bottom) + 40px))}}
+@media(pointer:coarse){#outsideHelp{display:none!important}}
 </style>
 </head>
 <body class="outside">
@@ -45,8 +46,8 @@ body:not(.outside) #creatorCredit,body.entering #creatorCredit{display:none}
 <div id="world" aria-label="八的乘法立體記憶之家"></div>
 <div class="hud"><div class="plate"><div class="mark">8</div><div><h1>八的乘法・記憶之家</h1><div id="progress">已探索 1／10 站</div></div></div><div class="guide" id="guide">自由探索大廳</div></div>
 <div class="top"><button class="icon" id="numbersToggle" aria-pressed="false">隱藏數字</button><button class="icon" id="mapButton" aria-label="站點地圖" title="站點地圖">地圖</button><button class="icon" id="returnOutside" aria-label="回到門外" title="回到門外"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7M5.5 9v11h13V9M10 20v-6h4v6"/></svg></button><button class="icon" id="full" aria-label="全螢幕" title="全螢幕">⛶</button></div>
-<div class="help" id="insideHelp"><span class="desktopHelp">WASD／方向鍵移動 · 拖曳轉視角 · E 查看</span><span class="touchHelp">左下搖桿移動 · 拖畫面轉視角</span></div>
-<div class="help" id="outsideHelp"><span class="desktopHelp">WASD／方向鍵移動</span><span class="touchHelp">左下搖桿移動</span></div>
+<div class="help" id="insideHelp"><span class="desktopHelp">WASD／方向鍵移動 · 拖曳轉視角 · E 查看</span><span class="touchHelp">拖畫面轉視角</span></div>
+<div class="help" id="outsideHelp"><span class="desktopHelp">WASD／方向鍵移動</span></div>
 <div id="stick" aria-label="移動搖桿"><div id="knob"></div></div>
 <button id="inspect" hidden>查看</button>
 <section id="detailPanel" aria-label="模型特寫" hidden>
