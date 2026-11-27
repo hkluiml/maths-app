@@ -1,4 +1,4 @@
-const cacheName = 'p2-maths-offline-v19';
+const cacheName = 'p2-maths-offline-v20';
 const scope = new URL(self.registration.scope);
 const files = [
   'selected-lessons/index.html',
@@ -28,6 +28,7 @@ const files = [
   'selected-lessons/apps/multiplication-8/index.html',
   'selected-lessons/apps/multiplication-9/index.html',
   'selected-lessons/apps/classroom-random-number/index.html',
+  'practicum-planner/index.html',
   'direction-treasure/index.html',
   'direction-explorers/index.html',
 ].map(path => new URL(path, scope).href);
