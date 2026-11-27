@@ -1,4 +1,4 @@
-const cacheName = 'p2-maths-offline-v18';
+const cacheName = 'p2-maths-offline-v19';
 const scope = new URL(self.registration.scope);
 const files = [
   'selected-lessons/index.html',
