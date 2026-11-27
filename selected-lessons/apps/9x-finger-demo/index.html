@@ -15,12 +15,22 @@ button{font-family:inherit;font-weight:750;font-size:clamp(13px,1.8vw,18px);padd
 button[aria-pressed=true]{background:#514594;color:#fff}button:focus-visible{outline:3px solid #8067c7;outline-offset:3px}
 figure{margin:10px 0 0;border-radius:23px;background:linear-gradient(145deg,#faf6ff,#f3fbf8)}
 svg{display:block;width:min(100%,920px);height:auto;margin:auto;max-height:53dvh;touch-action:manipulation}
-.palm{fill:#ffdcb9;stroke:#b27760;stroke-width:3;stroke-linejoin:round}
-.crease{fill:none;stroke:#cb9375;stroke-width:2.5;stroke-linecap:round}
-.finger{cursor:pointer;outline:none}.finger .shaft{fill:#ffdcb9;stroke:#b27760;stroke-width:3;stroke-linecap:round;transition:transform .24s ease,fill .23s;transform-box:fill-box;transform-origin:center bottom}
-.finger.left .shaft{fill:#ded7fc;stroke:#8174ba}.finger.right .shaft{fill:#bdebdc;stroke:#578e7e}
-.finger.fold .shaft{transform:scaleY(.25);fill:#ffbe92;stroke:#ad6350}
-.number circle{fill:#fff;stroke:#d4c7e6;stroke-width:2}.number text{font-size:24px;font-weight:800;fill:#4e4372;text-anchor:middle;pointer-events:none}
+figure{background:radial-gradient(ellipse at center,#fffcf7 22%,#f1ecfc 100%)}
+.palm{fill:url(#skin)}
+.rim,.crease{fill:none;stroke:#9d635f;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.crease{stroke:#c38a79;stroke-width:2;opacity:.68}
+.cuff{fill:#b9a5ec;stroke:#7c67ad;stroke-width:2.6}
+.cuff-edge{stroke:#eee4ff;stroke-width:3;stroke-linecap:round}
+.finger{cursor:pointer;outline:none}
+.extended{transition:transform .24s ease,opacity .21s ease;transform-box:fill-box;transform-origin:center bottom}
+.shaft{fill:url(#skin);pointer-events:visiblePainted}
+.curled{opacity:0;pointer-events:none;transition:opacity .2s ease;fill:url(#foldSkin);stroke:#a66965;stroke-width:2.3}
+.finger.fold .extended{transform:scaleY(.31);opacity:0;pointer-events:none}
+.finger.fold .shaft{pointer-events:none}
+.finger.fold .curled{opacity:1;pointer-events:visiblePainted}
+.number circle{fill:#fffdf9;stroke:#d3c5e8;stroke-width:2}.number text{font-size:23px;font-weight:820;fill:#4e4372;text-anchor:middle;pointer-events:none}
+.finger.left .number circle{fill:#e8dffa;stroke:#a48bd4}.finger.left .number text{fill:var(--left)}
+.finger.right .number circle{fill:#dff5ec;stroke:#80bbab}.finger.right .number text{fill:var(--right)}
 .finger.fold .number circle{fill:#6a53ae;stroke:#6a53ae}.finger.fold .number text{fill:#fff}
 .finger:focus-visible .number circle{stroke:#292053;stroke-width:4}
 .summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:12px;text-align:center}
@@ -29,7 +39,7 @@ svg{display:block;width:min(100%,920px);height:auto;margin:auto;max-height:53dvh
 .card strong{font-size:clamp(23px,4.5vw,45px);display:block;font-variant-numeric:tabular-nums}
 body.hiding .answer{visibility:hidden}
 @media(max-height:540px) and (min-width:650px){body{padding:8px}main{padding:12px 17px}svg{max-height:51dvh}.card{padding:5px}}
-@media(prefers-reduced-motion:reduce){.finger .shaft{transition:none}}
+@media(prefers-reduced-motion:reduce){.finger .extended,.finger .curled{transition:none}}
 </style>
 </head>
 <body class="hiding">
@@ -38,10 +48,20 @@ body.hiding .answer{visibility:hidden}
 <header><div><h1>9 的乘法手指示範</h1><p>由左至右數，點一隻手指收起。</p></div>
 <nav aria-label="示範控制"><button id="reveal" aria-pressed="false">顯示答案</button><button id="reset">伸開全部</button></nav></header>
 <figure>
-<svg id="hands" viewBox="0 0 840 336" role="group" aria-label="由左至右的十隻手指">
-<defs><g id="palm">
-<path class="palm" d="M120 188 Q126 164 159 166 L296 169 Q330 172 343 196 Q354 223 336 251 L299 283 Q285 297 283 323 L174 323 Q174 302 158 281 Q126 248 120 216Z"/>
-<path class="crease" d="M160 227Q195 207 238 219 M272 210Q250 232 260 263"/>
+<svg id="hands" viewBox="0 0 840 347" role="group" aria-label="由左至右的十隻手指">
+<defs>
+<linearGradient id="skin" x1="0" y1="0" x2=".75" y2="1" gradientUnits="objectBoundingBox">
+  <stop stop-color="#ffe5cf"/><stop offset=".58" stop-color="#fbd2b6"/><stop offset="1" stop-color="#efb29c"/>
+</linearGradient>
+<linearGradient id="foldSkin" x1="0" y1="0" x2="1" y2="1">
+  <stop stop-color="#fedaC1"/><stop offset="1" stop-color="#e7a58f"/>
+</linearGradient>
+<g id="palm">
+<path class="palm" d="M124 171 Q141 164 152 171 Q157 163 171 164 L190 167 Q194 160 206 160 L226 168 Q241 164 262 170 L272 178 Q296 181 306 202 Q327 212 319 236 Q310 258 284 276 Q268 290 266 313 L168 313 Q167 287 155 271 Q132 240 128 217Z"/>
+<path class="rim" d="M124 171 Q129 199 129 216 Q131 241 155 271 Q167 287 168 313 M319 236 Q310 258 284 276 Q268 290 266 313"/>
+<path class="crease" d="M155 226 Q181 209 213 215 M251 203 Q229 229 232 255 M211 287 Q225 292 244 286"/>
+<path class="cuff" d="M166 303 Q216 317 270 302 L271 328 Q218 341 164 328Z"/>
+<path class="cuff-edge" d="M175 311 Q219 322 261 311"/>
 </g></defs>
 <use href="#palm"/><use href="#palm" transform="translate(840 0) scale(-1 1)"/>
 <g id="fingers"></g>
@@ -60,25 +80,38 @@ const tens=document.getElementById('tens');
 const units=document.getElementById('units');
 const equation=document.getElementById('equation');
 const leftHand=[
-  [143,102,178,189,29],
-  [180,66,180,191,33],
-  [224,53,177,191,36],
-  [269,70,180,192,35],
-  [342,134,188,222,36]
+  {base:136,tip:117,y:109,w:29,bottom:183},
+  {base:171,tip:157,y:74,w:33,bottom:178},
+  {base:209,tip:205,y:59,w:36,bottom:175},
+  {base:250,tip:252,y:76,w:34,bottom:183},
+  {base:294,tip:334,y:151,w:34,bottom:230}
 ];
 const controls=[];
 let folded=0,showing=false;
 for(let i=0;i<10;i++){
-  const [baseX,top,tipEnd,bottom,width]=leftHand[i<5?i:9-i];
-  const x=i<5?baseX:840-baseX;
-  const angle=(i===4?24:i===5?-24:0);
+  const right=i>=5;
+  const {base,tip,y,w,bottom}=leftHand[right?9-i:i];
   const number=i+1;
-  const labelY=top-24;
-  const path='M '+x+' '+(bottom-8)+' V '+(top+width/2)+' a '+width/2+' '+width/2+' 0 0 1 '+width+' 0 V '+(bottom-8)+' q 0 8 '+(-width/2)+' 8 q '+(-width/2)+' 0 '+(-width/2)+' -8';
+  const x=right?840-tip:tip;
+  const labelY=y-25;
+  const half=w/2;
+  const thumb=i===4||i===5;
+  const palmDepth=thumb?32:34;
+  const outline=`M${base-half} ${bottom} C${base-half} ${bottom-20} ${tip-half} ${y+39} ${tip-half} ${y+17}
+    C${tip-half} ${y-5} ${tip+half} ${y-5} ${tip+half} ${y+17}
+    C${tip+half} ${y+43} ${base+half} ${bottom-24} ${base+half} ${bottom}`;
+  const curled=`M${base-half+1} ${bottom-9} Q${base-3} ${bottom-29} ${base+half-2} ${bottom-9}
+    L${base+half-2} ${bottom+palmDepth-15} Q${base+half-4} ${bottom+palmDepth+1} ${base} ${bottom+palmDepth+1}
+    Q${base-half+1} ${bottom+palmDepth-1} ${base-half+1} ${bottom+palmDepth-15}Z`;
   const g=document.createElementNS('http://www.w3.org/2000/svg','g');
   g.classList.add('finger');g.setAttribute('role','button');g.setAttribute('tabindex','0');
   g.setAttribute('aria-label','第 '+number+' 隻手指');
-  g.innerHTML='<g transform="rotate('+angle+' '+x+' '+tipEnd+')"><g transform="translate('+(-width/2)+' 0)"><path class="shaft" d="'+path+'"/></g></g><g class="number"><circle cx="'+x+'" cy="'+labelY+'" r="17"/><text x="'+x+'" y="'+(labelY+8)+'">'+number+'</text></g>';
+  const mirror=right?'transform="translate(840 0) scale(-1 1)"':'';
+  g.innerHTML=`<g ${mirror}>
+    <g class="extended"><path class="shaft" d="${outline} Q${base} ${bottom+7} ${base-half} ${bottom}Z"/><path class="rim" d="${outline}"/>
+    <path class="crease" d="M${tip-5} ${y+36} q5 -3 10 0"/></g>
+    <path class="curled" d="${curled}"/></g>
+    <g class="number"><circle cx="${x}" cy="${labelY}" r="17"/><text x="${x}" y="${labelY+8}">${number}</text></g>`;
   g.addEventListener('click',()=>choose(number));
   g.addEventListener('keydown',e=>{
     if(e.key==='Enter'||e.key===' '){e.preventDefault();choose(number);}
