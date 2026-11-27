@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-Hant-HK">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>9 的乘法手指示範</title>
+<style>
+:root{font-family:system-ui,"PingFang HK","Microsoft JhengHei",sans-serif;color:#24274a;background:#f5f2fb;--left:#5149a3;--right:#197268}
+*{box-sizing:border-box}body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:clamp(12px,3vw,36px)}
+main{width:min(1080px,100%);background:#fffefc;border:1px solid #e4dfee;border-radius:30px;padding:clamp(14px,3vw,33px);box-shadow:0 16px 55px #44347814}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
+h1{font-size:clamp(25px,4.4vw,49px);margin:0;letter-spacing:.025em}p{margin:5px 0 0;color:#504b68;font-size:clamp(13px,2.2vw,22px)}
+nav{display:flex;gap:8px;flex-wrap:wrap}
+button{font-family:inherit;font-weight:750;font-size:clamp(13px,1.8vw,18px);padding:10px 14px;border-radius:13px;border:1px solid #d9cfea;background:#f2edfb;color:#473781;cursor:pointer;touch-action:manipulation}button:active{transform:scale(.96)}
+button[aria-pressed=true]{background:#514594;color:#fff}button:focus-visible{outline:3px solid #8067c7;outline-offset:3px}
+figure{margin:10px 0 0;border-radius:23px;background:linear-gradient(145deg,#faf6ff,#f3fbf8)}
+svg{display:block;width:min(100%,920px);height:auto;margin:auto;max-height:53dvh;touch-action:manipulation}
+.palm{fill:#ffdcb9;stroke:#b27760;stroke-width:3;stroke-linejoin:round}
+.crease{fill:none;stroke:#cb9375;stroke-width:2.5;stroke-linecap:round}
+.finger{cursor:pointer;outline:none}.finger .shaft{fill:#ffdcb9;stroke:#b27760;stroke-width:3;stroke-linecap:round;transition:transform .24s ease,fill .23s;transform-box:fill-box;transform-origin:center bottom}
+.finger.left .shaft{fill:#ded7fc;stroke:#8174ba}.finger.right .shaft{fill:#bdebdc;stroke:#578e7e}
+.finger.fold .shaft{transform:scaleY(.25);fill:#ffbe92;stroke:#ad6350}
+.number circle{fill:#fff;stroke:#d4c7e6;stroke-width:2}.number text{font-size:24px;font-weight:800;fill:#4e4372;text-anchor:middle;pointer-events:none}
+.finger.fold .number circle{fill:#6a53ae;stroke:#6a53ae}.finger.fold .number text{fill:#fff}
+.finger:focus-visible .number circle{stroke:#292053;stroke-width:4}
+.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:12px;text-align:center}
+.card{padding:9px 5px;border-radius:13px;background:#f1ecfb;color:var(--left);font-weight:760;font-size:clamp(13px,2vw,19px)}
+.card:nth-child(2){background:#e7f7f0;color:var(--right)}.card:nth-child(3){background:#fff1d9;color:#744614}
+.card strong{font-size:clamp(23px,4.5vw,45px);display:block;font-variant-numeric:tabular-nums}
+body.hiding .answer{visibility:hidden}
+@media(max-height:540px) and (min-width:650px){body{padding:8px}main{padding:12px 17px}svg{max-height:51dvh}.card{padding:5px}}
+@media(prefers-reduced-motion:reduce){.finger .shaft{transition:none}}
+</style>
+</head>
+<body class="hiding">
+<div class="ios-blur-fix" aria-hidden="true"></div>
+<main>
+<header><div><h1>9 的乘法手指示範</h1><p>由左至右數，點一隻手指收起。</p></div>
+<nav aria-label="示範控制"><button id="reveal" aria-pressed="false">顯示答案</button><button id="reset">伸開全部</button></nav></header>
+<figure>
+<svg id="hands" viewBox="0 0 840 336" role="group" aria-label="由左至右的十隻手指">
+<defs><g id="palm">
+<path class="palm" d="M120 188 Q126 164 159 166 L296 169 Q330 172 343 196 Q354 223 336 251 L299 283 Q285 297 283 323 L174 323 Q174 302 158 281 Q126 248 120 216Z"/>
+<path class="crease" d="M160 227Q195 207 238 219 M272 210Q250 232 260 263"/>
+</g></defs>
+<use href="#palm"/><use href="#palm" transform="translate(840 0) scale(-1 1)"/>
+<g id="fingers"></g>
+</svg>
+</figure>
+<div class="summary" aria-live="polite">
+<div class="card">左邊是十位<strong id="tens" class="answer">–</strong></div>
+<div class="card">右邊是個位<strong id="units" class="answer">–</strong></div>
+<div class="card">乘法算式<strong id="equation">9 × □</strong></div>
+</div>
+</main>
+<script>
+const container=document.getElementById('fingers');
+const reveal=document.getElementById('reveal');
+const tens=document.getElementById('tens');
+const units=document.getElementById('units');
+const equation=document.getElementById('equation');
+const leftHand=[
+  [143,102,178,189,29],
+  [180,66,180,191,33],
+  [224,53,177,191,36],
+  [269,70,180,192,35],
+  [342,134,188,222,36]
+];
+const controls=[];
+let folded=0,showing=false;
+for(let i=0;i<10;i++){
+  const [baseX,top,tipEnd,bottom,width]=leftHand[i<5?i:9-i];
+  const x=i<5?baseX:840-baseX;
+  const angle=(i===4?24:i===5?-24:0);
+  const number=i+1;
+  const labelY=top-24;
+  const path='M '+x+' '+(bottom-8)+' V '+(top+width/2)+' a '+width/2+' '+width/2+' 0 0 1 '+width+' 0 V '+(bottom-8)+' q 0 8 '+(-width/2)+' 8 q '+(-width/2)+' 0 '+(-width/2)+' -8';
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.classList.add('finger');g.setAttribute('role','button');g.setAttribute('tabindex','0');
+  g.setAttribute('aria-label','第 '+number+' 隻手指');
+  g.innerHTML='<g transform="rotate('+angle+' '+x+' '+tipEnd+')"><g transform="translate('+(-width/2)+' 0)"><path class="shaft" d="'+path+'"/></g></g><g class="number"><circle cx="'+x+'" cy="'+labelY+'" r="17"/><text x="'+x+'" y="'+(labelY+8)+'">'+number+'</text></g>';
+  g.addEventListener('click',()=>choose(number));
+  g.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();choose(number);}
+  });
+  container.append(g);controls.push(g);
+}
+function choose(number){
+  folded=folded===number?0:number;
+  render();
+}
+function render(){
+  for(const [i,control] of controls.entries()){
+    const n=i+1;
+    control.classList.toggle('fold',n===folded);
+    control.classList.toggle('left',folded>0&&n<folded);
+    control.classList.toggle('right',folded>0&&n>folded);
+    control.setAttribute('aria-pressed',String(n===folded));
+  }
+  tens.textContent=folded?folded-1:'–';
+  units.textContent=folded?10-folded:'–';
+  equation.textContent=folded?'9 × '+folded+(showing?' ＝ '+9*folded:' ＝ ？'):'9 × □';
+  reveal.textContent=showing?'隱藏答案':'顯示答案';
+  reveal.setAttribute('aria-pressed',String(showing));
+  document.body.classList.toggle('hiding',!showing);
+}
+reveal.onclick=()=>{showing=!showing;render();};
+document.getElementById('reset').onclick=()=>{folded=0;render();};
+document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
+render();
+</script>
+</body>
+</html>
